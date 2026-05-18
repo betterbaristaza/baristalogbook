@@ -1,20 +1,33 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Barista Logbook Deployment Guide
 
-# Run and deploy your AI Studio app
+This application is built with React, Vite, and tailwindCSS. It is configured for easy deployment on **Vercel**.
 
-This contains everything you need to run your app locally.
+## Vercel Deployment Settings
 
-View your app in AI Studio: https://ai.studio/apps/1024c9f3-00fd-43ab-9bbc-7c7a243e8469
+When importing this project into Vercel, use the following settings:
 
-## Run Locally
+- **Framework Preset:** Vite
+- **Build Command:** `npm run build`
+- **Output Directory:** `dist`
+- **Install Command:** `npm install`
 
-**Prerequisites:**  Node.js
+### Environment Variables
 
+You **must** add the following environment variable in the Vercel Dashboard (**Settings > Environment Variables**):
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+| Key | Value | Description |
+|-----|-------|-------------|
+| `GEMINI_API_KEY` | `your_api_key_here` | Your Google Gemini API Key |
+
+---
+
+## Technical Details
+
+### PWA Support
+The app includes a Service Worker for offline support and is installable as a PWA on mobile devices.
+
+### Security Note
+The Gemini API key is currently used in the client-side bundle. For production applications handling sensitive data, it is recommended to proxy these requests through a backend/serverless function to keep the key hidden from the end-user.
+
+### Storage
+The logbook currently uses `localStorage` for data persistence. No external database is required for the basic functionality.
