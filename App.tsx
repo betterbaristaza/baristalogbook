@@ -154,6 +154,13 @@ const App: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'home' | 'journal' | 'library' | 'grind' | 'community' | 'analytics'>('home');
   
+  // Filter & Search State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [methodFilter, setMethodFilter] = useState<BrewMethod | 'all'>('all');
+  const [ratingFilter, setRatingFilter] = useState<number | 'all'>('all');
+  const [dateRange, setDateRange] = useState<'all' | 'today' | 'week' | 'month'>('all');
+  const [showFilters, setShowFilters] = useState(false);
+
   const summaries = useMemo(() => {
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -224,13 +231,10 @@ const App: React.FC = () => {
   const [selectedCoffee, setSelectedCoffee] = useState<CoffeeBean | null>(null);
 
   const handleSaveBean = (bean: CoffeeBean) => {
-    setCoffees(prev => {
-      const exists = prev.find(c => c.id === bean.id);
-      if (exists) {
-        return prev.map(c => c.id === bean.id ? bean : c);
-      }
-      return [bean, ...prev];
-    });
+    setCoffees(prev => prev.some(c => c.id === bean.id)
+      ? prev.map(c => c.id === bean.id ? bean : c)
+      : [bean, ...prev]
+    );
     
     if (brewFlowStep === 'new-bean') {
       setSelectedCoffee(bean);
@@ -284,6 +288,109 @@ const App: React.FC = () => {
     if (window.confirm('Delete this brew log permanently?')) {
       setBrewLogs(prev => prev.filter(l => l.id !== id));
     }
+  };
+
+  const filteredLogs = useMemo(() => {
+    return brewLogs.filter(log => {
+      const coffee = coffees.find(c => c.id === log.coffeeId);
+      
+      // Search Match
+      const q = searchQuery.toLowerCase();
+      const searchMatch = !searchQuery || (
+        coffee?.name.toLowerCase().includes(q) ||
+        coffee?.roaster.toLowerCase().includes(q) ||
+        log.grinder.toLowerCase().includes(q) ||
+        log.tastingNotes?.some(t => t.toLowerCase().includes(q)) ||
+        log.processNotes?.toLowerCase().includes(q) ||
+        log.method.toLowerCase().includes(q)
+      );
+
+      // Method Match
+      const methodMatch = methodFilter === 'all' || log.method === methodFilter;
+
+      // Rating Match
+      const ratingMatch = ratingFilter === 'all' || log.rating === ratingFilter;
+
+      // Date Range Match
+      const dateMatch = (() => {
+        if (dateRange === 'all') return true;
+        const logDate = new Date(log.date);
+        const now = new Date();
+        if (dateRange === 'today') return logDate.toDateString() === now.toDateString();
+        if (dateRange === 'week') return logDate >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        if (dateRange === 'month') return logDate >= new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        return true;
+      })();
+
+      return searchMatch && methodMatch && ratingMatch && dateMatch;
+    });
+  }, [brewLogs, coffees, searchQuery, methodFilter, ratingFilter, dateRange]);
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setMethodFilter('all');
+    setRatingFilter('all');
+    setDateRange('all');
+  };
+
+  const handleExportCSV = () => {
+    if (brewLogs.length === 0) {
+      alert("No brew logs to export.");
+      return;
+    }
+
+    const headers = [
+      "Date", "Coffee Name", "Roaster", "Origin", "Process", "Roast Level",
+      "Method", "Machine/Brewer", "Grinder", "Grind Setting", "Dose (g)", "Yield (g)", 
+      "Brew Time (s)", "Water Temp (°C)", "Rating", "Tasting Notes", 
+      "Aroma", "Acidity", "Sweetness", "Bitterness", "Body", "Aftertaste", "Process Notes"
+    ];
+
+    const rows = brewLogs.map(log => {
+      const coffee = coffees.find(c => c.id === log.coffeeId);
+      const brewerInfo = log.machine || (log.brewerBrand ? `${log.brewerBrand} ${log.brewer}` : "");
+      
+      return [
+        new Date(log.date).toLocaleString(),
+        coffee?.name || "Unknown",
+        coffee?.roaster || "Unknown",
+        coffee?.origin || "Unknown",
+        coffee?.process || "Unknown",
+        coffee?.roastLevel || "Unknown",
+        log.method,
+        brewerInfo,
+        log.grinder,
+        log.grindSetting,
+        log.dose,
+        log.yield,
+        log.brewTime,
+        log.waterTemp,
+        log.rating,
+        (log.tastingNotes || []).join("; "),
+        log.aroma,
+        log.acidity,
+        log.sweetness,
+        log.bitterness,
+        log.body,
+        log.aftertaste,
+        (log.processNotes || "").replace(/(\r\n|\n|\r)/gm, " ")
+      ];
+    });
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `barista_journal_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const startBrewCapture = () => {
@@ -359,21 +466,100 @@ const App: React.FC = () => {
 
         {activeTab === 'journal' && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-6">
               <h2 className="text-3xl font-bold text-stone-800 display-font">Daily Journal</h2>
-              <button onClick={startBrewCapture} className="bg-amber-800 text-white p-4 px-6 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-900/20 active:scale-95 transition-all">
-                <Icons.Plus className="w-4 h-4" /> Capture Brew
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={handleExportCSV}
+                  className="p-4 bg-white border border-stone-100 text-stone-400 hover:text-amber-800 hover:border-amber-200 rounded-2xl transition-all shadow-sm flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
+                  title="Export CSV"
+                >
+                  <Icons.Download className="w-4 h-4" /> Export
+                </button>
+                <button onClick={startBrewCapture} className="bg-amber-800 text-white p-4 px-6 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-900/20 active:scale-95 transition-all">
+                  <Icons.Plus className="w-4 h-4" /> Capture Brew
+                </button>
+              </div>
             </div>
-            {brewLogs.length === 0 ? (
+
+            {/* Search and Filters */}
+            <div className="mb-8 space-y-4">
+              <div className="relative group">
+                <Icons.Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 group-focus-within:text-amber-800 transition-colors" />
+                <input 
+                  type="text" 
+                  placeholder="Search journals, beans, or grinders..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-white border border-stone-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-amber-800/5 focus:border-amber-800/20 transition-all shadow-sm"
+                />
+                <button 
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl border transition-all ${showFilters ? 'bg-amber-100 border-amber-200 text-amber-800' : 'bg-stone-50 border-stone-100 text-stone-400 hover:text-stone-600'}`}
+                >
+                  <Icons.Filter className="w-4 h-4" />
+                </button>
+              </div>
+
+              {showFilters && (
+                <div className="p-6 bg-white rounded-3xl border border-stone-100 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Method</label>
+                      <select 
+                        value={methodFilter}
+                        onChange={(e) => setMethodFilter(e.target.value as any)}
+                        className="w-full p-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold text-stone-700 outline-none focus:border-amber-200 transition-all"
+                      >
+                        <option value="all">All Methods</option>
+                        {Object.values(BrewMethod).map(m => <option key={m} value={m}>{m}</option>)}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Min Rating</label>
+                      <select 
+                        value={ratingFilter}
+                        onChange={(e) => setRatingFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                        className="w-full p-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold text-stone-700 outline-none focus:border-amber-200 transition-all"
+                      >
+                        <option value="all">Any Rating</option>
+                        {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}+ Stars</option>)}
+                      </select>
+                    </div>
+                    <div className="space-y-2 col-span-2">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Timeframe</label>
+                       <div className="flex gap-2">
+                         {['all', 'today', 'week', 'month'].map(r => (
+                           <button 
+                             key={r}
+                             onClick={() => setDateRange(r as any)}
+                             className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all border ${dateRange === r ? 'bg-stone-900 border-stone-900 text-white shadow-lg' : 'bg-white border-stone-100 text-stone-400 hover:bg-stone-50'}`}
+                           >
+                             {r}
+                           </button>
+                         ))}
+                       </div>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={clearFilters}
+                    className="w-full py-3 text-[10px] font-black uppercase tracking-widest text-amber-800 hover:bg-amber-50 rounded-xl transition-all"
+                  >
+                    Clear All Filters
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {filteredLogs.length === 0 ? (
               <div className="text-center py-24 bg-white rounded-[2.5rem] border-2 border-dashed border-stone-200">
                 <Icons.Coffee className="w-16 h-16 text-stone-100 mx-auto mb-4" />
-                <p className="text-stone-400 font-bold uppercase text-[10px] tracking-widest">Your journal is empty</p>
-                <button onClick={startBrewCapture} className="mt-4 text-amber-800 font-bold text-sm underline underline-offset-4">Log your first calibration</button>
+                <p className="text-stone-400 font-bold uppercase text-[10px] tracking-widest">No matching results</p>
+                <button onClick={clearFilters} className="mt-4 text-amber-800 font-bold text-sm underline underline-offset-4">Reset filters</button>
               </div>
             ) : (
               <div className="space-y-6">
-                {brewLogs.map(log => {
+                {filteredLogs.map(log => {
                   const coffee = coffees.find(c => c.id === log.coffeeId);
                   return (
                     <div key={log.id} className="bg-white p-8 rounded-[3rem] shadow-sm border border-stone-100 hover:border-amber-200 transition-all group relative overflow-hidden">
