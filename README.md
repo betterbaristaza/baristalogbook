@@ -25,6 +25,8 @@ You **must** add the following environment variable in the Vercel Dashboard (**S
 
 ### PWA Support
 The app includes a Service Worker for offline support and is installable as a PWA on mobile devices.
+- **Icon Support**: Currently using `mask-icon.svg` for the manifest.
+- **TODO**: Generate and add `pwa-192x192.png` and `pwa-512x512.png` to the `public/` folder. While SVG is supported by modern browsers, PNG icons are required for maximum compatibility with all Android and iOS device home screens.
 
 ### Security Note
 The Gemini API key is currently used in the client-side bundle. For production applications handling sensitive data, it is recommended to proxy these requests through a backend/serverless function to keep the key hidden from the end-user.

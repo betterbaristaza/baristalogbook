@@ -309,7 +309,7 @@ const App: React.FC = () => {
       const methodMatch = methodFilter === 'all' || log.method === methodFilter;
 
       // Rating Match
-      const ratingMatch = ratingFilter === 'all' || log.rating === ratingFilter;
+      const ratingMatch = ratingFilter === 'all' || (log.rating !== undefined && log.rating >= Number(ratingFilter));
 
       // Date Range Match
       const dateMatch = (() => {
@@ -342,7 +342,7 @@ const App: React.FC = () => {
     const headers = [
       "Date", "Coffee Name", "Roaster", "Origin", "Process", "Roast Level",
       "Method", "Machine/Brewer", "Grinder", "Grind Setting", "Dose (g)", "Yield (g)", 
-      "Brew Time (s)", "Water Temp (°C)", "Rating", "Tasting Notes", 
+      "Brew Time (s)", "Water Temp (°C)", "Water Type", "Rating", "Tasting Notes", 
       "Aroma", "Acidity", "Sweetness", "Bitterness", "Body", "Aftertaste", "Process Notes"
     ];
 
@@ -365,6 +365,7 @@ const App: React.FC = () => {
         log.yield,
         log.brewTime,
         log.waterTemp,
+        log.waterType || "Not Specified",
         log.rating,
         (log.tastingNotes || []).join("; "),
         log.aroma,
@@ -403,7 +404,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen pb-32 flex flex-col bg-[#fdfcfb]">
       <header className="bg-white border-b border-stone-100 sticky top-0 z-30 px-6 py-4 flex justify-between items-center shadow-sm">
-        <h1 className="text-2xl font-bold display-font text-stone-800">Barista <span className="text-amber-800">JournalPro</span></h1>
+        <h1 className="text-2xl font-bold display-font text-stone-800">Barista <span className="text-amber-800">Logbook</span></h1>
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-stone-100 border border-stone-200 overflow-hidden ring-2 ring-white shadow-sm">
             <img src="https://i.pravatar.cc/150?u=me" alt="Avatar" />
