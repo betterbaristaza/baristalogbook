@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { CoffeeBean, BrewLog, RoastLevel, BrewMethod, WeeklySummary, SocialPost, UserProfile } from './types';
 import { Icons } from './constants';
 import CoffeeCard from './components/CoffeeCard';
@@ -26,54 +26,7 @@ const FLAVOR_GROUP_STYLING: Record<string, string> = {
   'Earthy': 'bg-emerald-50 text-emerald-700 border-emerald-100'
 };
 
-const MOCK_SOCIAL_POSTS: SocialPost[] = [
-  {
-    id: 's1',
-    authorId: 'u1',
-    authorName: 'James Hoffmann',
-    authorHandle: '@jimseven',
-    authorAvatar: 'https://i.pravatar.cc/150?u=james',
-    coffeeName: 'Koji Supernatural',
-    roasterName: 'Elika Coffee',
-    method: BrewMethod.POUR_OVER,
-    recipe: '15g / 250g • 2:45 total • V60',
-    likes: 1242,
-    isLiked: true,
-    timestamp: '2h ago',
-    image: 'https://images.unsplash.com/photo-1544787210-2213d2429f3d?auto=format&fit=crop&q=80&w=600'
-  },
-  {
-    id: 's2',
-    authorId: 'u2',
-    authorName: 'Morgan Eckroth',
-    authorHandle: '@morgandrinkscoffee',
-    authorAvatar: 'https://i.pravatar.cc/150?u=morgan',
-    coffeeName: 'Midnight Oil',
-    roasterName: 'Onyx Coffee Lab',
-    method: BrewMethod.ESPRESSO,
-    recipe: '18g in / 36g out • 30s • 9 bars',
-    likes: 856,
-    isLiked: false,
-    timestamp: '5h ago',
-    image: 'https://images.unsplash.com/photo-1510972527921-ce03766a1cf1?auto=format&fit=crop&q=80&w=600'
-  }
-];
-
-const MOCK_SUMMARIES = {
-  weekly: {
-    totalBrews: 14,
-    avgTaste: 4.2,
-    topMethod: BrewMethod.POUR_OVER,
-    favoriteBean: 'Ethiopia Sidamo'
-  },
-  monthly: {
-    totalBrews: 58,
-    avgTaste: 3.9,
-    topMethod: BrewMethod.ESPRESSO,
-    favoriteBean: 'Kenya SL28'
-  }
-};
-
+// Social Feed removed for MVP
 const RadarChart: React.FC<{ log: BrewLog }> = ({ log }) => {
   const size = 130;
   const center = size / 2;
@@ -201,6 +154,67 @@ const App: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'home' | 'journal' | 'library' | 'grind' | 'community' | 'analytics'>('home');
   
+  const summaries = useMemo(() => {
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+    const weekLogs = brewLogs.filter(l => new Date(l.date) >= oneWeekAgo);
+    const monthLogs = brewLogs.filter(l => new Date(l.date) >= thirtyDaysAgo);
+    const prevMonthLogs = brewLogs.filter(l => {
+      const d = new Date(l.date);
+      return d >= sixtyDaysAgo && d < thirtyDaysAgo;
+    });
+
+    const getMode = (arr: any[]) => {
+      if (arr.length === 0) return null;
+      const counts = arr.reduce((acc, val) => {
+        acc[val] = (acc[val] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+    };
+
+    const calculateStats = (logs: BrewLog[]) => {
+      if (logs.length === 0) return { totalBrews: 0, avgTaste: 0, topMethod: 'None', favoriteBean: 'None' };
+      
+      const avgRating = logs.reduce((sum, l) => sum + l.rating, 0) / logs.length;
+      
+      const methods = logs.map(l => l.method);
+      const topMethod = getMode(methods) || 'None';
+      
+      const beanIds = logs.map(l => l.coffeeId);
+      const topBeanId = getMode(beanIds);
+      const topBean = coffees.find(c => c.id === topBeanId)?.name || 'None';
+
+      return {
+        totalBrews: logs.length,
+        avgTaste: avgRating.toFixed(1),
+        topMethod,
+        favoriteBean: topBean
+      };
+    };
+
+    const currentMonthStats = calculateStats(monthLogs);
+    const prevMonthStats = calculateStats(prevMonthLogs);
+    
+    let growth = 0;
+    if (prevMonthStats.totalBrews > 0) {
+      growth = Math.round(((currentMonthStats.totalBrews - prevMonthStats.totalBrews) / prevMonthStats.totalBrews) * 100);
+    } else if (currentMonthStats.totalBrews > 0) {
+      growth = 100;
+    }
+
+    return {
+      weekly: calculateStats(weekLogs),
+      monthly: {
+        ...currentMonthStats,
+        growth
+      }
+    };
+  }, [brewLogs, coffees]);
+
   const [showBeanForm, setShowBeanForm] = useState(false);
   const [editingCoffee, setEditingCoffee] = useState<CoffeeBean | null>(null);
   const [editingLog, setEditingLog] = useState<BrewLog | null>(null);
@@ -298,7 +312,7 @@ const App: React.FC = () => {
               <h2 className="text-4xl font-bold text-stone-800 display-font">Alexander</h2>
             </div>
 
-            {/* Summaries Section - Refined Light Aesthetic */}
+            {/* Weekly and Monthly Summaries */}
             <section className="space-y-6">
               <div className="flex justify-between items-end">
                 <h3 className="text-xs font-black uppercase tracking-widest text-stone-500">Activity Summaries</h3>
@@ -316,9 +330,9 @@ const App: React.FC = () => {
                     <span className="text-[9px] font-black uppercase bg-stone-800 text-white px-2 py-0.5 rounded-md shadow-sm">This Week</span>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div><p className="text-[9px] font-bold text-stone-400 uppercase">Brews</p><p className="text-xl font-black text-stone-800">{MOCK_SUMMARIES.weekly.totalBrews}</p></div>
-                    <div><p className="text-[9px] font-bold text-stone-400 uppercase">Avg Taste</p><p className="text-xl font-black text-stone-800">{MOCK_SUMMARIES.weekly.avgTaste}/5</p></div>
-                    <div className="col-span-2 pt-2 border-t border-stone-50"><p className="text-[9px] font-bold text-stone-400 uppercase mb-1">Top Method</p><p className="text-xs font-black text-amber-900">{MOCK_SUMMARIES.weekly.topMethod}</p></div>
+                    <div><p className="text-[9px] font-bold text-stone-400 uppercase">Brews</p><p className="text-xl font-black text-stone-800">{summaries.weekly.totalBrews}</p></div>
+                    <div><p className="text-[9px] font-bold text-stone-400 uppercase">Avg Taste</p><p className="text-xl font-black text-stone-800">{summaries.weekly.avgTaste}/5</p></div>
+                    <div className="col-span-2 pt-2 border-t border-stone-50"><p className="text-[9px] font-bold text-stone-400 uppercase mb-1">Top Method</p><p className="text-xs font-black text-amber-900">{summaries.weekly.topMethod}</p></div>
                   </div>
                 </div>
 
@@ -329,64 +343,11 @@ const App: React.FC = () => {
                     <span className="text-[9px] font-black uppercase bg-amber-800 text-white px-2 py-0.5 rounded-md shadow-sm">Monthly</span>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div><p className="text-[9px] font-bold text-amber-800/40 uppercase">Total Brews</p><p className="text-xl font-black text-amber-950">{MOCK_SUMMARIES.monthly.totalBrews}</p></div>
-                    <div><p className="text-[9px] font-bold text-amber-800/40 uppercase">Growth</p><p className="text-xl font-black text-emerald-600">+12%</p></div>
-                    <div className="col-span-2 pt-2 border-t border-amber-100/50"><p className="text-[9px] font-bold text-amber-800/40 uppercase mb-1">Star Roast</p><p className="text-xs font-black text-amber-900">{MOCK_SUMMARIES.monthly.favoriteBean}</p></div>
+                    <div><p className="text-[9px] font-bold text-amber-800/40 uppercase">Total Brews</p><p className="text-xl font-black text-amber-950">{summaries.monthly.totalBrews}</p></div>
+                    <div><p className="text-[9px] font-bold text-amber-800/40 uppercase">Growth</p><p className={`text-xl font-black ${summaries.monthly.growth >= 0 ? 'text-emerald-600' : 'text-rose-500'}`}>{summaries.monthly.growth >= 0 ? '+' : ''}{summaries.monthly.growth}%</p></div>
+                    <div className="col-span-2 pt-2 border-t border-amber-100/50"><p className="text-[9px] font-bold text-amber-800/40 uppercase mb-1">Star Roast</p><p className="text-xs font-black text-amber-900">{summaries.monthly.favoriteBean}</p></div>
                   </div>
                 </div>
-              </div>
-            </section>
-
-            {/* Social News Feed */}
-            <section className="space-y-6">
-              <h3 className="text-xs font-black uppercase tracking-widest text-stone-500">Social News Feed</h3>
-              <div className="space-y-8">
-                {MOCK_SOCIAL_POSTS.map(post => (
-                  <div key={post.id} className="bg-white rounded-[3rem] overflow-hidden border border-stone-100 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="p-6 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <img src={post.authorAvatar} alt={post.authorName} className="w-10 h-10 rounded-full border border-stone-100" />
-                        <div>
-                          <p className="text-sm font-black text-stone-800">{post.authorName}</p>
-                          <p className="text-[10px] text-stone-400 font-bold">{post.authorHandle}</p>
-                        </div>
-                      </div>
-                      <span className="text-[9px] font-black text-stone-300 uppercase">{post.timestamp}</span>
-                    </div>
-                    {post.image && (
-                      <div className="aspect-square relative overflow-hidden bg-stone-100">
-                        <img src={post.image} alt="Coffee" className="w-full h-full object-cover" />
-                        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 shadow-lg">
-                           <p className="text-[9px] font-black text-stone-800 uppercase tracking-widest">{post.method}</p>
-                        </div>
-                      </div>
-                    )}
-                    <div className="p-7 space-y-4">
-                      <div>
-                        <h4 className="text-lg font-black text-stone-800 mb-0.5">{post.coffeeName}</h4>
-                        <p className="text-[10px] text-amber-800 font-black uppercase tracking-widest">{post.roasterName}</p>
-                      </div>
-                      <div className="bg-stone-50 p-4 rounded-2xl border border-stone-100/50">
-                        <p className="text-[9px] font-black text-stone-400 uppercase tracking-widest mb-1">Recipe Traced</p>
-                        <p className="text-xs font-bold text-stone-700">{post.recipe}</p>
-                      </div>
-                      <div className="flex items-center justify-between pt-2">
-                        <div className="flex items-center gap-4">
-                          <button className={`flex items-center gap-1.5 transition-colors ${post.isLiked ? 'text-rose-500' : 'text-stone-300 hover:text-stone-400'}`}>
-                            <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                            <span className="text-xs font-black">{post.likes}</span>
-                          </button>
-                          <button className="text-stone-300 hover:text-stone-400">
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                          </button>
-                        </div>
-                        <button className="p-2 bg-stone-50 text-stone-400 rounded-full hover:text-stone-800 transition-colors">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
               </div>
             </section>
           </div>
