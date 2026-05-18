@@ -1,0 +1,7 @@
+{
+  "name": "The Barista Logbook (Working Name)",
+  "description": "A comprehensive coffee tracking ecosystem for enthusiasts to log brews, manage coffee libraries, and discover AI-powered recipes across espresso, pour-over, and AeroPress methods.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
