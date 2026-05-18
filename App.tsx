@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CoffeeBean, BrewLog, RoastLevel, BrewMethod, WeeklySummary, SocialPost, UserProfile } from './types';
 import { Icons } from './constants';
 import CoffeeCard from './components/CoffeeCard';
@@ -7,6 +7,7 @@ import BrewForm from './components/BrewForm';
 import CoffeeBeanForm from './components/CoffeeBeanForm';
 import GrindReference from './components/GrindReference';
 import AnalyticsView from './components/AnalyticsView';
+import { storage } from './services/storageService';
 
 const SENSORY_METADATA = [
   { id: 'aroma', label: 'Aroma', icon: '👃', color: '#f43f5e' },
@@ -181,53 +182,99 @@ const INITIAL_COFFEES: CoffeeBean[] = [
 ];
 
 const App: React.FC = () => {
-  const [coffees, setCoffees] = useState<CoffeeBean[]>(INITIAL_COFFEES);
-  const [brewLogs, setBrewLogs] = useState<BrewLog[]>([]);
+  const [coffees, setCoffees] = useState<CoffeeBean[]>(() => {
+    const saved = storage.getCoffees();
+    return saved && saved.length > 0 ? saved : INITIAL_COFFEES;
+  });
+  const [brewLogs, setBrewLogs] = useState<BrewLog[]>(() => {
+    return storage.getBrewLogs() || [];
+  });
+
+  // Sync to localStorage
+  useEffect(() => {
+    storage.saveCoffees(coffees);
+  }, [coffees]);
+
+  useEffect(() => {
+    storage.saveBrewLogs(brewLogs);
+  }, [brewLogs]);
+
   const [activeTab, setActiveTab] = useState<'home' | 'journal' | 'library' | 'grind' | 'community' | 'analytics'>('home');
   
   const [showBeanForm, setShowBeanForm] = useState(false);
+  const [editingCoffee, setEditingCoffee] = useState<CoffeeBean | null>(null);
+  const [editingLog, setEditingLog] = useState<BrewLog | null>(null);
+  const [prefillLog, setPrefillLog] = useState<BrewLog | null>(null);
   const [showBrewFlow, setShowBrewFlow] = useState(false);
   const [brewFlowStep, setBrewFlowStep] = useState<'select' | 'new-bean' | 'brew'>('select');
   const [selectedCoffee, setSelectedCoffee] = useState<CoffeeBean | null>(null);
 
-  const handleAddBean = (bean: CoffeeBean) => {
-    setCoffees(prev => [bean, ...prev]);
+  const handleSaveBean = (bean: CoffeeBean) => {
+    setCoffees(prev => {
+      const exists = prev.find(c => c.id === bean.id);
+      if (exists) {
+        return prev.map(c => c.id === bean.id ? bean : c);
+      }
+      return [bean, ...prev];
+    });
+    
     if (brewFlowStep === 'new-bean') {
       setSelectedCoffee(bean);
       setBrewFlowStep('brew');
     } else {
       setShowBeanForm(false);
+      setEditingCoffee(null);
+    }
+  };
+
+  const handleDeleteCoffee = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this coffee? All associated brew logs will remain but might look incomplete.')) {
+      setCoffees(prev => prev.filter(c => c.id !== id));
     }
   };
 
   const handleSaveBrew = (log: Partial<BrewLog>) => {
-    const newLog = { 
-      ...log, 
-      id: Math.random().toString(36).substr(2, 9),
-      date: new Date().toISOString(),
-      // Ensure sensory fields exist with defaults for older logs or partial saves
-      aroma: log.aroma || 3,
-      acidity: log.acidity || 3,
-      sweetness: log.sweetness || 3,
-      bitterness: log.bitterness || 3,
-      body: log.body || 3,
-      aftertaste: log.aftertaste || 3,
-      flavorGroups: log.flavorGroups || []
-    } as BrewLog;
-    
-    setBrewLogs(prev => [newLog, ...prev]);
-    setCoffees(prev => prev.map(c => 
-      c.id === log.coffeeId 
-        ? { ...c, remainingWeight: Math.max(0, c.remainingWeight - (log.dose || 0)) } 
-        : c
-    ));
+    if (editingLog) {
+      const updatedLog = { ...editingLog, ...log } as BrewLog;
+      setBrewLogs(prev => prev.map(l => l.id === editingLog.id ? updatedLog : l));
+      setEditingLog(null);
+    } else {
+      const newLog = { 
+        ...log, 
+        id: Math.random().toString(36).substr(2, 9),
+        date: new Date().toISOString(),
+        aroma: log.aroma || 3,
+        acidity: log.acidity || 3,
+        sweetness: log.sweetness || 3,
+        bitterness: log.bitterness || 3,
+        body: log.body || 3,
+        aftertaste: log.aftertaste || 3,
+        flavorGroups: log.flavorGroups || []
+      } as BrewLog;
+      
+      setBrewLogs(prev => [newLog, ...prev]);
+      setCoffees(prev => prev.map(c => 
+        c.id === log.coffeeId 
+          ? { ...c, remainingWeight: Math.max(0, c.remainingWeight - (log.dose || 0)) } 
+          : c
+      ));
+    }
 
     setShowBrewFlow(false);
     setBrewFlowStep('select');
     setSelectedCoffee(null);
+    setPrefillLog(null);
+  };
+
+  const handleDeleteLog = (id: string) => {
+    if (window.confirm('Delete this brew log permanently?')) {
+      setBrewLogs(prev => prev.filter(l => l.id !== id));
+    }
   };
 
   const startBrewCapture = () => {
+    setEditingLog(null);
+    setPrefillLog(null);
     setBrewFlowStep('select');
     setShowBrewFlow(true);
   };
@@ -381,7 +428,30 @@ const App: React.FC = () => {
                              {log.grinder} • <span className="text-amber-700">{log.grindSetting}</span>
                           </p>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right flex flex-col items-end gap-3">
+                          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button 
+                              onClick={() => { setEditingLog(log); setPrefillLog(null); setSelectedCoffee(coffee || null); setShowBrewFlow(true); setBrewFlowStep('brew'); }}
+                              className="p-1.5 bg-stone-50 text-stone-400 hover:text-amber-800 rounded-lg border border-stone-100 hover:border-amber-200 transition-all shadow-sm"
+                              title="Edit Brew"
+                            >
+                              <Icons.Edit className="w-3.5 h-3.5" />
+                            </button>
+                            <button 
+                              onClick={() => { setPrefillLog(log); setEditingLog(null); setSelectedCoffee(coffee || null); setShowBrewFlow(true); setBrewFlowStep('brew'); }}
+                              className="p-1.5 bg-stone-50 text-stone-400 hover:text-amber-800 rounded-lg border border-stone-100 hover:border-amber-200 transition-all shadow-sm"
+                              title="Duplicate Brew"
+                            >
+                              <Icons.Copy className="w-3.5 h-3.5" />
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteLog(log.id)}
+                              className="p-1.5 bg-rose-50 text-rose-300 hover:text-rose-600 rounded-lg border border-rose-100 hover:border-rose-200 transition-all shadow-sm"
+                              title="Delete Brew"
+                            >
+                              <Icons.Trash className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                           <p className="text-[10px] text-stone-300 font-black uppercase tracking-tighter">{new Date(log.date).toLocaleDateString()}</p>
                           <div className="flex gap-0.5 text-amber-500 mt-2">
                             {[...Array(5)].map((_, i) => (
@@ -424,13 +494,22 @@ const App: React.FC = () => {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-3xl font-bold text-stone-800 display-font">Coffee Library</h2>
-              <button onClick={() => setShowBeanForm(true)} className="bg-stone-900 text-white p-4 px-6 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] active:scale-95 transition-all shadow-xl shadow-stone-900/10">
+              <button 
+                onClick={() => { setEditingCoffee(null); setShowBeanForm(true); }} 
+                className="bg-stone-900 text-white p-4 px-6 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] active:scale-95 transition-all shadow-xl shadow-stone-900/10"
+              >
                 <Icons.Plus className="w-4 h-4" /> Add Bean
               </button>
             </div>
             <div className="grid grid-cols-1 gap-6">
               {coffees.map(coffee => (
-                <CoffeeCard key={coffee.id} coffee={coffee} onClick={(c) => { setSelectedCoffee(c); setBrewFlowStep('brew'); setShowBrewFlow(true); }} />
+                <CoffeeCard 
+                  key={coffee.id} 
+                  coffee={coffee} 
+                  onClick={(c) => { setSelectedCoffee(c); setBrewFlowStep('brew'); setShowBrewFlow(true); }} 
+                  onEdit={(c) => { setEditingCoffee(c); setShowBeanForm(true); }}
+                  onDelete={(c) => handleDeleteCoffee(c.id)}
+                />
               ))}
             </div>
           </div>
@@ -460,7 +539,12 @@ const App: React.FC = () => {
                    <h3 className="text-2xl font-black text-stone-800 display-font">Select Roast</h3>
                    <p className="text-xs text-stone-400 font-medium">Which bean are we calibrating today?</p>
                 </div>
-                <button onClick={() => setShowBrewFlow(false)} className="p-2 bg-stone-50 rounded-full text-stone-400 hover:text-stone-800 transition-colors">✕</button>
+                <button 
+                  onClick={() => { setShowBrewFlow(false); setEditingLog(null); setPrefillLog(null); }} 
+                  className="p-2 bg-stone-50 rounded-full text-stone-400 hover:text-stone-800 transition-colors"
+                >
+                  ✕
+                </button>
               </div>
               <div className="space-y-4 max-h-96 overflow-y-auto mb-8 pr-2 custom-scrollbar">
                 {coffees.map(c => (
@@ -478,14 +562,22 @@ const App: React.FC = () => {
               <button onClick={() => setBrewFlowStep('new-bean')} className="w-full py-5 border-2 border-dashed border-stone-200 text-stone-400 rounded-3xl font-black uppercase text-[10px] tracking-[0.2em] hover:border-amber-400 hover:text-amber-800 hover:bg-amber-50/30 transition-all">+ Register New Bean</button>
             </div>
           )}
-          {brewFlowStep === 'new-bean' && <CoffeeBeanForm onSave={handleAddBean} onCancel={() => setBrewFlowStep('select')} />}
-          {brewFlowStep === 'brew' && selectedCoffee && <BrewForm coffee={selectedCoffee} onSave={handleSaveBrew} onCancel={() => setBrewFlowStep('select')} />}
+          {brewFlowStep === 'new-bean' && <CoffeeBeanForm onSave={handleSaveBean} onCancel={() => setBrewFlowStep('select')} />}
+          {brewFlowStep === 'brew' && selectedCoffee && (
+            <BrewForm 
+              coffee={selectedCoffee} 
+              initialData={(editingLog || prefillLog) || undefined} 
+              title={editingLog ? 'Update Entry' : (prefillLog ? 'Duplicate Recipe' : 'Log Brew')}
+              onSave={handleSaveBrew} 
+              onCancel={() => { setShowBrewFlow(false); setEditingLog(null); setPrefillLog(null); }} 
+            />
+          )}
         </div>
       )}
 
       {showBeanForm && (
         <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md flex items-center justify-center z-[70] p-6 overflow-y-auto">
-          <CoffeeBeanForm onSave={handleAddBean} onCancel={() => setShowBeanForm(false)} />
+          <CoffeeBeanForm initialData={editingCoffee || undefined} onSave={handleSaveBean} onCancel={() => { setShowBeanForm(false); setEditingCoffee(null); }} />
         </div>
       )}
 

@@ -76,8 +76,8 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({ onSave, onCancel, initi
     <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl space-y-8 animate-in zoom-in-95 duration-300">
       <div className="flex justify-between items-center border-b border-stone-100 pb-4">
         <div>
-          <h2 className="text-3xl font-bold display-font text-stone-800">New Bean Record</h2>
-          <p className="text-stone-400 text-sm font-medium">Capture every detail from the label</p>
+          <h2 className="text-3xl font-bold display-font text-stone-800">{initialData ? 'Edit Bean Record' : 'New Bean Record'}</h2>
+          <p className="text-stone-400 text-sm font-medium">{initialData ? 'Update the details for this coffee' : 'Capture every detail from the label'}</p>
         </div>
         <button type="button" onClick={onCancel} className="p-2 bg-stone-50 rounded-full text-stone-400 hover:text-stone-800">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -227,7 +227,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({ onSave, onCancel, initi
 
       <div className="pt-6 border-t border-stone-100 flex gap-4">
         <button type="button" onClick={onCancel} className="flex-1 py-4 bg-stone-100 text-stone-600 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-stone-200 transition-all">Discard</button>
-        <button type="submit" className="flex-1 py-4 bg-amber-800 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-amber-900 transition-all shadow-xl shadow-amber-900/20">Save to Library</button>
+        <button type="submit" className="flex-1 py-4 bg-amber-800 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-amber-900 transition-all shadow-xl shadow-amber-900/20">{initialData ? 'Update Record' : 'Save to Library'}</button>
       </div>
     </form>
   );

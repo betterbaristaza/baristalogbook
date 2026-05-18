@@ -166,75 +166,77 @@ interface BrewFormProps {
   coffee: CoffeeBean;
   onSave: (log: Partial<BrewLog>) => void;
   onCancel: () => void;
+  initialData?: BrewLog;
+  title?: string;
 }
 
-const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel }) => {
-  const [method, setMethod] = useState<BrewMethod>(BrewMethod.ESPRESSO);
-  const [baristaName, setBaristaName] = useState('');
+const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialData, title }) => {
+  const [method, setMethod] = useState<BrewMethod>(initialData?.method || BrewMethod.ESPRESSO);
+  const [baristaName, setBaristaName] = useState(initialData?.baristaName || '');
   const [db, setDb] = useState(INITIAL_EQUIPMENT_DB);
   
   // Shared
-  const [dose, setDose] = useState(18);
-  const [yieldVal, setYieldVal] = useState(36);
-  const [time, setTime] = useState(30);
-  const [grinder, setGrinder] = useState(db.GRINDERS[0]);
-  const [setting, setSetting] = useState('');
-  const [temp, setTemp] = useState(93);
-  const [rating, setRating] = useState(4);
-  const [notes, setNotes] = useState('');
-  const [processNotes, setProcessNotes] = useState('');
+  const [dose, setDose] = useState(initialData?.dose ?? 18);
+  const [yieldVal, setYieldVal] = useState(initialData?.yield ?? 36);
+  const [time, setTime] = useState(initialData?.brewTime ?? 30);
+  const [grinder, setGrinder] = useState(initialData?.grinder || db.GRINDERS[0]);
+  const [setting, setSetting] = useState(initialData?.grindSetting || '');
+  const [temp, setTemp] = useState(initialData?.waterTemp ?? 93);
+  const [rating, setRating] = useState(initialData?.rating ?? 4);
+  const [notes, setNotes] = useState(initialData?.tastingNotes?.join(', ') || '');
+  const [processNotes, setProcessNotes] = useState(initialData?.processNotes || '');
 
   // Espresso specific
-  const [machineBrand, setMachineBrand] = useState(db.ESPRESSO_MACHINES[0]);
-  const [basketType, setBasketType] = useState(db.BASKETS[0]);
-  const [distTool, setDistTool] = useState(db.DISTRIBUTION_TOOLS[0]);
-  const [puckScreen, setPuckScreen] = useState(false);
-  const [pressure, setPressure] = useState(9);
+  const [machineBrand, setMachineBrand] = useState(initialData?.machine || db.ESPRESSO_MACHINES[0]);
+  const [basketType, setBasketType] = useState(initialData?.basketType || db.BASKETS[0]);
+  const [distTool, setDistTool] = useState(initialData?.distributionTool || db.DISTRIBUTION_TOOLS[0]);
+  const [puckScreen, setPuckScreen] = useState(initialData?.puckScreen || false);
+  const [pressure, setPressure] = useState(initialData?.pressure ?? 9);
 
   // Cold Brew specific
-  const [cbSystem, setCbSystem] = useState(db.COLD_BREW_SYSTEMS[0]);
-  const [steepTimeCB, setSteepTimeCB] = useState(16);
-  const [bloomTime, setBloomTime] = useState(0); 
-  const [coldBrewType, setColdBrewType] = useState<'Concentrate' | 'Ready to Drink'>('Ready to Drink');
+  const [cbSystem, setCbSystem] = useState(initialData?.coldBrewSystem || db.COLD_BREW_SYSTEMS[0]);
+  const [steepTimeCB, setSteepTimeCB] = useState(initialData?.steepTime ?? 16);
+  const [bloomTime, setBloomTime] = useState(initialData?.bloomTime ?? 0); 
+  const [coldBrewType, setColdBrewType] = useState<'Concentrate' | 'Ready to Drink'>(initialData?.coldBrewType || 'Ready to Drink');
 
   // Pour Over specific
-  const [brewerBrand, setBrewerBrand] = useState(db.POUR_OVER_BRANDS[0]);
-  const [brewerModel, setBrewerModel] = useState('');
-  const [filterType, setFilterType] = useState(db.FILTER_PAPERS[0]);
-  const [pulsesCount, setPulsesCount] = useState(3);
-  const [pourVolumes, setPourVolumes] = useState('');
+  const [brewerBrand, setBrewerBrand] = useState(initialData?.brewerBrand || db.POUR_OVER_BRANDS[0]);
+  const [brewerModel, setBrewerModel] = useState(initialData?.brewer || '');
+  const [filterType, setFilterType] = useState(initialData?.filterType || db.FILTER_PAPERS[0]);
+  const [pulsesCount, setPulsesCount] = useState(initialData?.pourStructure ? parseInt(initialData.pourStructure) : 3);
+  const [pourVolumes, setPourVolumes] = useState(initialData?.pourVolumes || '');
 
   // AeroPress specific
-  const [aeroMethod, setAeroMethod] = useState(db.AEROPRESS_STYLES[0]);
-  const [filterCap, setFilterCap] = useState(db.AEROPRESS_CAPS[0]);
-  const [steepTimeAP, setSteepTimeAP] = useState(120);
-  const [plungeTime, setPlungeTime] = useState(30);
-  const [aeroPourVolumes, setAeroPourVolumes] = useState('');
+  const [aeroMethod, setAeroMethod] = useState(initialData?.aeroMethod || db.AEROPRESS_STYLES[0]);
+  const [filterCap, setFilterCap] = useState(initialData?.filterCapUsed || db.AEROPRESS_CAPS[0]);
+  const [steepTimeAP, setSteepTimeAP] = useState(initialData?.steepTime ?? 120);
+  const [plungeTime, setPlungeTime] = useState(initialData?.plungeTime ?? 30);
+  const [aeroPourVolumes, setAeroPourVolumes] = useState(initialData?.aeroPourVolumes || '');
 
   // French Press specific
-  const [fpBrand, setFpBrand] = useState(db.FRENCH_PRESS_BRANDS[0]);
-  const [fpImmersionTime, setFpImmersionTime] = useState(240); 
-  const [fpPlungeWait, setFpPlungeWait] = useState(30);
-  const [fpAgitation, setFpAgitation] = useState(db.AGITATION_METHODS[0]);
-  const [fpAgitationDuration, setFpAgitationDuration] = useState(0);
+  const [fpBrand, setFpBrand] = useState(initialData?.brewerBrand || db.FRENCH_PRESS_BRANDS[0]);
+  const [fpImmersionTime, setFpImmersionTime] = useState(initialData?.steepTime ?? 240); 
+  const [fpPlungeWait, setFpPlungeWait] = useState(initialData?.timeBeforePlunge ?? 30);
+  const [fpAgitation, setFpAgitation] = useState(initialData?.agitation || db.AGITATION_METHODS[0]);
+  const [fpAgitationDuration, setFpAgitationDuration] = useState(initialData?.agitationDuration ?? 0);
 
   // Moka Pot specific
-  const [mokaBrand, setMokaBrand] = useState(db.MOKA_POT_BRANDS[0]);
-  const [mokaModel, setMokaModel] = useState('');
-  const [waterStartTemp, setWaterStartTemp] = useState(db.WATER_START_TEMPS[0]);
-  const [isAeropressFilterUsed, setIsAeropressFilterUsed] = useState(false);
-  const [flameControl, setFlameControl] = useState(db.FLAME_SETTINGS[0]);
+  const [mokaBrand, setMokaBrand] = useState(initialData?.brewerBrand || db.MOKA_POT_BRANDS[0]);
+  const [mokaModel, setMokaModel] = useState(initialData?.mokaPotModel || '');
+  const [waterStartTemp, setWaterStartTemp] = useState(initialData?.waterStartTemp || db.WATER_START_TEMPS[0]);
+  const [isAeropressFilterUsed, setIsAeropressFilterUsed] = useState(initialData?.isAeropressFilterUsed || false);
+  const [flameControl, setFlameControl] = useState(initialData?.flameControl || db.FLAME_SETTINGS[0]);
 
   // Sensory Analysis
   const [sensory, setSensory] = useState({
-    aroma: 3,
-    acidity: 3,
-    sweetness: 3,
-    bitterness: 3,
-    body: 3,
-    aftertaste: 3
+    aroma: initialData?.aroma ?? 3,
+    acidity: initialData?.acidity ?? 3,
+    sweetness: initialData?.sweetness ?? 3,
+    bitterness: initialData?.bitterness ?? 3,
+    body: initialData?.body ?? 3,
+    aftertaste: initialData?.aftertaste ?? 3
   });
-  const [selectedFlavorGroups, setSelectedFlavorGroups] = useState<string[]>([]);
+  const [selectedFlavorGroups, setSelectedFlavorGroups] = useState<string[]>(initialData?.flavorGroups || []);
 
   // List Update Helpers
   const addToList = (key: keyof typeof db, value: string) => {
@@ -326,7 +328,7 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel }) => {
     <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-[3rem] shadow-2xl border border-stone-100 max-w-xl mx-auto max-h-[92vh] overflow-y-auto animate-in zoom-in-95 duration-300 custom-scrollbar">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h2 className="text-3xl font-black display-font text-stone-800">Log Brew</h2>
+          <h2 className="text-3xl font-black display-font text-stone-800">{title || (initialData ? 'Edit Brew' : 'Log Brew')}</h2>
           <p className="text-xs font-bold text-amber-800 uppercase tracking-widest mt-1">{coffee.name}</p>
         </div>
         <button type="button" onClick={onCancel} className="p-3 bg-stone-50 rounded-full text-stone-400 hover:text-stone-800 transition-colors">✕</button>
@@ -699,7 +701,7 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel }) => {
 
       <div className="flex gap-4 pt-4 sticky bottom-0 bg-white/95 backdrop-blur-sm py-4 border-t border-stone-100 mt-2 z-10">
         <button type="button" onClick={onCancel} className="flex-1 py-4 bg-stone-100 text-stone-500 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:bg-stone-200 transition-all">Discard</button>
-        <button type="submit" className="flex-1 py-4 bg-stone-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:bg-black transition-all shadow-xl shadow-stone-900/20 active:scale-[0.98]">Log Brew</button>
+        <button type="submit" className="flex-1 py-4 bg-stone-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:bg-black transition-all shadow-xl shadow-stone-900/20 active:scale-[0.98]">{title || (initialData ? 'Update Brew' : 'Log Brew')}</button>
       </div>
     </form>
   );
