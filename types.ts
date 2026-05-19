@@ -17,14 +17,11 @@ export enum RoastLevel {
 }
 
 export interface UserProfile {
-  id: string;
   name: string;
-  handle: string;
-  avatar: string;
-  bio: string;
-  isFeatured?: boolean;
-  friendsCount: number;
-  followingCount: number;
+  role: string;
+  defaultMethod: string;
+  defaultGrinder: string;
+  defaultBrewer: string;
 }
 
 export interface SocialPost {

@@ -1,9 +1,10 @@
 
-import { CoffeeBean, BrewLog } from '../types';
+import { CoffeeBean, BrewLog, UserProfile } from '../types';
 
 const STORAGE_KEYS = {
   COFFEES: 'barista_journal_coffees',
   BREW_LOGS: 'barista_journal_brew_logs',
+  PROFILE: 'barista_journal_profile',
 };
 
 export const storage = {
@@ -39,6 +40,24 @@ export const storage = {
       return data ? JSON.parse(data) : null;
     } catch (error) {
       console.error('Error loading brew logs from localStorage:', error);
+      return null;
+    }
+  },
+
+  saveProfile: (profile: UserProfile) => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(profile));
+    } catch (error) {
+      console.error('Error saving profile to localStorage:', error);
+    }
+  },
+
+  getProfile: (): UserProfile | null => {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.PROFILE);
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      console.error('Error loading profile from localStorage:', error);
       return null;
     }
   },

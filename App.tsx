@@ -5,6 +5,7 @@ import { Icons } from './constants';
 import CoffeeCard from './components/CoffeeCard';
 import BrewForm from './components/BrewForm';
 import CoffeeBeanForm from './components/CoffeeBeanForm';
+import ProfileModal from './components/ProfileModal';
 import GrindReference from './components/GrindReference';
 import AnalyticsView from './components/AnalyticsView';
 import { storage } from './services/storageService';
@@ -142,6 +143,20 @@ const App: React.FC = () => {
   const [brewLogs, setBrewLogs] = useState<BrewLog[]>(() => {
     return storage.getBrewLogs() || [];
   });
+  const [profile, setProfile] = useState<UserProfile | null>(() => storage.getProfile());
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  useEffect(() => {
+    if (!profile) {
+      setShowProfileModal(true);
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    if (profile) {
+      storage.saveProfile(profile);
+    }
+  }, [profile]);
 
   // Sync to localStorage
   useEffect(() => {
@@ -406,9 +421,19 @@ const App: React.FC = () => {
       <header className="bg-white border-b border-stone-100 sticky top-0 z-30 px-6 py-4 flex justify-between items-center shadow-sm">
         <h1 className="text-2xl font-bold display-font text-stone-800">Barista <span className="text-amber-800">Logbook</span></h1>
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-stone-100 border border-stone-200 overflow-hidden ring-2 ring-white shadow-sm">
-            <img src="https://i.pravatar.cc/150?u=me" alt="Avatar" />
-          </div>
+          {profile && (
+            <div className="text-right hidden sm:block">
+              <p className="text-[9px] font-black uppercase text-stone-400 tracking-widest">{profile.role}</p>
+              <p className="text-xs font-bold text-stone-800">{profile.name}</p>
+            </div>
+          )}
+          <button 
+            onClick={() => setShowProfileModal(true)}
+            className="w-10 h-10 rounded-2xl bg-stone-50 border border-stone-200 flex items-center justify-center text-stone-400 hover:text-amber-800 hover:border-amber-200 transition-all shadow-sm active:scale-95"
+            title="Edit Profile"
+          >
+            <Icons.User className="w-5 h-5" />
+          </button>
         </div>
       </header>
 
@@ -417,7 +442,7 @@ const App: React.FC = () => {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-10">
             <div className="space-y-1">
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-400">Welcome back,</p>
-              <h2 className="text-4xl font-bold text-stone-800 display-font">Alexander</h2>
+              <h2 className="text-4xl font-bold text-stone-800 display-font">{profile?.name || 'Alexander'}</h2>
             </div>
 
             {/* Weekly and Monthly Summaries */}
@@ -726,6 +751,20 @@ const App: React.FC = () => {
       {showBeanForm && (
         <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md flex items-center justify-center z-[70] p-6 overflow-y-auto">
           <CoffeeBeanForm initialData={editingCoffee || undefined} onSave={handleSaveBean} onCancel={() => { setShowBeanForm(false); setEditingCoffee(null); }} />
+        </div>
+      )}
+
+      {showProfileModal && (
+        <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md flex items-center justify-center z-[100] p-6 overflow-y-auto">
+          <ProfileModal 
+            initialData={profile || undefined} 
+            isFirstLaunch={!profile}
+            onSave={(newProfile) => {
+              setProfile(newProfile);
+              setShowProfileModal(false);
+            }} 
+            onCancel={profile ? () => setShowProfileModal(false) : undefined}
+          />
         </div>
       )}
 

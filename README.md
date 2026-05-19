@@ -32,4 +32,9 @@ The app includes a Service Worker for offline support and is installable as a PW
 The Gemini API key is currently used in the client-side bundle. For production applications handling sensitive data, it is recommended to proxy these requests through a backend/serverless function to keep the key hidden from the end-user.
 
 ### Storage
-The logbook currently uses `localStorage` for data persistence. No external database is required for the basic functionality.
+The logbook uses `localStorage` for all data persistence, including:
+- **Brew Logs**: Your complete history of coffee experiments.
+- **Coffee Library**: Your collection of beans and roast details.
+- **User Profile**: Your personal preferences and settings.
+
+**Privacy Note**: All data is stored locally on your device. This app does not use a cloud database or external accounts. Clearing your browser data will delete your logs unless you have exported them.
