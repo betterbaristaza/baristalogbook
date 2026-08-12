@@ -9,6 +9,10 @@ import ProfileModal from './components/ProfileModal';
 import GrindReference from './components/GrindReference';
 import AnalyticsView from './components/AnalyticsView';
 import { storage } from './services/storageService';
+import { testSupabaseConnection } from './services/supabaseClient';
+import AuthScreen from './components/AuthScreen';
+import { useAuth } from './context/AuthContext';
+
 
 const SENSORY_METADATA = [
   { id: 'aroma', label: 'Aroma', icon: '👃', color: '#f43f5e' },
@@ -136,6 +140,20 @@ const INITIAL_COFFEES: CoffeeBean[] = [
 ];
 
 const App: React.FC = () => {
+  const { user, loading } = useAuth();
+
+if (loading) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      Loading...
+    </div>
+  );
+}
+
+if (!user) {
+  return <AuthScreen />;
+}
+  
   const [coffees, setCoffees] = useState<CoffeeBean[]>(() => {
     const saved = storage.getCoffees();
     return saved && saved.length > 0 ? saved : INITIAL_COFFEES;
@@ -145,6 +163,10 @@ const App: React.FC = () => {
   });
   const [profile, setProfile] = useState<UserProfile | null>(() => storage.getProfile());
   const [showProfileModal, setShowProfileModal] = useState(false);
+
+useEffect(() => {
+  testSupabaseConnection();
+}, []);
 
   useEffect(() => {
     if (!profile) {
