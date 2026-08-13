@@ -12,6 +12,7 @@ import { storage } from './services/storageService';
 import { testSupabaseConnection } from './services/supabaseClient';
 import AuthScreen from './components/AuthScreen';
 import { useAuth } from './context/AuthContext';
+import { coffeeService } from './services/coffeeService'; 
 
 
 const SENSORY_METADATA = [
@@ -54,12 +55,12 @@ const RadarChart: React.FC<{ log: BrewLog }> = ({ log }) => {
     };
   };
 
-  const pathData = points.map((v, i) => {
-    const coords = getCoordinates(i, v);
-    return `${coords.x},${coords.y}`;
-  }).join(' ');
+   const pathData = points.map((v, i) => {
+  const coords = getCoordinates(i, v);
+  return `${coords.x},${coords.y}`;
+}).join(' ');
 
-  const gridLevels = [1, 2, 3, 4, 5];
+const gridLevels = [1, 2, 3, 4, 5];
 
   return (
     <div className="relative w-36 h-36 flex items-center justify-center">
@@ -141,23 +142,10 @@ const INITIAL_COFFEES: CoffeeBean[] = [
 
 const App: React.FC = () => {
   const { user, loading } = useAuth();
-
-if (loading) {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      Loading...
-    </div>
-  );
-}
-
-if (!user) {
-  return <AuthScreen />;
-}
   
-  const [coffees, setCoffees] = useState<CoffeeBean[]>(() => {
-    const saved = storage.getCoffees();
-    return saved && saved.length > 0 ? saved : INITIAL_COFFEES;
-  });
+  const [coffees, setCoffees] = useState<CoffeeBean[]>([]);
+const [coffeesLoading, setCoffeesLoading] = useState(true);
+
   const [brewLogs, setBrewLogs] = useState<BrewLog[]>(() => {
     return storage.getBrewLogs() || [];
   });
@@ -181,9 +169,29 @@ useEffect(() => {
   }, [profile]);
 
   // Sync to localStorage
-  useEffect(() => {
-    storage.saveCoffees(coffees);
-  }, [coffees]);
+ useEffect(() => {
+  if (!user) {
+    setCoffees([]);
+    setCoffeesLoading(false);
+    return;
+  }
+
+  const loadCoffees = async () => {
+    try {
+      setCoffeesLoading(true);
+
+      const cloudCoffees = await coffeeService.getAll(user.id);
+
+      setCoffees(cloudCoffees);
+    } catch (error) {
+      console.error('Error loading coffees from Supabase:', error);
+    } finally {
+      setCoffeesLoading(false);
+    }
+  };
+
+  loadCoffees();
+}, [user]);
 
   useEffect(() => {
     storage.saveBrewLogs(brewLogs);
@@ -267,26 +275,66 @@ useEffect(() => {
   const [brewFlowStep, setBrewFlowStep] = useState<'select' | 'new-bean' | 'brew'>('select');
   const [selectedCoffee, setSelectedCoffee] = useState<CoffeeBean | null>(null);
 
-  const handleSaveBean = (bean: CoffeeBean) => {
-    setCoffees(prev => prev.some(c => c.id === bean.id)
-      ? prev.map(c => c.id === bean.id ? bean : c)
-      : [bean, ...prev]
-    );
-    
+  const handleSaveBean = async (bean: CoffeeBean) => {
+  if (!user) {
+    return;
+  }
+
+  try {
+    let savedBean: CoffeeBean;
+
+    if (editingCoffee) {
+      savedBean = await coffeeService.update(bean, user.id);
+
+      setCoffees(prev =>
+        prev.map(c =>
+          c.id === savedBean.id ? savedBean : c
+        )
+      );
+    } else {
+      savedBean = await coffeeService.create(bean, user.id);
+
+      setCoffees(prev => [savedBean, ...prev]);
+    }
+
     if (brewFlowStep === 'new-bean') {
-      setSelectedCoffee(bean);
+      setSelectedCoffee(savedBean);
       setBrewFlowStep('brew');
     } else {
       setShowBeanForm(false);
       setEditingCoffee(null);
     }
-  };
+  } catch (error) {
+    console.error('Error saving coffee:', error);
+    alert('There was a problem saving this coffee.');
+  }
+};
+  
 
-  const handleDeleteCoffee = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this coffee? All associated brew logs will remain but might look incomplete.')) {
-      setCoffees(prev => prev.filter(c => c.id !== id));
-    }
-  };
+   const handleDeleteCoffee = async (id: string) => {
+  if (!user) {
+    return;
+  }
+
+  const confirmed = window.confirm(
+    'Are you sure you want to delete this coffee? All associated brew logs will remain but might look incomplete.'
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    await coffeeService.delete(id, user.id);
+
+    setCoffees(prev =>
+      prev.filter(c => c.id !== id)
+    );
+  } catch (error) {
+    console.error('Error deleting coffee:', error);
+    alert('There was a problem deleting this coffee.');
+  }
+};
 
   const handleSaveBrew = (log: Partial<BrewLog>) => {
     if (editingLog) {
@@ -437,6 +485,18 @@ useEffect(() => {
     setBrewFlowStep('select');
     setShowBrewFlow(true);
   };
+
+  if (loading) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      Loading...
+    </div>
+  );
+}
+
+if (!user) {
+  return <AuthScreen />;
+}
 
   return (
     <div className="min-h-screen pb-32 flex flex-col bg-[#fdfcfb]">
