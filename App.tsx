@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, JSX } from 'react';
 import { CoffeeBean, BrewLog, RoastLevel, BrewMethod, WeeklySummary, SocialPost, UserProfile } from './types';
 import { Icons } from './constants';
 import CoffeeCard from './components/CoffeeCard';
@@ -8,8 +8,6 @@ import CoffeeBeanForm from './components/CoffeeBeanForm';
 import ProfileModal from './components/ProfileModal';
 import GrindReference from './components/GrindReference';
 import AnalyticsView from './components/AnalyticsView';
-import { storage } from './services/storageService';
-import { testSupabaseConnection } from './services/supabaseClient';
 import AuthScreen from './components/AuthScreen';
 import { useAuth } from './context/AuthContext';
 import { coffeeService } from './services/coffeeService'; 
@@ -127,23 +125,9 @@ const gridLevels = [1, 2, 3, 4, 5];
   );
 };
 
-const INITIAL_COFFEES: CoffeeBean[] = [
-  {
-    id: '1',
-    name: 'Ethiopia Sidamo',
-    roaster: 'Proud Mary',
-    origin: 'Ethiopia',
-    process: 'Washed',
-    roastLevel: RoastLevel.LIGHT,
-    purchaseDate: '2024-03-01',
-    remainingWeight: 180,
-    totalWeight: 250,
-    personalNotes: 'Floral and tea-like.'
-  }
-];
 
 const App: React.FC = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   
   const [coffees, setCoffees] = useState<CoffeeBean[]>([]);
 const [coffeesLoading, setCoffeesLoading] = useState(true);
@@ -154,9 +138,6 @@ const [brewLogsLoading, setBrewLogsLoading] = useState(true);
 const [profileLoading, setProfileLoading] = useState(true);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
-useEffect(() => {
-  testSupabaseConnection();
-}, []);
 
   useEffect(() => {
     if (!profile) {
@@ -632,6 +613,15 @@ if (!user) {
           >
             <Icons.User className="w-5 h-5" />
           </button>
+          <button
+  onClick={async () => {
+    await signOut();
+  }}
+  className="px-4 h-10 rounded-2xl bg-stone-50 border border-stone-200 text-[10px] font-black uppercase tracking-widest text-stone-500 hover:text-rose-600 hover:border-rose-200 transition-all"
+  title="Sign Out"
+>
+  Sign Out
+</button>
         </div>
       </header>
 

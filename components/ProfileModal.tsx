@@ -127,7 +127,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ initialData, onSave, onCanc
           <div className="flex items-center gap-2 justify-center py-2 px-4 bg-stone-50 rounded-xl border border-stone-100">
             <Icons.Info className="w-3.5 h-3.5 text-stone-400" />
             <p className="text-[9px] text-stone-400 font-bold uppercase tracking-tight">
-              All data is stored locally on this device.
+              Your profile and brew data are synced securely to your account.
             </p>
           </div>
         </div>
