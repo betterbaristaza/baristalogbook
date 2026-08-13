@@ -5,7 +5,7 @@ import { Icons } from '../constants';
 
 interface ProfileModalProps {
   initialData?: UserProfile;
-  onSave: (profile: UserProfile) => void;
+  onSave: (profile: UserProfile) => void | Promise<void>;
   onCancel?: () => void;
   isFirstLaunch?: boolean;
 }

@@ -13,6 +13,8 @@ import { testSupabaseConnection } from './services/supabaseClient';
 import AuthScreen from './components/AuthScreen';
 import { useAuth } from './context/AuthContext';
 import { coffeeService } from './services/coffeeService'; 
+import { brewLogService } from './services/brewLogService';
+import { profileService } from './services/profileService';
 
 
 const SENSORY_METADATA = [
@@ -146,10 +148,10 @@ const App: React.FC = () => {
   const [coffees, setCoffees] = useState<CoffeeBean[]>([]);
 const [coffeesLoading, setCoffeesLoading] = useState(true);
 
-  const [brewLogs, setBrewLogs] = useState<BrewLog[]>(() => {
-    return storage.getBrewLogs() || [];
-  });
-  const [profile, setProfile] = useState<UserProfile | null>(() => storage.getProfile());
+ const [brewLogs, setBrewLogs] = useState<BrewLog[]>([]);
+const [brewLogsLoading, setBrewLogsLoading] = useState(true);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+const [profileLoading, setProfileLoading] = useState(true);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
 useEffect(() => {
@@ -163,10 +165,28 @@ useEffect(() => {
   }, [profile]);
 
   useEffect(() => {
-    if (profile) {
-      storage.saveProfile(profile);
+  if (!user) {
+    setProfile(null);
+    setProfileLoading(false);
+    return;
+  }
+
+  const loadProfile = async () => {
+    try {
+      setProfileLoading(true);
+
+      const cloudProfile = await profileService.get(user.id);
+
+      setProfile(cloudProfile);
+    } catch (error) {
+      console.error('Error loading profile from Supabase:', error);
+    } finally {
+      setProfileLoading(false);
     }
-  }, [profile]);
+  };
+
+  loadProfile();
+}, [user]);
 
   // Sync to localStorage
  useEffect(() => {
@@ -194,8 +214,28 @@ useEffect(() => {
 }, [user]);
 
   useEffect(() => {
-    storage.saveBrewLogs(brewLogs);
-  }, [brewLogs]);
+  if (!user) {
+    setBrewLogs([]);
+    setBrewLogsLoading(false);
+    return;
+  }
+
+  const loadBrewLogs = async () => {
+    try {
+      setBrewLogsLoading(true);
+
+      const cloudLogs = await brewLogService.getAll(user.id);
+
+      setBrewLogs(cloudLogs);
+    } catch (error) {
+      console.error('Error loading brew logs from Supabase:', error);
+    } finally {
+      setBrewLogsLoading(false);
+    }
+  };
+
+  loadBrewLogs();
+}, [user]);
 
   const [activeTab, setActiveTab] = useState<'home' | 'journal' | 'library' | 'grind' | 'community' | 'analytics'>('home');
   
@@ -336,44 +376,120 @@ useEffect(() => {
   }
 };
 
-  const handleSaveBrew = (log: Partial<BrewLog>) => {
+  const handleSaveBrew = async (log: Partial<BrewLog>) => {
+  if (!user) {
+    return;
+  }
+
+  try {
     if (editingLog) {
-      const updatedLog = { ...editingLog, ...log } as BrewLog;
-      setBrewLogs(prev => prev.map(l => l.id === editingLog.id ? updatedLog : l));
+      const updatedLog = {
+        ...editingLog,
+        ...log,
+      } as BrewLog;
+
+      const savedLog = await brewLogService.update(
+        updatedLog,
+        user.id
+      );
+
+      setBrewLogs(prev =>
+        prev.map(l =>
+          l.id === savedLog.id ? savedLog : l
+        )
+      );
+
       setEditingLog(null);
     } else {
-      const newLog = { 
-        ...log, 
-        id: Math.random().toString(36).substr(2, 9),
+      const newLog = {
+        ...log,
+        id: crypto.randomUUID(),
         date: new Date().toISOString(),
+
         aroma: log.aroma || 3,
         acidity: log.acidity || 3,
         sweetness: log.sweetness || 3,
         bitterness: log.bitterness || 3,
         body: log.body || 3,
         aftertaste: log.aftertaste || 3,
-        flavorGroups: log.flavorGroups || []
+
+        flavorGroups: log.flavorGroups || [],
       } as BrewLog;
-      
-      setBrewLogs(prev => [newLog, ...prev]);
-      setCoffees(prev => prev.map(c => 
-        c.id === log.coffeeId 
-          ? { ...c, remainingWeight: Math.max(0, c.remainingWeight - (log.dose || 0)) } 
-          : c
-      ));
+
+      const savedLog = await brewLogService.create(
+        newLog,
+        user.id
+      );
+
+      setBrewLogs(prev => [
+        savedLog,
+        ...prev,
+      ]);
+
+      if (log.coffeeId) {
+        const coffee = coffees.find(
+          c => c.id === log.coffeeId
+        );
+
+        if (coffee) {
+          const updatedCoffee = {
+            ...coffee,
+            remainingWeight: Math.max(
+              0,
+              coffee.remainingWeight - (log.dose || 0)
+            ),
+          };
+
+          const savedCoffee = await coffeeService.update(
+            updatedCoffee,
+            user.id
+          );
+
+          setCoffees(prev =>
+            prev.map(c =>
+              c.id === savedCoffee.id
+                ? savedCoffee
+                : c
+            )
+          );
+        }
+      }
     }
 
     setShowBrewFlow(false);
     setBrewFlowStep('select');
     setSelectedCoffee(null);
     setPrefillLog(null);
-  };
+  } catch (error) {
+    console.error('Error saving brew log:', error);
+    alert('There was a problem saving this brew.');
+  }
+};
 
-  const handleDeleteLog = (id: string) => {
-    if (window.confirm('Delete this brew log permanently?')) {
-      setBrewLogs(prev => prev.filter(l => l.id !== id));
-    }
-  };
+  const handleDeleteLog = async (id: string) => {
+  if (!user) {
+    return;
+  }
+
+  const confirmed = window.confirm(
+    'Delete this brew log permanently?'
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    await brewLogService.delete(id, user.id);
+
+    setBrewLogs(prev =>
+      prev.filter(l => l.id !== id)
+    );
+  } catch (error) {
+    console.error('Error deleting brew log:', error);
+    alert('There was a problem deleting this brew log.');
+  }
+};
 
   const filteredLogs = useMemo(() => {
     return brewLogs.filter(log => {
@@ -486,7 +602,7 @@ useEffect(() => {
     setShowBrewFlow(true);
   };
 
-  if (loading) {
+  if (loading || profileLoading) {
   return (
     <div className="min-h-screen flex items-center justify-center">
       Loading...
@@ -836,19 +952,37 @@ if (!user) {
         </div>
       )}
 
-      {showProfileModal && (
-        <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md flex items-center justify-center z-[100] p-6 overflow-y-auto">
-          <ProfileModal 
-            initialData={profile || undefined} 
-            isFirstLaunch={!profile}
-            onSave={(newProfile) => {
-              setProfile(newProfile);
-              setShowProfileModal(false);
-            }} 
-            onCancel={profile ? () => setShowProfileModal(false) : undefined}
-          />
-        </div>
-      )}
+{showProfileModal && (
+  <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md flex items-center justify-center z-[100] p-6 overflow-y-auto">
+    <ProfileModal
+      initialData={profile || undefined}
+      isFirstLaunch={!profile}
+      onSave={async (newProfile) => {
+        if (!user) {
+          return;
+        }
+
+        try {
+          const savedProfile = await profileService.update(
+            newProfile,
+            user.id
+          );
+
+          setProfile(savedProfile);
+          setShowProfileModal(false);
+        } catch (error) {
+          console.error('Error saving profile:', error);
+          alert('There was a problem saving your profile.');
+        }
+      }}
+      onCancel={
+        profile
+          ? () => setShowProfileModal(false)
+          : undefined
+      }
+    />
+  </div>
+)}
 
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-md bg-stone-900/90 backdrop-blur-xl border border-white/10 px-4 py-5 flex justify-around items-center z-50 rounded-[3rem] shadow-2xl">
         {[
