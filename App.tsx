@@ -421,11 +421,6 @@ const [profileLoading, setProfileLoading] = useState(true);
             ),
           };
 
-          const savedCoffee = await coffeeService.update(
-            updatedCoffee,
-            user.id
-          );
-
           setCoffees(prev =>
   prev.map(c =>
     c.id === updatedCoffee.id
