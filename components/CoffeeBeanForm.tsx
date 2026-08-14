@@ -68,7 +68,9 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({ onSave, onCancel, initi
     onSave({
       ...formData as CoffeeBean,
       id: initialData?.id || Math.random().toString(36).substr(2, 9),
-      remainingWeight: formData.remainingWeight || formData.totalWeight || 250
+      remainingWeight: initialData
+  ? formData.remainingWeight
+  : formData.totalWeight || 250
     });
   };
 

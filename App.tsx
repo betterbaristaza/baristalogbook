@@ -427,12 +427,12 @@ const [profileLoading, setProfileLoading] = useState(true);
           );
 
           setCoffees(prev =>
-            prev.map(c =>
-              c.id === savedCoffee.id
-                ? savedCoffee
-                : c
-            )
-          );
+  prev.map(c =>
+    c.id === updatedCoffee.id
+      ? updatedCoffee
+      : c
+  )
+);
         }
       }
     }
