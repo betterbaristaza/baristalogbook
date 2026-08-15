@@ -1,40 +1,34 @@
-# Barista Logbook Deployment Guide
+# Barista Logbook
 
-This application is built with React, Vite, and tailwindCSS. It is configured for easy deployment on **Vercel**.
+Barista Logbook is a React and Vite application for recording coffees, brew recipes, tasting results, and equipment settings.
 
-## Vercel Deployment Settings
+## Current Features
 
-When importing this project into Vercel, use the following settings:
+- Supabase email authentication
+- User profiles
+- Coffee Library with create, read, update, and delete functions
+- Brew Journal with create, read, update, and delete functions
+- Coffee remaining-weight tracking
+- User data isolation through Supabase Row Level Security
+- Atomic brew creation and coffee-weight reduction
+- Data sync across devices
+- PWA support
+- AI brewing advice is under development and is not enabled in production.
 
-- **Framework Preset:** Vite
-- **Build Command:** `npm run build`
-- **Output Directory:** `dist`
-- **Install Command:** `npm install`
+## Technology
 
-### Environment Variables
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+- Supabase
+- Google Gemini
+- Vite PWA
 
-You **must** add the following environment variable in the Vercel Dashboard (**Settings > Environment Variables**):
+## Local Setup
 
-| Key | Value | Description |
-|-----|-------|-------------|
-| `GEMINI_API_KEY` | `your_api_key_here` | Your Google Gemini API Key |
+Clone the repository:
 
----
-
-## Technical Details
-
-### PWA Support
-The app includes a Service Worker for offline support and is installable as a PWA on mobile devices.
-- **Icon Support**: Currently using `mask-icon.svg` for the manifest.
-- **TODO**: Generate and add `pwa-192x192.png` and `pwa-512x512.png` to the `public/` folder. While SVG is supported by modern browsers, PNG icons are required for maximum compatibility with all Android and iOS device home screens.
-
-### Security Note
-The Gemini API key is currently used in the client-side bundle. For production applications handling sensitive data, it is recommended to proxy these requests through a backend/serverless function to keep the key hidden from the end-user.
-
-### Storage
-The logbook uses `localStorage` for all data persistence, including:
-- **Brew Logs**: Your complete history of coffee experiments.
-- **Coffee Library**: Your collection of beans and roast details.
-- **User Profile**: Your personal preferences and settings.
-
-**Privacy Note**: All data is stored locally on your device. This app does not use a cloud database or external accounts. Clearing your browser data will delete your logs unless you have exported them.
+```bash
+git clone https://github.com/betterbaristaza/baristalogbook.git
+cd baristalogbook
