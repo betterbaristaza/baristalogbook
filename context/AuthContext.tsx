@@ -5,22 +5,39 @@ import React, {
   useState,
 } from 'react';
 
-import type { Session, User } from '@supabase/supabase-js';
+import type {
+  AuthChangeEvent,
+  Session,
+  User,
+} from '@supabase/supabase-js';
+
 import { supabase } from '../services/supabaseClient';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  passwordRecovery: boolean;
+
   signUp: (
     email: string,
     password: string,
     name: string
   ) => Promise<{ error: Error | null }>;
+
   signIn: (
     email: string,
     password: string
   ) => Promise<{ error: Error | null }>;
+
+  sendPasswordReset: (
+    email: string
+  ) => Promise<{ error: Error | null }>;
+
+  updatePassword: (
+    password: string
+  ) => Promise<{ error: Error | null }>;
+
   signOut: () => Promise<void>;
 }
 
@@ -34,6 +51,8 @@ export const AuthProvider: React.FC<{
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [passwordRecovery, setPasswordRecovery] =
+    useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -44,10 +63,16 @@ export const AuthProvider: React.FC<{
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
+    } = supabase.auth.onAuthStateChange(
+      (event: AuthChangeEvent, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        if (event === 'PASSWORD_RECOVERY') {
+          setPasswordRecovery(true);
+        }
+      }
+    );
 
     return () => {
       subscription.unsubscribe();
@@ -78,10 +103,36 @@ export const AuthProvider: React.FC<{
     email: string,
     password: string
   ) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
+    const { error } =
+      await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+    return {
+      error: error ? new Error(error.message) : null,
+    };
+  };
+
+  const sendPasswordReset = async (email: string) => {
+    const { error } =
+      await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin,
+      });
+
+    return {
+      error: error ? new Error(error.message) : null,
+    };
+  };
+
+  const updatePassword = async (password: string) => {
+    const { error } = await supabase.auth.updateUser({
       password,
     });
+
+    if (!error) {
+      setPasswordRecovery(false);
+    }
 
     return {
       error: error ? new Error(error.message) : null,
@@ -90,6 +141,7 @@ export const AuthProvider: React.FC<{
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setPasswordRecovery(false);
   };
 
   return (
@@ -98,8 +150,11 @@ export const AuthProvider: React.FC<{
         user,
         session,
         loading,
+        passwordRecovery,
         signUp,
         signIn,
+        sendPasswordReset,
+        updatePassword,
         signOut,
       }}
     >

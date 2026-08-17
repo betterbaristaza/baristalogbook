@@ -128,7 +128,12 @@ const gridLevels = [1, 2, 3, 4, 5];
 
 
 const App: React.FC = () => {
-  const { user, loading, signOut } = useAuth();
+  const {
+  user,
+  loading,
+  passwordRecovery,
+  signOut,
+} = useAuth();
   
   const [coffees, setCoffees] = useState<CoffeeBean[]>([]);
 const [coffeesLoading, setCoffeesLoading] = useState(true);
@@ -712,7 +717,7 @@ const [profileLoading, setProfileLoading] = useState(true);
   );
 }
 
-if (!user) {
+if (!user || passwordRecovery) {
   return <AuthScreen />;
 }
 

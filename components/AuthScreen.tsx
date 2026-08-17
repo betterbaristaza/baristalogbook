@@ -1,25 +1,81 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-const AuthScreen: React.FC = () => {
-  const { signIn, signUp } = useAuth();
+type AuthMode = 'signin' | 'signup' | 'forgot';
 
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+const AuthScreen: React.FC = () => {
+  const {
+    signIn,
+    signUp,
+    sendPasswordReset,
+    updatePassword,
+    passwordRecovery,
+  } = useAuth();
+
+  const [mode, setMode] = useState<AuthMode>('signin');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] =
+    useState('');
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (
+    event: React.FormEvent
+  ) => {
     event.preventDefault();
 
     setSubmitting(true);
     setMessage('');
 
     try {
+      if (passwordRecovery) {
+        if (password.length < 6) {
+          setMessage(
+            'Password must be at least 6 characters.'
+          );
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          setMessage('Passwords do not match.');
+          return;
+        }
+
+        const { error } =
+          await updatePassword(password);
+
+        if (error) {
+          setMessage(error.message);
+          return;
+        }
+
+        setMessage('Password updated successfully.');
+        return;
+      }
+
+      if (mode === 'forgot') {
+        const { error } =
+          await sendPasswordReset(email);
+
+        if (error) {
+          setMessage(error.message);
+          return;
+        }
+
+        setMessage(
+          'Check your email for a password reset link.'
+        );
+        return;
+      }
+
       if (mode === 'signup') {
-        const { error } = await signUp(email, password, name);
+        const { error } = await signUp(
+          email,
+          password,
+          name
+        );
 
         if (error) {
           setMessage(error.message);
@@ -29,18 +85,37 @@ const AuthScreen: React.FC = () => {
         setMessage(
           'Account created. Check your email if confirmation is required.'
         );
-      } else {
-        const { error } = await signIn(email, password);
+        return;
+      }
 
-        if (error) {
-          setMessage(error.message);
-          return;
-        }
+      const { error } = await signIn(
+        email,
+        password
+      );
+
+      if (error) {
+        setMessage(error.message);
       }
     } finally {
       setSubmitting(false);
     }
   };
+
+  const title = passwordRecovery
+    ? 'Set a new password'
+    : mode === 'signin'
+    ? 'Welcome back'
+    : mode === 'signup'
+    ? 'Create your account'
+    : 'Reset your password';
+
+  const description = passwordRecovery
+    ? 'Choose a new password for your Barista Logbook account.'
+    : mode === 'signin'
+    ? 'Sign in to access your coffee library and brew history.'
+    : mode === 'signup'
+    ? 'Create an account to save your coffee and brew data securely.'
+    : 'Enter your email and we will send you a password reset link.';
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-stone-100 px-4">
@@ -51,63 +126,105 @@ const AuthScreen: React.FC = () => {
           </p>
 
           <h1 className="text-3xl font-bold text-stone-900 mt-2">
-            {mode === 'signin'
-              ? 'Welcome back'
-              : 'Create your account'}
+            {title}
           </h1>
 
           <p className="text-stone-500 mt-2">
-            {mode === 'signin'
-              ? 'Sign in to access your coffee library and brew history.'
-              : 'Create an account to save your coffee and brew data securely.'}
+            {description}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {mode === 'signup' && (
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
+          {!passwordRecovery &&
+            mode === 'signup' && (
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-1">
+                  Name
+                </label>
+
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(event) =>
+                    setName(event.target.value)
+                  }
+                  required
+                  className="w-full border border-stone-300 rounded-lg px-3 py-2"
+                />
+              </div>
+            )}
+
+          {!passwordRecovery && (
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">
-                Name
+                Email
               </label>
 
               <input
-                type="text"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
+                type="email"
+                value={email}
+                onChange={(event) =>
+                  setEmail(event.target.value)
+                }
                 required
+                autoComplete="email"
                 className="w-full border border-stone-300 rounded-lg px-3 py-2"
               />
             </div>
           )}
 
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">
-              Email
-            </label>
+          {(passwordRecovery ||
+            mode === 'signin' ||
+            mode === 'signup') && (
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1">
+                {passwordRecovery
+                  ? 'New password'
+                  : 'Password'}
+              </label>
 
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-              className="w-full border border-stone-300 rounded-lg px-3 py-2"
-            />
-          </div>
+              <input
+                type="password"
+                value={password}
+                onChange={(event) =>
+                  setPassword(event.target.value)
+                }
+                required
+                minLength={6}
+                autoComplete={
+                  passwordRecovery
+                    ? 'new-password'
+                    : 'current-password'
+                }
+                className="w-full border border-stone-300 rounded-lg px-3 py-2"
+              />
+            </div>
+          )}
 
-          <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">
-              Password
-            </label>
+          {passwordRecovery && (
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1">
+                Confirm new password
+              </label>
 
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-              minLength={6}
-              className="w-full border border-stone-300 rounded-lg px-3 py-2"
-            />
-          </div>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(event) =>
+                  setConfirmPassword(
+                    event.target.value
+                  )
+                }
+                required
+                minLength={6}
+                autoComplete="new-password"
+                className="w-full border border-stone-300 rounded-lg px-3 py-2"
+              />
+            </div>
+          )}
 
           {message && (
             <div className="text-sm text-stone-700 bg-stone-100 rounded-lg p-3">
@@ -122,24 +239,54 @@ const AuthScreen: React.FC = () => {
           >
             {submitting
               ? 'Please wait...'
+              : passwordRecovery
+              ? 'Update password'
               : mode === 'signin'
               ? 'Sign in'
-              : 'Create account'}
+              : mode === 'signup'
+              ? 'Create account'
+              : 'Send reset link'}
           </button>
         </form>
 
-        <button
-          type="button"
-          onClick={() => {
-            setMode(mode === 'signin' ? 'signup' : 'signin');
-            setMessage('');
-          }}
-          className="w-full mt-4 text-sm text-stone-600"
-        >
-          {mode === 'signin'
-            ? 'Need an account? Create one'
-            : 'Already have an account? Sign in'}
-        </button>
+        {!passwordRecovery &&
+          mode === 'signin' && (
+            <button
+              type="button"
+              onClick={() => {
+                setMode('forgot');
+                setMessage('');
+              }}
+              className="w-full mt-4 text-sm text-amber-800 font-medium"
+            >
+              Forgot your password?
+            </button>
+          )}
+
+        {!passwordRecovery && (
+          <button
+            type="button"
+            onClick={() => {
+              setMode(
+                mode === 'signup'
+                  ? 'signin'
+                  : mode === 'signin'
+                  ? 'signup'
+                  : 'signin'
+              );
+
+              setMessage('');
+              setPassword('');
+            }}
+            className="w-full mt-4 text-sm text-stone-600"
+          >
+            {mode === 'signin'
+              ? 'Need an account? Create one'
+              : mode === 'signup'
+              ? 'Already have an account? Sign in'
+              : 'Back to sign in'}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -46,8 +46,8 @@ P2 = Post-launch
 * [x] Cross-device account sync
 * [x] Sign out
 * [ ] Email verification flow
-* [ ] Forgot password
-* [ ] Password reset
+* [x] Forgot password
+* [x] Password reset
 * [ ] Authentication error states
 * [ ] Account deletion
 
@@ -212,7 +212,7 @@ Goal: Technical foundation and launch scope.
 
 Goal: Accounts and onboarding.
 
-* [ ] Password recovery
+* [x] Password recovery
 * [ ] Email verification UX
 * [ ] Authentication error states
 * [ ] Build onboarding
