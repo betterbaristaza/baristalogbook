@@ -140,11 +140,18 @@ const [profileLoading, setProfileLoading] = useState(true);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
 
-  useEffect(() => {
-    if (!profile) {
-      setShowProfileModal(true);
+    useEffect(() => {
+    if (!user) {
+      setShowProfileModal(false);
+      return;
     }
-  }, [profile]);
+
+    if (profileLoading) {
+      return;
+    }
+
+    setShowProfileModal(profile === null);
+  }, [user, profile, profileLoading]);
 
   useEffect(() => {
   if (!user) {
