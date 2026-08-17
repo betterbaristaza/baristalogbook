@@ -1,5 +1,9 @@
 
-import React, { useState } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { BrewMethod, CoffeeBean, BrewLog } from '../types';
 
 const INITIAL_EQUIPMENT_DB = {
@@ -185,6 +189,23 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
   const [rating, setRating] = useState(initialData?.rating ?? 4);
   const [notes, setNotes] = useState(initialData?.tastingNotes?.join(', ') || '');
   const [processNotes, setProcessNotes] = useState(initialData?.processNotes || '');
+  const [brewImage, setBrewImage] = useState(
+    initialData?.brewImage
+  );
+
+  const [brewImageFile, setBrewImageFile] =
+    useState<File>();
+
+  const brewImageInputRef =
+    useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (brewImage?.startsWith('blob:')) {
+        URL.revokeObjectURL(brewImage);
+      }
+    };
+  }, []);
 
   // Espresso specific
   const [machineBrand, setMachineBrand] = useState(initialData?.machine || db.ESPRESSO_MACHINES[0]);
@@ -263,11 +284,44 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
     );
   };
 
+  const handleBrewImageUpload = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file.');
+      e.target.value = '';
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      alert('Please select an image smaller than 15 MB.');
+      e.target.value = '';
+      return;
+    }
+
+    if (brewImage?.startsWith('blob:')) {
+      URL.revokeObjectURL(brewImage);
+    }
+
+    setBrewImage(URL.createObjectURL(file));
+    setBrewImageFile(file);
+    e.target.value = '';
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
       coffeeId: coffee.id,
       baristaName,
+      brewImage,
+      brewImagePath: initialData?.brewImagePath,
+      brewImageFile,
       date: new Date().toISOString(),
       method,
       grinder,
@@ -333,6 +387,80 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
         </div>
         <button type="button" onClick={onCancel} className="p-3 bg-stone-50 rounded-full text-stone-400 hover:text-stone-800 transition-colors">✕</button>
       </div>
+
+      <section className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+            Brew Photo
+          </label>
+
+          <span className="text-[9px] font-bold uppercase tracking-widest text-stone-300">
+            Optional
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => brewImageInputRef.current?.click()}
+          className="w-full min-h-44 bg-stone-50 border-2 border-dashed border-stone-200 rounded-3xl overflow-hidden relative flex items-center justify-center hover:border-amber-300 transition-colors group"
+        >
+          {brewImage ? (
+            <>
+              <img
+                src={brewImage}
+                alt="Brew preview"
+                className="w-full h-56 object-cover"
+              />
+
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <span className="text-white text-xs font-black uppercase tracking-widest">
+                  Change Photo
+                </span>
+              </div>
+            </>
+          ) : (
+            <div className="py-10 text-center">
+              <svg
+                className="w-9 h-9 mx-auto mb-3 text-stone-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                />
+
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+
+              <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">
+                Add Brew Photo
+              </p>
+
+              <p className="text-[9px] text-stone-300 mt-1">
+                Take a photo or choose one from your device
+              </p>
+            </div>
+          )}
+        </button>
+
+        <input
+          ref={brewImageInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={handleBrewImageUpload}
+        />
+      </section>
 
       <div className="flex bg-stone-100 p-1.5 rounded-2xl gap-1 overflow-x-auto no-scrollbar">
         {Object.values(BrewMethod).map(m => (

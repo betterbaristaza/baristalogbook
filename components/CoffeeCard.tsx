@@ -28,6 +28,37 @@ const CoffeeCard: React.FC<CoffeeCardProps> = ({ coffee, onClick, onEdit, onDele
       onClick={() => onClick(coffee)}
       className="bg-white rounded-xl shadow-sm border border-stone-200 p-4 cursor-pointer hover:shadow-md transition-shadow relative group"
     >
+            {(coffee.bagImage || coffee.labelImage) && (
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          {coffee.bagImage && (
+            <div
+              className={`overflow-hidden rounded-xl bg-stone-100 ${
+                coffee.labelImage ? '' : 'col-span-2'
+              }`}
+            >
+              <img
+                src={coffee.bagImage}
+                alt={`${coffee.name} front of bag`}
+                className="w-full h-40 object-cover"
+              />
+            </div>
+          )}
+
+          {coffee.labelImage && (
+            <div
+              className={`overflow-hidden rounded-xl bg-stone-100 ${
+                coffee.bagImage ? '' : 'col-span-2'
+              }`}
+            >
+              <img
+                src={coffee.labelImage}
+                alt={`${coffee.name} back of bag`}
+                className="w-full h-40 object-cover"
+              />
+            </div>
+          )}
+        </div>
+      )}
       <div className="flex justify-between items-start mb-2">
         <div>
           <h3 className="font-bold text-lg text-stone-800 leading-tight">{coffee.name}</h3>

@@ -13,6 +13,7 @@ import { useAuth } from './context/AuthContext';
 import { coffeeService } from './services/coffeeService'; 
 import { brewLogService } from './services/brewLogService';
 import { profileService } from './services/profileService';
+import { imageService } from './services/imageService';
 
 
 const SENSORY_METADATA = [
@@ -297,39 +298,110 @@ const [profileLoading, setProfileLoading] = useState(true);
   const [selectedCoffee, setSelectedCoffee] = useState<CoffeeBean | null>(null);
 
   const handleSaveBean = async (bean: CoffeeBean) => {
-  if (!user) {
-    return;
-  }
+    if (!user) {
+      return;
+    }
 
-  try {
-    let savedBean: CoffeeBean;
+    try {
+      const bagImageFile = bean.bagImageFile;
+      const labelImageFile = bean.labelImageFile;
 
-    if (editingCoffee) {
-      savedBean = await coffeeService.update(bean, user.id);
+      const beanForDatabase: CoffeeBean = {
+        ...bean,
+        bagImageFile: undefined,
+        labelImageFile: undefined,
+      };
 
-      setCoffees(prev =>
-        prev.map(c =>
-          c.id === savedBean.id ? savedBean : c
-        )
+      let savedBean: CoffeeBean;
+
+      if (editingCoffee) {
+        savedBean = await coffeeService.update(
+          beanForDatabase,
+          user.id
+        );
+      } else {
+        savedBean = await coffeeService.create(
+          beanForDatabase,
+          user.id
+        );
+      }
+
+      let beanWithImages = savedBean;
+
+      if (bagImageFile) {
+        const bagImagePath = await imageService.upload({
+          userId: user.id,
+          section: 'coffees',
+          recordId: savedBean.id,
+          kind: 'front',
+          file: bagImageFile,
+        });
+
+        const bagImage =
+          await imageService.createSignedUrl(bagImagePath);
+
+        beanWithImages = {
+          ...beanWithImages,
+          bagImage,
+          bagImagePath,
+        };
+      }
+
+      if (labelImageFile) {
+        const labelImagePath = await imageService.upload({
+          userId: user.id,
+          section: 'coffees',
+          recordId: savedBean.id,
+          kind: 'back',
+          file: labelImageFile,
+        });
+
+        const labelImage =
+          await imageService.createSignedUrl(labelImagePath);
+
+        beanWithImages = {
+          ...beanWithImages,
+          labelImage,
+          labelImagePath,
+        };
+      }
+
+      if (bagImageFile || labelImageFile) {
+        savedBean = await coffeeService.update(
+          beanWithImages,
+          user.id
+        );
+      }
+
+      if (editingCoffee) {
+        setCoffees(prev =>
+          prev.map(coffee =>
+            coffee.id === savedBean.id
+              ? savedBean
+              : coffee
+          )
+        );
+      } else {
+        setCoffees(prev => [
+          savedBean,
+          ...prev,
+        ]);
+      }
+
+      if (brewFlowStep === 'new-bean') {
+        setSelectedCoffee(savedBean);
+        setBrewFlowStep('brew');
+      } else {
+        setShowBeanForm(false);
+        setEditingCoffee(null);
+      }
+    } catch (error) {
+      console.error('Error saving coffee:', error);
+      alert(
+        'There was a problem saving the coffee or its images.'
       );
-    } else {
-      savedBean = await coffeeService.create(bean, user.id);
-
-      setCoffees(prev => [savedBean, ...prev]);
     }
-
-    if (brewFlowStep === 'new-bean') {
-      setSelectedCoffee(savedBean);
-      setBrewFlowStep('brew');
-    } else {
-      setShowBeanForm(false);
-      setEditingCoffee(null);
-    }
-  } catch (error) {
-    console.error('Error saving coffee:', error);
-    alert('There was a problem saving this coffee.');
-  }
-};
+  };
   
 
    const handleDeleteCoffee = async (id: string) => {
@@ -357,6 +429,36 @@ const [profileLoading, setProfileLoading] = useState(true);
   }
 };
 
+  const uploadBrewImage = async (
+    savedLog: BrewLog,
+    brewImageFile?: File
+  ): Promise<BrewLog> => {
+    if (!user || !brewImageFile) {
+      return savedLog;
+    }
+
+    const brewImagePath = await imageService.upload({
+      userId: user.id,
+      section: 'brews',
+      recordId: savedLog.id,
+      kind: 'brew',
+      file: brewImageFile,
+    });
+
+    const brewImage =
+      await imageService.createSignedUrl(brewImagePath);
+
+    return brewLogService.update(
+      {
+        ...savedLog,
+        brewImage,
+        brewImagePath,
+        brewImageFile: undefined,
+      },
+      user.id
+    );
+  };
+
   const handleSaveBrew = async (log: Partial<BrewLog>) => {
   if (!user) {
     return;
@@ -369,9 +471,17 @@ const [profileLoading, setProfileLoading] = useState(true);
         ...log,
       } as BrewLog;
 
-      const savedLog = await brewLogService.update(
-        updatedLog,
+            let savedLog = await brewLogService.update(
+        {
+          ...updatedLog,
+          brewImageFile: undefined,
+        },
         user.id
+      );
+
+      savedLog = await uploadBrewImage(
+        savedLog,
+        log.brewImageFile
       );
 
       setBrewLogs(prev =>
@@ -397,11 +507,18 @@ const [profileLoading, setProfileLoading] = useState(true);
         flavorGroups: log.flavorGroups || [],
       } as BrewLog;
 
-      const savedLog = await brewLogService.create(
-        newLog,
+        let savedLog = await brewLogService.create(
+        {
+          ...newLog,
+          brewImageFile: undefined,
+        },
         user.id
       );
 
+      savedLog = await uploadBrewImage(
+        savedLog,
+        log.brewImageFile
+      );
       setBrewLogs(prev => [
         savedLog,
         ...prev,
@@ -438,7 +555,9 @@ const [profileLoading, setProfileLoading] = useState(true);
     setPrefillLog(null);
   } catch (error) {
     console.error('Error saving brew log:', error);
-    alert('There was a problem saving this brew.');
+    alert(
+  'There was a problem saving the brew or its photo.'
+);
   }
 };
 
@@ -816,6 +935,15 @@ if (!user) {
                           </div>
                         </div>
                       </div>
+                        {log.brewImage && (
+                        <div className="mb-6 overflow-hidden rounded-[2rem] bg-stone-100 border border-stone-100">
+                          <img
+                            src={log.brewImage}
+                            alt={`${coffee?.name || 'Coffee'} brew`}
+                            className="w-full max-h-96 object-cover"
+                          />
+                        </div>
+                      )}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-8 bg-stone-50/40 p-6 rounded-[2.5rem] border border-stone-100/50">
                         <div className="grid grid-cols-2 gap-4 text-center">
                           <div className="flex flex-col bg-white p-3 rounded-2xl border border-stone-100/80 shadow-sm"><p className="text-[9px] text-stone-400 font-black uppercase mb-1">Dose</p><p className="font-black text-stone-800 text-sm">{log.dose}g</p></div>
