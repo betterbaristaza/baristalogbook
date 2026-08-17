@@ -45,7 +45,7 @@ P2 = Post-launch
 * [x] Profile persistence
 * [x] Cross-device account sync
 * [x] Sign out
-* [ ] Email verification flow
+* [x] Email verification flow
 * [x] Forgot password
 * [x] Password reset
 * [ ] Authentication error states
@@ -213,7 +213,7 @@ Goal: Technical foundation and launch scope.
 Goal: Accounts and onboarding.
 
 * [x] Password recovery
-* [ ] Email verification UX
+* [x] Email verification UX
 * [ ] Authentication error states
 * [ ] Build onboarding
 * [ ] Improve first-use Coffee Library

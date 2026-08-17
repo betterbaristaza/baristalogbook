@@ -34,6 +34,10 @@ interface AuthContextType {
     email: string
   ) => Promise<{ error: Error | null }>;
 
+  resendSignupConfirmation: (
+  email: string
+) => Promise<{ error: Error | null }>;
+
   updatePassword: (
     password: string
   ) => Promise<{ error: Error | null }>;
@@ -79,25 +83,26 @@ export const AuthProvider: React.FC<{
     };
   }, []);
 
-  const signUp = async (
-    email: string,
-    password: string,
-    name: string
-  ) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name,
-        },
+ const signUp = async (
+  email: string,
+  password: string,
+  name: string
+) => {
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: window.location.origin,
+      data: {
+        name,
       },
-    });
+    },
+  });
 
-    return {
-      error: error ? new Error(error.message) : null,
-    };
+  return {
+    error: error ? new Error(error.message) : null,
   };
+};
 
   const signIn = async (
     email: string,
@@ -124,6 +129,22 @@ export const AuthProvider: React.FC<{
       error: error ? new Error(error.message) : null,
     };
   };
+
+  const resendSignupConfirmation = async (
+  email: string
+) => {
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email,
+    options: {
+      emailRedirectTo: window.location.origin,
+    },
+  });
+
+  return {
+    error: error ? new Error(error.message) : null,
+  };
+};
 
   const updatePassword = async (password: string) => {
     const { error } = await supabase.auth.updateUser({
@@ -154,6 +175,7 @@ export const AuthProvider: React.FC<{
         signUp,
         signIn,
         sendPasswordReset,
+        resendSignupConfirmation,
         updatePassword,
         signOut,
       }}

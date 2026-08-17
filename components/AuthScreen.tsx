@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-type AuthMode = 'signin' | 'signup' | 'forgot';
+type AuthMode =
+  | 'signin'
+  | 'signup'
+  | 'forgot'
+  | 'verify';
 
 const AuthScreen: React.FC = () => {
   const {
     signIn,
     signUp,
     sendPasswordReset,
+    resendSignupConfirmation,
     updatePassword,
     passwordRecovery,
   } = useAuth();
@@ -82,9 +87,8 @@ const AuthScreen: React.FC = () => {
           return;
         }
 
-        setMessage(
-          'Account created. Check your email if confirmation is required.'
-        );
+        setMode('verify');
+        setPassword('');
         return;
       }
 
@@ -100,6 +104,84 @@ const AuthScreen: React.FC = () => {
       setSubmitting(false);
     }
   };
+
+  const handleResendVerification = async () => {
+    setSubmitting(true);
+    setMessage('');
+
+    try {
+      const { error } =
+        await resendSignupConfirmation(email);
+
+      if (error) {
+        setMessage(error.message);
+        return;
+      }
+
+      setMessage(
+        'Verification email sent again. Check your inbox.'
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (!passwordRecovery && mode === 'verify') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-stone-100 px-4">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-stone-200 p-8">
+          <p className="text-sm font-semibold uppercase tracking-widest text-amber-800">
+            Barista Logbook
+          </p>
+
+          <h1 className="text-3xl font-bold text-stone-900 mt-2">
+            Check your email
+          </h1>
+
+          <p className="text-stone-500 mt-3">
+            We sent a verification link to:
+          </p>
+
+          <p className="font-semibold text-stone-900 mt-2 break-all">
+            {email}
+          </p>
+
+          <p className="text-sm text-stone-500 mt-4">
+            Open the email and confirm your account before
+            signing in.
+          </p>
+
+          {message && (
+            <div className="text-sm text-stone-700 bg-stone-100 rounded-lg p-3 mt-5">
+              {message}
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={handleResendVerification}
+            disabled={submitting}
+            className="w-full mt-6 bg-stone-900 text-white rounded-lg px-4 py-3 font-semibold disabled:opacity-50"
+          >
+            {submitting
+              ? 'Please wait...'
+              : 'Resend verification email'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setMode('signin');
+              setMessage('');
+            }}
+            className="w-full mt-4 text-sm text-stone-600"
+          >
+            Back to sign in
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const title = passwordRecovery
     ? 'Set a new password'
@@ -196,6 +278,8 @@ const AuthScreen: React.FC = () => {
                 minLength={6}
                 autoComplete={
                   passwordRecovery
+                    ? 'new-password'
+                    : mode === 'signup'
                     ? 'new-password'
                     : 'current-password'
                 }
