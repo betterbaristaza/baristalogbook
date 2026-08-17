@@ -65,6 +65,10 @@ export interface CoffeeBean {
   personalNotes: string;
   bagImage?: string;
   labelImage?: string;
+  bagImagePath?: string;
+  labelImagePath?: string;
+  bagImageFile?: File;
+  labelImageFile?: File;
 }
 
 export interface BrewLog {
@@ -81,6 +85,9 @@ export interface BrewLog {
   brewTime: number; 
   rating: number; 
   tastingNotes: string[];
+  brewImage?: string;
+  brewImagePath?: string;
+  brewImageFile?: File;
   
   // Method Specifics
   pressure?: number;

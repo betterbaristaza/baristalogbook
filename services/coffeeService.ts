@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import { CoffeeBean, RoastLevel } from '../types';
+import { imageService } from './imageService';
 
 interface CoffeeRow {
   id: string;
@@ -38,39 +39,50 @@ interface CoffeeRow {
   label_image: string | null;
 }
 
-const rowToCoffee = (row: CoffeeRow): CoffeeBean => ({
-  id: row.id,
-  name: row.name,
-  roaster: row.roaster,
-  roasterLocation: row.roaster_location ?? undefined,
-  roasterURL: row.roaster_url ?? undefined,
+const rowToCoffee = async (
+  row: CoffeeRow
+): Promise<CoffeeBean> => {
+  const [bagImage, labelImage] = await Promise.all([
+    imageService.createSignedUrl(row.bag_image),
+    imageService.createSignedUrl(row.label_image),
+  ]);
 
-  origin: row.origin,
-  region: row.region ?? undefined,
-  farm: row.farm ?? undefined,
-  producer: row.producer ?? undefined,
+  return {
+    id: row.id,
+    name: row.name,
+    roaster: row.roaster,
+    roasterLocation: row.roaster_location ?? undefined,
+    roasterURL: row.roaster_url ?? undefined,
 
-  process: row.process,
-  varietal: row.varietal ?? undefined,
-  altitude: row.altitude ?? undefined,
-  terroir: row.terroir ?? undefined,
-  harvestSeason: row.harvest_season ?? undefined,
+    origin: row.origin,
+    region: row.region ?? undefined,
+    farm: row.farm ?? undefined,
+    producer: row.producer ?? undefined,
 
-  roastLevel: row.roast_level as RoastLevel,
-  roastDate: row.roast_date ?? undefined,
-  purchaseDate: row.purchase_date ?? '',
+    process: row.process,
+    varietal: row.varietal ?? undefined,
+    altitude: row.altitude ?? undefined,
+    terroir: row.terroir ?? undefined,
+    harvestSeason: row.harvest_season ?? undefined,
 
-  remainingWeight: Number(row.remaining_weight),
-  totalWeight: Number(row.total_weight),
+    roastLevel: row.roast_level as RoastLevel,
+    roastDate: row.roast_date ?? undefined,
+    purchaseDate: row.purchase_date ?? '',
 
-  price: row.price !== null ? Number(row.price) : undefined,
+    remainingWeight: Number(row.remaining_weight),
+    totalWeight: Number(row.total_weight),
 
-  bagTastingNotes: row.bag_tasting_notes ?? [],
-  personalNotes: row.personal_notes ?? '',
+    price: row.price !== null ? Number(row.price) : undefined,
 
-  bagImage: row.bag_image ?? undefined,
-  labelImage: row.label_image ?? undefined,
-});
+    bagTastingNotes: row.bag_tasting_notes ?? [],
+    personalNotes: row.personal_notes ?? '',
+
+    bagImage,
+    labelImage,
+    bagImagePath: row.bag_image ?? undefined,
+    labelImagePath: row.label_image ?? undefined,
+  };
+};
 
 const coffeeToRow = (
   coffee: CoffeeBean,
@@ -107,8 +119,17 @@ const coffeeToRow = (
   bag_tasting_notes: coffee.bagTastingNotes || [],
   personal_notes: coffee.personalNotes || '',
 
-  bag_image: coffee.bagImage || null,
-  label_image: coffee.labelImage || null,
+  bag_image:
+    coffee.bagImagePath ||
+    (coffee.bagImage?.startsWith('data:')
+      ? coffee.bagImage
+      : null),
+
+  label_image:
+    coffee.labelImagePath ||
+    (coffee.labelImage?.startsWith('data:')
+      ? coffee.labelImage
+      : null),
 });
 
 export const coffeeService = {
@@ -123,7 +144,9 @@ export const coffeeService = {
       throw error;
     }
 
-    return (data as CoffeeRow[]).map(rowToCoffee);
+      return Promise.all(
+      (data as CoffeeRow[]).map(rowToCoffee)
+    );
   },
 
   create: async (
@@ -140,7 +163,7 @@ export const coffeeService = {
       throw error;
     }
 
-    return rowToCoffee(data as CoffeeRow);
+      return await rowToCoffee(data as CoffeeRow);
   },
 
   update: async (
@@ -159,7 +182,7 @@ export const coffeeService = {
       throw error;
     }
 
-    return rowToCoffee(data as CoffeeRow);
+      return await rowToCoffee(data as CoffeeRow);
   },
 
   delete: async (

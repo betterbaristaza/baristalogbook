@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { CoffeeBean, RoastLevel } from '../types';
 
 interface CoffeeBeanFormProps {
@@ -28,27 +28,78 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({ onSave, onCancel, initi
     bagTastingNotes: [],
     personalNotes: '',
     bagImage: undefined,
-    labelImage: undefined
+    labelImage: undefined,
+    bagImageFile: undefined,
+    labelImageFile: undefined,
   });
 
-  const [tastingNoteInput, setTastingNoteInput] = useState('');
+  const [tastingNoteInput, setTastingNoteInput] =
+    useState('');
+
   const bagInputRef = useRef<HTMLInputElement>(null);
   const labelInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (formData.bagImage?.startsWith('blob:')) {
+        URL.revokeObjectURL(formData.bagImage);
+      }
+
+      if (formData.labelImage?.startsWith('blob:')) {
+        URL.revokeObjectURL(formData.labelImage);
+      }
+    };
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'bagImage' | 'labelImage') => {
+    const handleImageUpload = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: 'bagImage' | 'labelImage'
+  ) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, [type]: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
+
+    if (!file) {
+      return;
     }
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file.');
+      e.target.value = '';
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      alert('Please select an image smaller than 15 MB.');
+      e.target.value = '';
+      return;
+    }
+
+    const fileField =
+      type === 'bagImage'
+        ? 'bagImageFile'
+        : 'labelImageFile';
+
+    const previewUrl = URL.createObjectURL(file);
+
+    setFormData(prev => {
+      const previousPreview = prev[type];
+
+      if (previousPreview?.startsWith('blob:')) {
+        URL.revokeObjectURL(previousPreview);
+      }
+
+      return {
+        ...prev,
+        [type]: previewUrl,
+        [fileField]: file,
+      };
+    });
+
+    e.target.value = '';
   };
 
   const handleAddTastingNote = () => {
@@ -92,7 +143,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({ onSave, onCancel, initi
           <h3 className="text-[10px] font-black uppercase tracking-widest text-amber-800 border-l-2 border-amber-800 pl-3">Visual Documentation</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="block text-[10px] font-bold text-stone-400 uppercase">Bag Shot</label>
+              <label className="block text-[10px] font-bold text-stone-400 uppercase"Front of Bag></label>
               <div 
                 onClick={() => bagInputRef.current?.click()}
                 className="aspect-square bg-stone-50 border-2 border-dashed border-stone-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-amber-300 transition-colors relative overflow-hidden group"
@@ -115,7 +166,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({ onSave, onCancel, initi
             </div>
 
             <div className="space-y-2">
-              <label className="block text-[10px] font-bold text-stone-400 uppercase">Label Detail</label>
+              <label className="block text-[10px] font-bold text-stone-400 uppercase">Back of Bag</label>
               <div 
                 onClick={() => labelInputRef.current?.click()}
                 className="aspect-square bg-stone-50 border-2 border-dashed border-stone-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-amber-300 transition-colors relative overflow-hidden group"

@@ -1,10 +1,12 @@
 import { supabase } from './supabaseClient';
 import { BrewLog, BrewMethod } from '../types';
+import { imageService } from './imageService';
 
 interface BrewLogRow {
   id: string;
   user_id: string;
   coffee_id: string | null;
+  brew_image: string | null;
 
   barista_name: string | null;
   site: string | null;
@@ -73,9 +75,18 @@ interface BrewLogRow {
   flavor_groups: string[] | null;
 }
 
-const rowToBrewLog = (row: BrewLogRow): BrewLog => ({
+const rowToBrewLog = async (
+  row: BrewLogRow
+): Promise<BrewLog> => {
+  const brewImage = await imageService.createSignedUrl(
+    row.brew_image
+  );
+
+  return {
   id: row.id,
   coffeeId: row.coffee_id ?? '',
+  brewImage,
+  brewImagePath: row.brew_image ?? undefined,
   baristaName: row.barista_name ?? undefined,
   site: row.site ?? undefined,
 
@@ -148,7 +159,8 @@ const rowToBrewLog = (row: BrewLogRow): BrewLog => ({
   aftertaste: Number(row.aftertaste ?? 3),
 
   flavorGroups: row.flavor_groups ?? [],
-});
+  };
+};
 
 const brewLogToRow = (
   log: BrewLog,
@@ -156,6 +168,11 @@ const brewLogToRow = (
 ) => ({
   user_id: userId,
   coffee_id: log.coffeeId || null,
+  brew_image:
+    log.brewImagePath ||
+    (log.brewImage?.startsWith('data:')
+      ? log.brewImage
+      : null),
 
   barista_name: log.baristaName || null,
   site: log.site || null,
@@ -236,7 +253,9 @@ export const brewLogService = {
       throw error;
     }
 
-    return (data as BrewLogRow[]).map(rowToBrewLog);
+      return Promise.all(
+      (data as BrewLogRow[]).map(rowToBrewLog)
+    );
   },
 
   create: async (
@@ -253,7 +272,7 @@ export const brewLogService = {
       throw error;
     }
 
-    return rowToBrewLog(data as BrewLogRow);
+      return await rowToBrewLog(data as BrewLogRow);
   },
 
   update: async (
@@ -272,7 +291,7 @@ export const brewLogService = {
       throw error;
     }
 
-    return rowToBrewLog(data as BrewLogRow);
+      return await rowToBrewLog(data as BrewLogRow);
   },
 
   delete: async (
