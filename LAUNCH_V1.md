@@ -202,7 +202,7 @@ Goal: Technical foundation and launch scope.
 * [x] Fix profile persistence
 * [x] Lock V1 scope
 * [x] Update README
-* [ ] Add this launch roadmap
+* [x] Add this launch roadmap
 * [ ] Move Gemini server-side
 * [ ] Test Gemini failure handling
 * [ ] Review application structure
