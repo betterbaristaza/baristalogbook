@@ -1,9 +1,11 @@
 # Barista Logbook V1 Launch Plan
 
+Last updated: 18 August 2026
+
 Target paid launch: 28 September 2026
 
-Development period: 17 August to 13 September
-Closed beta: 14 September to 27 September
+Development period: 17 August to 13 September  
+Closed beta: 14 September to 27 September  
 Paid launch: 28 September 2026
 
 ## Product Goal
@@ -30,10 +32,46 @@ Core product loop:
 
 Record → Brew → Compare → Improve
 
+## Current Development Status
+
+Completed and verified by 18 August 2026:
+
+* Authentication, profiles and cross-device data sync
+* Password recovery and email verification flows
+* First-time onboarding
+* Coffee Library create, edit and delete functions
+* Front and back coffee bag image uploads
+* Brew Log create, edit and delete functions
+* Optional brew photo upload
+* Automatic and atomic coffee weight deduction
+* Brew history search and filtering
+* Home summary layout improvements
+* Header safe-area improvements for iPhone
+* Coffee Library empty state
+* Brew Log empty state
+* Coffee Library card redesign
+* Coffee Library mobile layout tested at 390 px
+* Add Bean and Edit Bean form mobile redesign
+* Full-screen mobile bean form
+* iPhone input zoom prevention
+* Persistent mobile Save and Discard controls
+* Desktop and mobile bean form testing
+* Local production builds passing
+* All completed changes committed and merged into main
+
+Current recommended development focus:
+
+1. Brew Log mobile usability review
+2. Brew Again
+3. Security checks
+4. Gemini server-side migration
+5. Account deletion and user data deletion
+6. Subscription system
+
 ## Priority Levels
 
-P0 = Required before launch
-P1 = Strongly preferred for launch
+P0 = Required before launch  
+P1 = Strongly preferred for launch  
 P2 = Post-launch
 
 # P0 Launch Requirements
@@ -61,6 +99,11 @@ P2 = Post-launch
 * [x] Back bag photo
 * [x] Private image storage
 * [x] First-use empty state
+* [x] Coffee card information hierarchy
+* [x] Mobile card layout
+* [x] Mobile Add Bean form
+* [x] Mobile Edit Bean form
+* [x] Mobile Save and Discard controls
 * [x] Final mobile usability review
 
 ## Brew Log
@@ -70,8 +113,10 @@ P2 = Post-launch
 * [x] Delete brew
 * [x] Optional brew image
 * [x] Automatic coffee weight deduction
+* [x] Atomic coffee weight update
 * [x] Brew history
 * [x] Search and filtering
+* [x] First-use empty state
 * [ ] Brew Again
 * [ ] Final mobile usability review
 
@@ -88,14 +133,13 @@ P2 = Post-launch
 
 ## Onboarding
 
-## Onboarding
-
 * [x] Welcome screen
 * [x] First-time profile completion
 * [x] Add first coffee
 * [x] Log first brew
 * [x] Clear first-use guidance
 * [x] Skip options where appropriate
+* [x] Onboarding completion persistence
 
 ## Commercial System
 
@@ -114,11 +158,17 @@ P2 = Post-launch
 
 ## Product Quality
 
-* [ ] Loading states
-* [ ] Error states
-* [ ] Empty states
+* [ ] Complete loading-state review
+* [ ] Complete error-state review
+* [ ] Complete empty-state review
+* [x] Coffee Library empty state
+* [x] Brew Log empty state
+* [x] Coffee Library mobile review
+* [x] Bean form mobile review
+* [x] iPhone safe-area header fix
+* [x] iPhone form input zoom prevention
+* [ ] Brew Log mobile review
 * [ ] Mobile navigation review
-* [ ] Mobile form review
 * [ ] PWA installation testing
 * [ ] Production console error review
 * [ ] Cross-browser testing
@@ -199,12 +249,29 @@ Do not work on these before V1 unless launch-critical work is complete.
 
 ## Week 1, 17 to 23 August
 
-Goal: Technical foundation and launch scope.
+Goal: Technical foundation, launch scope and core mobile usability.
 
 * [x] Fix profile persistence
 * [x] Lock V1 scope
 * [x] Update README
 * [x] Add this launch roadmap
+* [x] Complete password recovery
+* [x] Complete email verification UX
+* [x] Complete authentication error states
+* [x] Build onboarding
+* [x] Fix onboarding completion persistence
+* [x] Improve Home summary layout
+* [x] Fix iPhone header safe area
+* [x] Improve first-use Coffee Library
+* [x] Improve first-use Brew Log
+* [x] Redesign Coffee Library card
+* [x] Test Coffee Library card at 390 px
+* [x] Improve Add Bean mobile form
+* [x] Improve Edit Bean mobile form
+* [x] Add mobile form safe-area spacing
+* [x] Prevent iPhone input zoom
+* [x] Complete Coffee Library mobile review
+* [ ] Complete Brew Log mobile review
 * [ ] Move Gemini server-side
 * [ ] Test Gemini failure handling
 * [ ] Review application structure
@@ -212,15 +279,21 @@ Goal: Technical foundation and launch scope.
 
 ## Week 2, 24 to 30 August
 
-Goal: Accounts and onboarding.
+Goal: Complete P0 account, security and mobile requirements.
 
-* [x] Password recovery
-* [x] Email verification UX
-* [x] Authentication error states
-* [x]Build onboarding
-* [x] Improve first-use Coffee Library
-* [x] Improve first-use Brew Log
-* [x] Mobile usability testing
+* [ ] Build account deletion
+* [ ] Build associated user data deletion
+* [ ] Verify RLS on all user tables
+* [ ] Verify storage isolation between accounts
+* [ ] Remove Gemini API key from browser
+* [ ] Create server-side Gemini request flow
+* [ ] Test Gemini failure handling
+* [ ] Complete Brew Log mobile review
+* [ ] Complete mobile navigation review
+* [ ] Review loading states
+* [ ] Review error states
+* [ ] Review empty states
+* [ ] Complete new-account production test
 
 ## Week 3, 31 August to 6 September
 
@@ -296,6 +369,7 @@ Every development task must meet these requirements:
 
 * [ ] Feature works locally
 * [ ] Mobile behaviour checked
+* [ ] Desktop behaviour checked where relevant
 * [ ] Loading state checked where relevant
 * [ ] Error state checked where relevant
 * [ ] Database permissions checked where relevant
