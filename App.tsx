@@ -950,86 +950,146 @@ if (onboardingStep === 'welcome') {
                 >
                   <Icons.Download className="w-4 h-4" /> Export
                 </button>
-                <button onClick={startBrewCapture} className="bg-amber-800 text-white p-4 px-6 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-900/20 active:scale-95 transition-all">
-                  <Icons.Plus className="w-4 h-4" /> Capture Brew
-                </button>
+                {coffees.length > 0 && (
+  <button
+    onClick={startBrewCapture}
+    className="bg-amber-800 text-white p-4 px-6 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-900/20 active:scale-95 transition-all"
+  >
+    <Icons.Plus className="w-4 h-4" />
+    Capture Brew
+  </button>
+)}
               </div>
             </div>
 
             {/* Search and Filters */}
-            <div className="mb-8 space-y-4">
-              <div className="relative group">
-                <Icons.Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 group-focus-within:text-amber-800 transition-colors" />
-                <input 
-                  type="text" 
-                  placeholder="Search journals, beans, or grinders..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white border border-stone-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-amber-800/5 focus:border-amber-800/20 transition-all shadow-sm"
-                />
-                <button 
-                  onClick={() => setShowFilters(!showFilters)}
-                  className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl border transition-all ${showFilters ? 'bg-amber-100 border-amber-200 text-amber-800' : 'bg-stone-50 border-stone-100 text-stone-400 hover:text-stone-600'}`}
-                >
-                  <Icons.Filter className="w-4 h-4" />
-                </button>
-              </div>
-
-              {showFilters && (
-                <div className="p-6 bg-white rounded-3xl border border-stone-100 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Method</label>
-                      <select 
-                        value={methodFilter}
-                        onChange={(e) => setMethodFilter(e.target.value as any)}
-                        className="w-full p-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold text-stone-700 outline-none focus:border-amber-200 transition-all"
-                      >
-                        <option value="all">All Methods</option>
-                        {Object.values(BrewMethod).map(m => <option key={m} value={m}>{m}</option>)}
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Min Rating</label>
-                      <select 
-                        value={ratingFilter}
-                        onChange={(e) => setRatingFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                        className="w-full p-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold text-stone-700 outline-none focus:border-amber-200 transition-all"
-                      >
-                        <option value="all">Any Rating</option>
-                        {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}+ Stars</option>)}
-                      </select>
-                    </div>
-                    <div className="space-y-2 col-span-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Timeframe</label>
-                       <div className="flex gap-2">
-                         {['all', 'today', 'week', 'month'].map(r => (
-                           <button 
-                             key={r}
-                             onClick={() => setDateRange(r as any)}
-                             className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all border ${dateRange === r ? 'bg-stone-900 border-stone-900 text-white shadow-lg' : 'bg-white border-stone-100 text-stone-400 hover:bg-stone-50'}`}
-                           >
-                             {r}
-                           </button>
-                         ))}
-                       </div>
-                    </div>
-                  </div>
+            {brewLogs.length > 0 && (
+              <div className="mb-8 space-y-4">
+                <div className="relative group">
+                  <Icons.Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 group-focus-within:text-amber-800 transition-colors" />
+                  <input 
+                    type="text" 
+                    placeholder="Search journals, beans, or grinders..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-white border border-stone-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-amber-800/5 focus:border-amber-800/20 transition-all shadow-sm"
+                  />
                   <button 
-                    onClick={clearFilters}
-                    className="w-full py-3 text-[10px] font-black uppercase tracking-widest text-amber-800 hover:bg-amber-50 rounded-xl transition-all"
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl border transition-all ${showFilters ? 'bg-amber-100 border-amber-200 text-amber-800' : 'bg-stone-50 border-stone-100 text-stone-400 hover:text-stone-600'}`}
                   >
-                    Clear All Filters
+                    <Icons.Filter className="w-4 h-4" />
                   </button>
                 </div>
-              )}
-            </div>
 
-            {filteredLogs.length === 0 ? (
+                {showFilters && (
+                  <div className="p-6 bg-white rounded-3xl border border-stone-100 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Method</label>
+                        <select 
+                          value={methodFilter}
+                          onChange={(e) => setMethodFilter(e.target.value as any)}
+                          className="w-full p-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold text-stone-700 outline-none focus:border-amber-200 transition-all"
+                        >
+                          <option value="all">All Methods</option>
+                          {Object.values(BrewMethod).map(m => <option key={m} value={m}>{m}</option>)}
+                        </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Min Rating</label>
+                        <select 
+                          value={ratingFilter}
+                          onChange={(e) => setRatingFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                          className="w-full p-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold text-stone-700 outline-none focus:border-amber-200 transition-all"
+                        >
+                          <option value="all">Any Rating</option>
+                          {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}+ Stars</option>)}
+                        </select>
+                      </div>
+
+                      <div className="space-y-2 col-span-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Timeframe</label>
+                        <div className="flex gap-2">
+                          {['all', 'today', 'week', 'month'].map(r => (
+                            <button 
+                              key={r}
+                              onClick={() => setDateRange(r as any)}
+                              className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all border ${dateRange === r ? 'bg-stone-900 border-stone-900 text-white shadow-lg' : 'bg-white border-stone-100 text-stone-400 hover:bg-stone-50'}`}
+                            >
+                              {r}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <button 
+                      onClick={clearFilters}
+                      className="w-full py-3 text-[10px] font-black uppercase tracking-widest text-amber-800 hover:bg-amber-50 rounded-xl transition-all"
+                    >
+                      Clear All Filters
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {brewLogsLoading ? (
+              <div className="py-24 text-center">
+                <p className="text-[10px] font-black uppercase tracking-widest text-stone-300">
+                  Loading brews...
+                </p>
+              </div>
+            ) : brewLogs.length === 0 ? (
+              <div className="bg-white border-2 border-dashed border-stone-200 rounded-[3rem] px-8 py-16 text-center">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-[2rem] bg-amber-50 flex items-center justify-center text-amber-800">
+                  <Icons.Book className="w-9 h-9" />
+                </div>
+
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-800 mb-3">
+                  Brew Journal
+                </p>
+
+                <h3 className="text-2xl font-black text-stone-800 display-font">
+                  No brews logged yet
+                </h3>
+
+                <p className="text-sm text-stone-400 leading-relaxed max-w-sm mx-auto mt-3 mb-8">
+                  Record your recipes and tasting results so you can compare brews and improve over time.
+                </p>
+
+                {coffees.length === 0 ? (
+                  <button
+                    onClick={() => setActiveTab('library')}
+                    className="bg-stone-900 text-white px-8 py-5 rounded-2xl inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-stone-900/10 active:scale-95 transition-all"
+                  >
+                    <Icons.Plus className="w-4 h-4" />
+                    Add A Coffee First
+                  </button>
+                ) : (
+                  <button
+                    onClick={startBrewCapture}
+                    className="bg-stone-900 text-white px-8 py-5 rounded-2xl inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-stone-900/10 active:scale-95 transition-all"
+                  >
+                    <Icons.Plus className="w-4 h-4" />
+                    Log Your First Brew
+                  </button>
+                )}
+              </div>
+            ) : filteredLogs.length === 0 ? (
               <div className="text-center py-24 bg-white rounded-[2.5rem] border-2 border-dashed border-stone-200">
                 <Icons.Coffee className="w-16 h-16 text-stone-100 mx-auto mb-4" />
-                <p className="text-stone-400 font-bold uppercase text-[10px] tracking-widest">No matching results</p>
-                <button onClick={clearFilters} className="mt-4 text-amber-800 font-bold text-sm underline underline-offset-4">Reset filters</button>
+                <p className="text-stone-400 font-bold uppercase text-[10px] tracking-widest">
+                  No matching results
+                </p>
+                <button
+                  onClick={clearFilters}
+                  className="mt-4 text-amber-800 font-bold text-sm underline underline-offset-4"
+                >
+                  Reset filters
+                </button>
               </div>
             ) : (
               <div className="space-y-6">
