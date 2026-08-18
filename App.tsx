@@ -1121,29 +1121,92 @@ if (onboardingStep === 'welcome') {
         )}
 
         {activeTab === 'library' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-bold text-stone-800 display-font">Coffee Library</h2>
-              <button 
-                onClick={() => { setEditingCoffee(null); setShowBeanForm(true); }} 
-                className="bg-stone-900 text-white p-4 px-6 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] active:scale-95 transition-all shadow-xl shadow-stone-900/10"
-              >
-                <Icons.Plus className="w-4 h-4" /> Add Bean
-              </button>
-            </div>
-            <div className="grid grid-cols-1 gap-6">
-              {coffees.map(coffee => (
-                <CoffeeCard 
-                  key={coffee.id} 
-                  coffee={coffee} 
-                  onClick={(c) => { setSelectedCoffee(c); setBrewFlowStep('brew'); setShowBrewFlow(true); }} 
-                  onEdit={(c) => { setEditingCoffee(c); setShowBeanForm(true); }}
-                  onDelete={(c) => handleDeleteCoffee(c.id)}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="flex justify-between items-center mb-8">
+      <div>
+        <h2 className="text-3xl font-bold text-stone-800 display-font">
+          Coffee Library
+        </h2>
+
+        <p className="text-sm text-stone-400 mt-1">
+          Keep track of the coffees you are brewing.
+        </p>
+      </div>
+
+      {coffees.length > 0 && (
+        <button
+          onClick={() => {
+            setEditingCoffee(null);
+            setShowBeanForm(true);
+          }}
+          className="bg-stone-900 text-white p-4 px-6 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] active:scale-95 transition-all shadow-xl shadow-stone-900/10"
+        >
+          <Icons.Plus className="w-4 h-4" />
+          Add Bean
+        </button>
+      )}
+    </div>
+
+    {coffeesLoading ? (
+      <div className="py-24 text-center">
+        <p className="text-[10px] font-black uppercase tracking-widest text-stone-300">
+          Loading coffees...
+        </p>
+      </div>
+    ) : coffees.length === 0 ? (
+      <div className="bg-white border-2 border-dashed border-stone-200 rounded-[3rem] px-8 py-16 text-center">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-[2rem] bg-amber-50 flex items-center justify-center text-amber-800">
+          <Icons.Coffee className="w-9 h-9" />
+        </div>
+
+        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-800 mb-3">
+          Coffee Library
+        </p>
+
+        <h3 className="text-2xl font-black text-stone-800 display-font">
+          No coffees yet
+        </h3>
+
+        <p className="text-sm text-stone-400 leading-relaxed max-w-sm mx-auto mt-3 mb-8">
+          Add the coffee you are brewing so you can use it in your brew logs
+          and keep track of your recipes.
+        </p>
+
+        <button
+          onClick={() => {
+            setEditingCoffee(null);
+            setShowBeanForm(true);
+          }}
+          className="bg-stone-900 text-white px-8 py-5 rounded-2xl inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-stone-900/10 active:scale-95 transition-all"
+        >
+          <Icons.Plus className="w-4 h-4" />
+          Add Your First Coffee
+        </button>
+      </div>
+    ) : (
+      <div className="grid grid-cols-1 gap-6">
+        {coffees.map(coffee => (
+          <CoffeeCard
+            key={coffee.id}
+            coffee={coffee}
+            onClick={(c) => {
+              setSelectedCoffee(c);
+              setBrewFlowStep('brew');
+              setShowBrewFlow(true);
+            }}
+            onEdit={(c) => {
+              setEditingCoffee(c);
+              setShowBeanForm(true);
+            }}
+            onDelete={(c) =>
+              handleDeleteCoffee(c.id)
+            }
+          />
+        ))}
+      </div>
+    )}
+  </div>
+)}
 
         {activeTab === 'grind' && <GrindReference />}
 
