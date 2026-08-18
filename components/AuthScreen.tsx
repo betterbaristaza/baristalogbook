@@ -36,7 +36,7 @@ const AuthScreen: React.FC = () => {
 
     try {
       if (passwordRecovery) {
-        if (password.length < 6) {
+        if (password.length < 8) {
           setMessage(
             'Password must be at least 6 characters.'
           );
@@ -275,7 +275,7 @@ const AuthScreen: React.FC = () => {
                   setPassword(event.target.value)
                 }
                 required
-                minLength={6}
+                minLength={8}
                 autoComplete={
                   passwordRecovery
                     ? 'new-password'
@@ -303,7 +303,7 @@ const AuthScreen: React.FC = () => {
                   )
                 }
                 required
-                minLength={6}
+                minLength={8}
                 autoComplete="new-password"
                 className="w-full border border-stone-300 rounded-lg px-3 py-2"
               />

@@ -56,17 +56,24 @@ Completed and verified by 18 August 2026:
 * iPhone input zoom prevention
 * Persistent mobile Save and Discard controls
 * Desktop and mobile bean form testing
+* Brew Log mobile usability review
+* Supabase security audit and database hardening
+* RLS verified across all user tables
+* Private image storage policies verified
+* Database permissions reduced to required operations
+* Cross-user coffee and brew references blocked
+* Secure password changes enabled
+* Frontend password validation matched to Supabase rules
 * Local production builds passing
 * All completed changes committed and merged into main
 
 Current recommended development focus:
 
-1. Brew Log mobile usability review
-2. Brew Again
-3. Security checks
-4. Gemini server-side migration
-5. Account deletion and user data deletion
-6. Subscription system
+1. Brew Again
+2. Gemini server-side migration
+3. Account deletion and user data deletion
+4. Mobile navigation and product quality review
+5. Subscription system
 
 ## Priority Levels
 
@@ -122,14 +129,22 @@ P2 = Post-launch
 
 ## Security
 
+## Security
+
 * [x] Supabase Row Level Security foundation
+* [x] Verify RLS on all user tables
 * [x] Private user image storage
+* [x] Verify storage isolation between accounts
 * [x] Atomic coffee weight update
-* [ ] Verify RLS on all user tables
-* [ ] Verify storage isolation between accounts
+* [x] Restrict direct trigger function access
+* [x] Reduce anonymous and authenticated database privileges
+* [x] Enforce matching ownership between brew logs and coffees
+* [x] Enable secure password changes
+* [x] Match frontend password validation to Supabase rules
+* [x] Confirm no service-role, database or payment secrets exist in client code
+* [ ] Add authentication CAPTCHA protection
 * [ ] Remove Gemini API key from browser
 * [ ] Create server-side Gemini request flow
-* [ ] Confirm no secret payment keys exist in client code
 
 ## Onboarding
 
@@ -283,12 +298,13 @@ Goal: Complete P0 account, security and mobile requirements.
 
 * [ ] Build account deletion
 * [ ] Build associated user data deletion
-* [ ] Verify RLS on all user tables
-* [ ] Verify storage isolation between accounts
+* [x] Verify RLS on all user tables
+* [x] Verify storage isolation between accounts
+* [x] Complete Supabase security hardening
 * [ ] Remove Gemini API key from browser
 * [ ] Create server-side Gemini request flow
 * [ ] Test Gemini failure handling
-* [ ] Complete Brew Log mobile review
+* [x] Complete Brew Log mobile review
 * [ ] Complete mobile navigation review
 * [ ] Review loading states
 * [ ] Review error states
