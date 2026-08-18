@@ -165,9 +165,12 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
 
   return (
     <form
-      onSubmit={handleSubmit}
-      className="bg-white w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] sm:max-w-2xl overflow-y-auto rounded-none sm:rounded-3xl p-5 sm:p-8 shadow-2xl space-y-8 animate-in zoom-in-95 duration-300 [&_input]:text-base [&_select]:text-base [&_textarea]:text-base sm:[&_input]:text-sm sm:[&_select]:text-sm sm:[&_textarea]:text-sm"
-    >
+  onSubmit={handleSubmit}
+  className="bg-white w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] sm:max-w-2xl overflow-y-auto rounded-none sm:rounded-3xl px-5 pb-5 sm:p-8 shadow-2xl space-y-6 sm:space-y-8 space-yanimate-in zoom-in-95 duration-300 [&_input]:text-base [&_select]:text-base [&_textarea]:text-base sm:[&_input]:text-sm sm:[&_select]:text-sm sm:[&_textarea]:text-sm"
+  style={{
+    paddingTop: 'calc(env(safe-area-inset-top) + 1.25rem)',
+  }}
+>
       <div className="flex items-start justify-between gap-4 border-b border-stone-100 pb-4">
         <div className="min-w-0">
           <h2 className="text-2xl sm:text-3xl font-bold display-font text-stone-800 leading-tight">
@@ -203,7 +206,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
         </button>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         <section className="space-y-4">
           <h3 className="border-l-2 border-amber-800 pl-3 text-[10px] font-black uppercase tracking-widest text-amber-800">
             Visual Documentation
@@ -577,7 +580,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
         </section>
       </div>
 
-      <div className="sticky bottom-0 z-10 -mx-5 flex gap-3 border-t border-stone-100 bg-white/95 px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur sm:static sm:mx-0 sm:gap-4 sm:px-0 sm:pt-6 sm:pb-0">
+      <div className="-mx-5 flex gap-3 border-t border-stone-100 bg-white px-5 pt-5 pb-[max(1rem,env(safe-area-inset-bottom))] sm:mx-0 sm:gap-4 sm:px-0 sm:pt-6 sm:pb-0">
         <button
           type="button"
           onClick={onCancel}
