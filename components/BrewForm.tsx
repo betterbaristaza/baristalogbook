@@ -379,7 +379,10 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
   const ratio = dose > 0 ? `1:${(yieldVal / dose).toFixed(1)}` : '0';
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-[3rem] shadow-2xl border border-stone-100 max-w-xl mx-auto max-h-[92vh] overflow-y-auto animate-in zoom-in-95 duration-300 custom-scrollbar">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-5 bg-white px-4 pt-5 pb-0 rounded-none border-0 w-full h-[100dvh] overflow-y-auto max-w-xl mx-auto [&_input]:text-base [&_select]:text-base [&_textarea]:text-base sm:h-auto sm:max-h-[92vh] sm:p-8 sm:rounded-[3rem] sm:border sm:border-stone-100 sm:shadow-2xl sm:[&_input]:text-sm sm:[&_select]:text-xs sm:[&_textarea]:text-sm animate-in zoom-in-95 duration-300 custom-scrollbar"
+    >
       <div className="flex justify-between items-start mb-4">
         <div>
           <h2 className="text-3xl font-black display-font text-stone-800">{title || (initialData ? 'Edit Brew' : 'Log Brew')}</h2>
@@ -388,87 +391,13 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
         <button type="button" onClick={onCancel} className="p-3 bg-stone-50 rounded-full text-stone-400 hover:text-stone-800 transition-colors">✕</button>
       </div>
 
-      <section className="space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-            Brew Photo
-          </label>
-
-          <span className="text-[9px] font-bold uppercase tracking-widest text-stone-300">
-            Optional
-          </span>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => brewImageInputRef.current?.click()}
-          className="w-full min-h-44 bg-stone-50 border-2 border-dashed border-stone-200 rounded-3xl overflow-hidden relative flex items-center justify-center hover:border-amber-300 transition-colors group"
-        >
-          {brewImage ? (
-            <>
-              <img
-                src={brewImage}
-                alt="Brew preview"
-                className="w-full h-56 object-cover"
-              />
-
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                <span className="text-white text-xs font-black uppercase tracking-widest">
-                  Change Photo
-                </span>
-              </div>
-            </>
-          ) : (
-            <div className="py-10 text-center">
-              <svg
-                className="w-9 h-9 mx-auto mb-3 text-stone-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                />
-
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-
-              <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">
-                Add Brew Photo
-              </p>
-
-              <p className="text-[9px] text-stone-300 mt-1">
-                Take a photo or choose one from your device
-              </p>
-            </div>
-          )}
-        </button>
-
-        <input
-          ref={brewImageInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          className="hidden"
-          onChange={handleBrewImageUpload}
-        />
-      </section>
-
-      <div className="flex bg-stone-100 p-1.5 rounded-2xl gap-1 overflow-x-auto no-scrollbar">
+      <div className="grid grid-cols-3 gap-1 bg-stone-100 p-1.5 rounded-2xl sm:flex sm:overflow-x-auto sm:no-scrollbar">
         {Object.values(BrewMethod).map(m => (
           <button 
             key={m} 
             type="button"
             onClick={() => setMethod(m)}
-            className={`flex-none py-2 px-3 text-[9px] font-black uppercase tracking-tighter rounded-xl transition-all ${method === m ? 'bg-white text-amber-800 shadow-sm' : 'text-stone-400 hover:text-stone-600'}`}
+            className={`min-w-0 py-2.5 px-1 text-[8px] font-black uppercase tracking-tighter rounded-xl whitespace-nowrap transition-all sm:flex-none sm:px-3 sm:text-[9px] ${method === m ? 'bg-white text-amber-800 shadow-sm' : 'text-stone-400 hover:text-stone-600'}`}
           >
             {m === BrewMethod.POUR_OVER ? 'Filter' : m}
           </button>
@@ -499,7 +428,7 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
 
           {method === BrewMethod.ESPRESSO && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <DynamicSelect
                   label="Machine"
                   value={machineBrand}
@@ -754,8 +683,82 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
           <textarea value={processNotes} onChange={e => setProcessNotes(e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm h-32 font-medium outline-none focus:border-amber-300 transition-colors" placeholder="Describe your technique..."></textarea>
         </div>
 
+        <section className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] font-black uppercase tracking-widest text-stone-500">
+              Brew Photo
+            </label>
+
+            <span className="text-[9px] font-bold uppercase tracking-widest text-stone-300">
+              Optional
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => brewImageInputRef.current?.click()}
+            className="w-full min-h-28 bg-stone-50 border-2 border-dashed border-stone-200 rounded-2xl overflow-hidden relative flex items-center justify-center hover:border-amber-300 transition-colors group sm:min-h-44 sm:rounded-3xl"
+          >
+            {brewImage ? (
+              <>
+                <img
+                  src={brewImage}
+                  alt="Brew preview"
+                  className="w-full h-40 object-cover sm:h-56"
+                />
+
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                  <span className="text-white text-xs font-black uppercase tracking-widest">
+                    Change Photo
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="py-6 text-center sm:py-10">
+                <svg
+                  className="w-9 h-9 mx-auto mb-3 text-stone-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                  />
+
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+
+                <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">
+                  Add Brew Photo
+                </p>
+
+                <p className="text-[9px] text-stone-300 mt-1">
+                  Take a photo or choose one from your device
+                </p>
+              </div>
+            )}
+          </button>
+
+          <input
+            ref={brewImageInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={handleBrewImageUpload}
+          />
+        </section>
+
         {/* Sensory Analysis Section - Light Refined Aesthetic */}
-        <div className="p-7 bg-stone-50 rounded-[3rem] border border-stone-100 space-y-8 animate-in fade-in slide-in-from-bottom-2">
+        <div className="p-4 bg-stone-50 rounded-[2rem] border border-stone-100 space-y-5 sm:p-7 sm:rounded-[3rem] sm:space-y-8 animate-in fade-in slide-in-from-bottom-2">
           <div className="flex items-center justify-between">
             <h4 className="text-[10px] font-black text-stone-800 uppercase tracking-[0.2em] flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-amber-800 rounded-full"></span> Sensory Profile
@@ -763,9 +766,9 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
             <span className="text-[8px] font-bold text-stone-300 uppercase tracking-widest">Calibration Scale</span>
           </div>
           
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6">
             {SENSORY_ATTRIBUTES.map(attr => (
-              <div key={attr.id} className="flex flex-col gap-2.5 group">
+              <div key={attr.id} className="flex flex-col gap-2 group sm:gap-2.5">
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-bold text-stone-500 uppercase tracking-widest flex items-center gap-2 group-hover:text-stone-800 transition-colors">
                     <span className="text-sm grayscale-[0.5] group-hover:grayscale-0 transition-all">{attr.icon}</span> {attr.label}
