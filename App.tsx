@@ -162,7 +162,7 @@ const [profileLoading, setProfileLoading] = useState(true);
   useEffect(() => {
   if (!user) {
     setProfile(null);
-    setProfileLoading(false);
+    setProfileLoading(true);
     return;
   }
 
@@ -823,7 +823,7 @@ useEffect(() => {
     setShowBrewFlow(true);
   };
 
-  if (loading || profileLoading) {
+  if (loading) {
   return (
     <div className="min-h-screen flex items-center justify-center">
       Loading...
@@ -835,7 +835,7 @@ if (!user || passwordRecovery) {
   return <AuthScreen />;
 }
 
-if (!onboardingInitialized) {
+if (profileLoading || !onboardingInitialized) {
   return (
     <div className="min-h-screen flex items-center justify-center">
       Loading...
