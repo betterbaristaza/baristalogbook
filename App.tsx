@@ -887,52 +887,208 @@ if (onboardingStep === 'welcome') {
 
       <main className="flex-1 max-w-2xl mx-auto w-full p-6">
         {activeTab === 'home' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-10">
-            <div className="space-y-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-400">Welcome back,</p>
-              <h2 className="text-4xl font-bold text-stone-800 display-font">{profile?.name || 'Alexander'}</h2>
+  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-10">
+    <div className="space-y-1">
+      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-400">
+        Welcome back,
+      </p>
+
+      <h2 className="text-4xl font-bold text-stone-800 display-font">
+        {profile?.name || 'Coffee Lover'}
+      </h2>
+    </div>
+
+    {coffeesLoading || brewLogsLoading ? (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div className="h-3 w-32 bg-stone-200 rounded-full animate-pulse" />
+          <div className="h-3 w-20 bg-stone-100 rounded-full animate-pulse" />
+        </div>
+
+        <div className="flex gap-4 overflow-hidden">
+          {[1, 2].map(item => (
+            <div
+              key={item}
+              className="flex-none w-64 bg-white p-7 rounded-[2.5rem] border border-stone-100 shadow-sm"
+            >
+              <div className="flex justify-between items-start mb-8">
+                <div className="w-11 h-11 rounded-2xl bg-stone-100 animate-pulse" />
+                <div className="w-16 h-4 rounded-md bg-stone-100 animate-pulse" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-5">
+                <div>
+                  <div className="h-2 w-12 bg-stone-100 rounded-full animate-pulse mb-3" />
+                  <div className="h-6 w-10 bg-stone-200 rounded-lg animate-pulse" />
+                </div>
+
+                <div>
+                  <div className="h-2 w-14 bg-stone-100 rounded-full animate-pulse mb-3" />
+                  <div className="h-6 w-12 bg-stone-200 rounded-lg animate-pulse" />
+                </div>
+
+                <div className="col-span-2 pt-4 border-t border-stone-50">
+                  <div className="h-2 w-16 bg-stone-100 rounded-full animate-pulse mb-3" />
+                  <div className="h-4 w-24 bg-stone-200 rounded-full animate-pulse" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ) : brewLogs.length === 0 ? (
+      <section className="bg-white border-2 border-dashed border-stone-200 rounded-[3rem] px-8 py-14 text-center">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-[2rem] bg-amber-50 flex items-center justify-center text-amber-800">
+          <Icons.Coffee className="w-9 h-9" />
+        </div>
+
+        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-800 mb-3">
+          Your Logbook
+        </p>
+
+        <h3 className="text-2xl font-black text-stone-800 display-font">
+          Start building your brew history
+        </h3>
+
+        <p className="text-sm text-stone-400 leading-relaxed max-w-sm mx-auto mt-3 mb-8">
+          Save your coffees and record each brew. Your activity and brewing
+          trends will appear here as your journal grows.
+        </p>
+
+        {coffees.length === 0 ? (
+          <button
+            onClick={() => {
+              setEditingCoffee(null);
+              setShowBeanForm(true);
+            }}
+            className="bg-stone-900 text-white px-8 py-5 rounded-2xl inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-stone-900/10 active:scale-95 transition-all"
+          >
+            <Icons.Plus className="w-4 h-4" />
+            Add Your First Coffee
+          </button>
+        ) : (
+          <button
+            onClick={startBrewCapture}
+            className="bg-stone-900 text-white px-8 py-5 rounded-2xl inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-stone-900/10 active:scale-95 transition-all"
+          >
+            <Icons.Plus className="w-4 h-4" />
+            Log Your First Brew
+          </button>
+        )}
+      </section>
+    ) : (
+      <section className="space-y-6">
+        <div className="flex justify-between items-end">
+          <h3 className="text-xs font-black uppercase tracking-widest text-stone-500">
+            Activity Summaries
+          </h3>
+
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className="text-[10px] font-bold text-amber-800 underline underline-offset-4 hover:text-amber-600 transition-colors"
+          >
+            Full Analytics
+          </button>
+        </div>
+
+        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-6 px-6">
+          <div className="flex-none w-64 bg-white p-7 rounded-[2.5rem] border border-stone-100 shadow-sm transition-all hover:border-amber-200">
+            <div className="flex justify-between items-start mb-6">
+              <span className="p-3 bg-amber-50 text-amber-800 rounded-2xl shadow-sm">
+                <Icons.Book className="w-5 h-5" />
+              </span>
+
+              <span className="text-[9px] font-black uppercase bg-stone-800 text-white px-2 py-0.5 rounded-md shadow-sm">
+                This Week
+              </span>
             </div>
 
-            {/* Weekly and Monthly Summaries */}
-            <section className="space-y-6">
-              <div className="flex justify-between items-end">
-                <h3 className="text-xs font-black uppercase tracking-widest text-stone-500">Activity Summaries</h3>
-                <button 
-                  onClick={() => setActiveTab('analytics')}
-                  className="text-[10px] font-bold text-amber-800 underline underline-offset-4 hover:text-amber-600 transition-colors"
-                >
-                  Full Analytics
-                </button>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-[9px] font-bold text-stone-400 uppercase">
+                  Brews
+                </p>
+                <p className="text-xl font-black text-stone-800">
+                  {summaries.weekly.totalBrews}
+                </p>
               </div>
-              <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-6 px-6">
-                <div className="flex-none w-64 bg-white p-7 rounded-[2.5rem] border border-stone-100 shadow-sm transition-all hover:border-amber-200">
-                  <div className="flex justify-between items-start mb-6">
-                    <span className="p-3 bg-amber-50 text-amber-800 rounded-2xl shadow-sm"><Icons.Book className="w-5 h-5" /></span>
-                    <span className="text-[9px] font-black uppercase bg-stone-800 text-white px-2 py-0.5 rounded-md shadow-sm">This Week</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><p className="text-[9px] font-bold text-stone-400 uppercase">Brews</p><p className="text-xl font-black text-stone-800">{summaries.weekly.totalBrews}</p></div>
-                    <div><p className="text-[9px] font-bold text-stone-400 uppercase">Avg Taste</p><p className="text-xl font-black text-stone-800">{summaries.weekly.avgTaste}/5</p></div>
-                    <div className="col-span-2 pt-2 border-t border-stone-50"><p className="text-[9px] font-bold text-stone-400 uppercase mb-1">Top Method</p><p className="text-xs font-black text-amber-900">{summaries.weekly.topMethod}</p></div>
-                  </div>
-                </div>
 
-                {/* Monthly Insight - Updated Background to Light Crema/Amber Refined Aesthetic */}
-                <div className="flex-none w-64 bg-[#fdf8f3] p-7 rounded-[2.5rem] border border-amber-100 shadow-sm transition-all hover:border-amber-300">
-                  <div className="flex justify-between items-start mb-6">
-                    <span className="p-3 bg-white text-amber-800 rounded-2xl shadow-md border border-amber-50"><Icons.Star className="w-5 h-5" /></span>
-                    <span className="text-[9px] font-black uppercase bg-amber-800 text-white px-2 py-0.5 rounded-md shadow-sm">Monthly</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><p className="text-[9px] font-bold text-amber-800/40 uppercase">Total Brews</p><p className="text-xl font-black text-amber-950">{summaries.monthly.totalBrews}</p></div>
-                    <div><p className="text-[9px] font-bold text-amber-800/40 uppercase">Growth</p><p className={`text-xl font-black ${summaries.monthly.growth >= 0 ? 'text-emerald-600' : 'text-rose-500'}`}>{summaries.monthly.growth >= 0 ? '+' : ''}{summaries.monthly.growth}%</p></div>
-                    <div className="col-span-2 pt-2 border-t border-amber-100/50"><p className="text-[9px] font-bold text-amber-800/40 uppercase mb-1">Star Roast</p><p className="text-xs font-black text-amber-900">{summaries.monthly.favoriteBean}</p></div>
-                  </div>
-                </div>
+              <div>
+                <p className="text-[9px] font-bold text-stone-400 uppercase">
+                  Avg Taste
+                </p>
+                <p className="text-xl font-black text-stone-800">
+                  {summaries.weekly.avgTaste}/5
+                </p>
               </div>
-            </section>
+
+              <div className="col-span-2 pt-2 border-t border-stone-50">
+                <p className="text-[9px] font-bold text-stone-400 uppercase mb-1">
+                  Top Method
+                </p>
+
+                <p className="text-xs font-black text-amber-900">
+                  {summaries.weekly.topMethod}
+                </p>
+              </div>
+            </div>
           </div>
-        )}
+
+          <div className="flex-none w-64 bg-[#fdf8f3] p-7 rounded-[2.5rem] border border-amber-100 shadow-sm transition-all hover:border-amber-300">
+            <div className="flex justify-between items-start mb-6">
+              <span className="p-3 bg-white text-amber-800 rounded-2xl shadow-md border border-amber-50">
+                <Icons.Star className="w-5 h-5" />
+              </span>
+
+              <span className="text-[9px] font-black uppercase bg-amber-800 text-white px-2 py-0.5 rounded-md shadow-sm">
+                Monthly
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-[9px] font-bold text-amber-800/40 uppercase">
+                  Total Brews
+                </p>
+
+                <p className="text-xl font-black text-amber-950">
+                  {summaries.monthly.totalBrews}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[9px] font-bold text-amber-800/40 uppercase">
+                  Growth
+                </p>
+
+                <p
+                  className={`text-xl font-black ${
+                    summaries.monthly.growth >= 0
+                      ? 'text-emerald-600'
+                      : 'text-rose-500'
+                  }`}
+                >
+                  {summaries.monthly.growth >= 0 ? '+' : ''}
+                  {summaries.monthly.growth}%
+                </p>
+              </div>
+
+              <div className="col-span-2 pt-2 border-t border-amber-100/50">
+                <p className="text-[9px] font-bold text-amber-800/40 uppercase mb-1">
+                  Star Roast
+                </p>
+
+                <p className="text-xs font-black text-amber-900">
+                  {summaries.monthly.favoriteBean}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    )}
+  </div>
+)}
 
         {activeTab === 'analytics' && (
           <AnalyticsView brewLogs={brewLogs} coffees={coffees} onBack={() => setActiveTab('home')} />
