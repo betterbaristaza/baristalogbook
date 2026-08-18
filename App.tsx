@@ -1253,50 +1253,102 @@ if (onboardingStep === 'welcome') {
                   const coffee = coffees.find(c => c.id === log.coffeeId);
                   return (
                     <div key={log.id} className="bg-white p-8 rounded-[3rem] shadow-sm border border-stone-100 hover:border-amber-200 transition-all group relative overflow-hidden">
-                      <div className="flex justify-between mb-6">
-                        <div className="flex-1">
-                          <div className="flex flex-wrap items-center gap-2 mb-3">
-                            <span className="text-[9px] uppercase font-black text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md">{log.method}</span>
-                            {log.machine && <span className="text-[9px] uppercase font-bold text-stone-500 bg-stone-50 px-2 py-0.5 rounded-md">{log.machine}</span>}
-                            {log.brewerBrand && <span className="text-[9px] uppercase font-bold text-stone-500 bg-stone-50 px-2 py-0.5 rounded-md">{log.brewerBrand} {log.brewer}</span>}
-                          </div>
-                          <h3 className="font-bold text-2xl text-stone-800 leading-tight">{coffee?.name || 'Unknown Blend'}</h3>
-                          <p className="text-[10px] text-stone-400 font-black uppercase tracking-widest mt-2 flex flex-wrap items-center gap-2">
-                             {log.grinder} • <span className="text-amber-700">{log.grindSetting}</span>
-                          </p>
-                        </div>
-                        <div className="text-right flex flex-col items-end gap-3">
-                          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button 
-                              onClick={() => { setEditingLog(log); setPrefillLog(null); setSelectedCoffee(coffee || null); setShowBrewFlow(true); setBrewFlowStep('brew'); }}
-                              className="p-1.5 bg-stone-50 text-stone-400 hover:text-amber-800 rounded-lg border border-stone-100 hover:border-amber-200 transition-all shadow-sm"
-                              title="Edit Brew"
-                            >
-                              <Icons.Edit className="w-3.5 h-3.5" />
-                            </button>
-                            <button 
-                              onClick={() => { setPrefillLog(log); setEditingLog(null); setSelectedCoffee(coffee || null); setShowBrewFlow(true); setBrewFlowStep('brew'); }}
-                              className="p-1.5 bg-stone-50 text-stone-400 hover:text-amber-800 rounded-lg border border-stone-100 hover:border-amber-200 transition-all shadow-sm"
-                              title="Duplicate Brew"
-                            >
-                              <Icons.Copy className="w-3.5 h-3.5" />
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteLog(log.id)}
-                              className="p-1.5 bg-rose-50 text-rose-300 hover:text-rose-600 rounded-lg border border-rose-100 hover:border-rose-200 transition-all shadow-sm"
-                              title="Delete Brew"
-                            >
-                              <Icons.Trash className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                          <p className="text-[10px] text-stone-300 font-black uppercase tracking-tighter">{new Date(log.date).toLocaleDateString()}</p>
-                          <div className="flex gap-0.5 text-amber-500 mt-2">
-                            {[...Array(5)].map((_, i) => (
-                              <Icons.Star key={i} className={`w-3.5 h-3.5 ${i < log.rating ? 'fill-current' : 'text-stone-100'}`} />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
+                     <div className="mb-6">
+  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-5">
+
+    <div className="min-w-0 flex-1">
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <span className="text-[9px] uppercase font-black text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md">
+          {log.method}
+        </span>
+
+        {log.machine && (
+          <span className="text-[9px] uppercase font-bold text-stone-500 bg-stone-50 px-2 py-0.5 rounded-md">
+            {log.machine}
+          </span>
+        )}
+
+        {log.brewerBrand && (
+          <span className="text-[9px] uppercase font-bold text-stone-500 bg-stone-50 px-2 py-0.5 rounded-md">
+            {log.brewerBrand} {log.brewer}
+          </span>
+        )}
+      </div>
+
+      <h3 className="font-bold text-2xl text-stone-800 leading-tight break-words">
+        {coffee?.name || 'Unknown Blend'}
+      </h3>
+
+      <p className="text-[10px] text-stone-400 font-black uppercase tracking-widest mt-2 flex flex-wrap items-center gap-2">
+        {log.grinder}
+        <span>•</span>
+        <span className="text-amber-700">
+          {log.grindSetting}
+        </span>
+      </p>
+    </div>
+
+    <div className="flex sm:flex-col justify-between sm:justify-start items-center sm:items-end gap-4 shrink-0">
+      <div className="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={() => {
+            setEditingLog(log);
+            setPrefillLog(null);
+            setSelectedCoffee(coffee || null);
+            setShowBrewFlow(true);
+            setBrewFlowStep('brew');
+          }}
+          className="p-2 bg-stone-50 text-stone-400 hover:text-amber-800 rounded-lg border border-stone-100 hover:border-amber-200 transition-all shadow-sm"
+          title="Edit Brew"
+        >
+          <Icons.Edit className="w-3.5 h-3.5" />
+        </button>
+
+        <button
+          onClick={() => {
+            setPrefillLog(log);
+            setEditingLog(null);
+            setSelectedCoffee(coffee || null);
+            setShowBrewFlow(true);
+            setBrewFlowStep('brew');
+          }}
+          className="p-2 bg-stone-50 text-stone-400 hover:text-amber-800 rounded-lg border border-stone-100 hover:border-amber-200 transition-all shadow-sm"
+          title="Duplicate Brew"
+        >
+          <Icons.Copy className="w-3.5 h-3.5" />
+        </button>
+
+        <button
+          onClick={() => handleDeleteLog(log.id)}
+          className="p-2 bg-rose-50 text-rose-300 hover:text-rose-600 rounded-lg border border-rose-100 hover:border-rose-200 transition-all shadow-sm"
+          title="Delete Brew"
+        >
+          <Icons.Trash className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      <div className="text-right">
+        <p className="text-[10px] text-stone-300 font-black uppercase tracking-tighter whitespace-nowrap">
+          {new Date(log.date).toLocaleDateString()}
+        </p>
+
+        <div className="flex justify-end gap-0.5 text-amber-500 mt-2">
+          {[...Array(5)].map((_, i) => (
+            <Icons.Star
+              key={i}
+              className={`w-3.5 h-3.5 ${
+                i < log.rating
+                  ? 'fill-current'
+                  : 'text-stone-100'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
                         {log.brewImage && (
                         <div className="mb-6 overflow-hidden rounded-[2rem] bg-stone-100 border border-stone-100">
                           <img
