@@ -856,8 +856,18 @@ if (onboardingStep === 'welcome') {
 }
 
   return (
-    <div className="min-h-screen pb-32 flex flex-col bg-[#fdfcfb]">
-      <header className="bg-white border-b border-stone-100 sticky top-0 z-30 px-6 py-4 flex justify-between items-center shadow-sm">
+    <div
+  className="min-h-screen flex flex-col bg-[#fdfcfb]"
+  style={{
+    paddingBottom: 'calc(env(safe-area-inset-bottom) + 8rem)',
+  }}
+>
+      <header
+  className="bg-white border-b border-stone-100 sticky top-0 z-30 px-6 pb-4 flex justify-between items-center shadow-sm"
+  style={{
+    paddingTop: 'calc(env(safe-area-inset-top) + 1rem)',
+  }}
+>
         <h1 className="text-2xl font-bold display-font text-stone-800">Barista <span className="text-amber-800">Logbook</span></h1>
         <div className="flex items-center gap-3">
           {profile && (
