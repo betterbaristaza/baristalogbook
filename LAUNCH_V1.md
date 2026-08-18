@@ -118,7 +118,7 @@ P2 = Post-launch
 * [x] Search and filtering
 * [x] First-use empty state
 * [ ] Brew Again
-* [ ] Final mobile usability review
+* [x] Final mobile usability review
 
 ## Security
 
@@ -271,7 +271,7 @@ Goal: Technical foundation, launch scope and core mobile usability.
 * [x] Add mobile form safe-area spacing
 * [x] Prevent iPhone input zoom
 * [x] Complete Coffee Library mobile review
-* [ ] Complete Brew Log mobile review
+* [x] Complete Brew Log mobile review
 * [ ] Move Gemini server-side
 * [ ] Test Gemini failure handling
 * [ ] Review application structure
