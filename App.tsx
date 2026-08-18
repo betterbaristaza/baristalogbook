@@ -903,9 +903,9 @@ if (onboardingStep === 'welcome') {
         Welcome back,
       </p>
 
-      <h2 className="text-4xl font-bold text-stone-800 display-font">
-        {profile?.name || 'Coffee Lover'}
-      </h2>
+      <h2 className="text-3xl sm:text-4xl font-bold text-stone-800 display-font leading-tight break-words">
+  {profile?.name || 'Coffee Lover'}
+</h2>
     </div>
 
     {coffeesLoading || brewLogsLoading ? (
@@ -988,114 +988,120 @@ if (onboardingStep === 'welcome') {
       </section>
     ) : (
       <section className="space-y-6">
-        <div className="flex justify-between items-end">
-          <h3 className="text-xs font-black uppercase tracking-widest text-stone-500">
-            Activity Summaries
-          </h3>
+  <div className="flex justify-between items-end">
+    <h3 className="text-xs font-black uppercase tracking-widest text-stone-500">
+      Activity Summaries
+    </h3>
 
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className="text-[10px] font-bold text-amber-800 underline underline-offset-4 hover:text-amber-600 transition-colors"
+    <button
+      onClick={() => setActiveTab('analytics')}
+      className="text-[10px] font-bold text-amber-800 underline underline-offset-4 hover:text-amber-600 transition-colors"
+    >
+      Full Analytics
+    </button>
+  </div>
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+    {/* Weekly Summary */}
+    <div className="w-full bg-white p-7 rounded-[2.5rem] border border-stone-100 shadow-sm transition-all hover:border-amber-200">
+      <div className="flex justify-between items-start mb-6">
+        <span className="p-3 bg-amber-50 text-amber-800 rounded-2xl shadow-sm">
+          <Icons.Book className="w-5 h-5" />
+        </span>
+
+        <span className="text-[9px] font-black uppercase bg-stone-800 text-white px-2 py-0.5 rounded-md shadow-sm">
+          This Week
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-[9px] font-bold text-stone-400 uppercase">
+            Brews
+          </p>
+
+          <p className="text-xl font-black text-stone-800">
+            {summaries.weekly.totalBrews}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-[9px] font-bold text-stone-400 uppercase">
+            Avg Taste
+          </p>
+
+          <p className="text-xl font-black text-stone-800">
+            {summaries.weekly.avgTaste}/5
+          </p>
+        </div>
+
+        <div className="col-span-2 pt-2 border-t border-stone-50">
+          <p className="text-[9px] font-bold text-stone-400 uppercase mb-1">
+            Top Method
+          </p>
+
+          <p className="text-xs font-black text-amber-900">
+            {summaries.weekly.topMethod}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Monthly Summary */}
+    <div className="w-full bg-[#fdf8f3] p-7 rounded-[2.5rem] border border-amber-100 shadow-sm transition-all hover:border-amber-300">
+      <div className="flex justify-between items-start mb-6">
+        <span className="p-3 bg-white text-amber-800 rounded-2xl shadow-md border border-amber-50">
+          <Icons.Star className="w-5 h-5" />
+        </span>
+
+        <span className="text-[9px] font-black uppercase bg-amber-800 text-white px-2 py-0.5 rounded-md shadow-sm">
+          Monthly
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-[9px] font-bold text-amber-800/40 uppercase">
+            Total Brews
+          </p>
+
+          <p className="text-xl font-black text-amber-950">
+            {summaries.monthly.totalBrews}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-[9px] font-bold text-amber-800/40 uppercase">
+            Growth
+          </p>
+
+          <p
+            className={`text-xl font-black ${
+              summaries.monthly.growth >= 0
+                ? 'text-emerald-600'
+                : 'text-rose-500'
+            }`}
           >
-            Full Analytics
-          </button>
+            {summaries.monthly.growth >= 0 ? '+' : ''}
+            {summaries.monthly.growth}%
+          </p>
         </div>
 
-        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-6 px-6">
-          <div className="flex-none w-64 bg-white p-7 rounded-[2.5rem] border border-stone-100 shadow-sm transition-all hover:border-amber-200">
-            <div className="flex justify-between items-start mb-6">
-              <span className="p-3 bg-amber-50 text-amber-800 rounded-2xl shadow-sm">
-                <Icons.Book className="w-5 h-5" />
-              </span>
+        <div className="col-span-2 pt-2 border-t border-amber-100/50">
+          <p className="text-[9px] font-bold text-amber-800/40 uppercase mb-1">
+            Star Roast
+          </p>
 
-              <span className="text-[9px] font-black uppercase bg-stone-800 text-white px-2 py-0.5 rounded-md shadow-sm">
-                This Week
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-[9px] font-bold text-stone-400 uppercase">
-                  Brews
-                </p>
-                <p className="text-xl font-black text-stone-800">
-                  {summaries.weekly.totalBrews}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-[9px] font-bold text-stone-400 uppercase">
-                  Avg Taste
-                </p>
-                <p className="text-xl font-black text-stone-800">
-                  {summaries.weekly.avgTaste}/5
-                </p>
-              </div>
-
-              <div className="col-span-2 pt-2 border-t border-stone-50">
-                <p className="text-[9px] font-bold text-stone-400 uppercase mb-1">
-                  Top Method
-                </p>
-
-                <p className="text-xs font-black text-amber-900">
-                  {summaries.weekly.topMethod}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex-none w-64 bg-[#fdf8f3] p-7 rounded-[2.5rem] border border-amber-100 shadow-sm transition-all hover:border-amber-300">
-            <div className="flex justify-between items-start mb-6">
-              <span className="p-3 bg-white text-amber-800 rounded-2xl shadow-md border border-amber-50">
-                <Icons.Star className="w-5 h-5" />
-              </span>
-
-              <span className="text-[9px] font-black uppercase bg-amber-800 text-white px-2 py-0.5 rounded-md shadow-sm">
-                Monthly
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-[9px] font-bold text-amber-800/40 uppercase">
-                  Total Brews
-                </p>
-
-                <p className="text-xl font-black text-amber-950">
-                  {summaries.monthly.totalBrews}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-[9px] font-bold text-amber-800/40 uppercase">
-                  Growth
-                </p>
-
-                <p
-                  className={`text-xl font-black ${
-                    summaries.monthly.growth >= 0
-                      ? 'text-emerald-600'
-                      : 'text-rose-500'
-                  }`}
-                >
-                  {summaries.monthly.growth >= 0 ? '+' : ''}
-                  {summaries.monthly.growth}%
-                </p>
-              </div>
-
-              <div className="col-span-2 pt-2 border-t border-amber-100/50">
-                <p className="text-[9px] font-bold text-amber-800/40 uppercase mb-1">
-                  Star Roast
-                </p>
-
-                <p className="text-xs font-black text-amber-900">
-                  {summaries.monthly.favoriteBean}
-                </p>
-              </div>
-            </div>
-          </div>
+          <p className="text-xs font-black text-amber-900">
+            {summaries.monthly.favoriteBean}
+          </p>
         </div>
-      </section>
+      </div>
+    </div>
+
+  </div>
+</section>
     )}
   </div>
 )}
@@ -1400,30 +1406,30 @@ if (onboardingStep === 'welcome') {
 
         {activeTab === 'library' && (
   <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-    <div className="flex justify-between items-center mb-8">
-      <div>
-        <h2 className="text-3xl font-bold text-stone-800 display-font">
-          Coffee Library
-        </h2>
+    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-5 mb-8">
+  <div className="min-w-0">
+    <h2 className="text-3xl font-bold text-stone-800 display-font">
+      Coffee Library
+    </h2>
 
-        <p className="text-sm text-stone-400 mt-1">
-          Keep track of the coffees you are brewing.
-        </p>
-      </div>
+    <p className="text-sm text-stone-400 mt-1">
+      Keep track of the coffees you are brewing.
+    </p>
+  </div>
 
-      {coffees.length > 0 && (
-        <button
-          onClick={() => {
-            setEditingCoffee(null);
-            setShowBeanForm(true);
-          }}
-          className="bg-stone-900 text-white p-4 px-6 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] active:scale-95 transition-all shadow-xl shadow-stone-900/10"
-        >
-          <Icons.Plus className="w-4 h-4" />
-          Add Bean
-        </button>
-      )}
-    </div>
+  {coffees.length > 0 && (
+    <button
+      onClick={() => {
+        setEditingCoffee(null);
+        setShowBeanForm(true);
+      }}
+      className="w-full sm:w-auto bg-stone-900 text-white px-6 py-4 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] active:scale-95 transition-all shadow-xl shadow-stone-900/10 shrink-0"
+    >
+      <Icons.Plus className="w-4 h-4" />
+      Add Bean
+    </button>
+  )}
+</div>
 
     {coffeesLoading ? (
       <div className="py-24 text-center">
