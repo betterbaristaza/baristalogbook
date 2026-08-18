@@ -48,7 +48,7 @@ P2 = Post-launch
 * [x] Email verification flow
 * [x] Forgot password
 * [x] Password reset
-* [ ] Authentication error states
+* [x] Authentication error states
 * [ ] Account deletion
 
 ## Coffee Library
@@ -214,7 +214,7 @@ Goal: Accounts and onboarding.
 
 * [x] Password recovery
 * [x] Email verification UX
-* [ ] Authentication error states
+* [x] Authentication error states
 * [ ] Build onboarding
 * [ ] Improve first-use Coffee Library
 * [ ] Improve first-use Brew Log

@@ -13,6 +13,49 @@ import type {
 
 import { supabase } from '../services/supabaseClient';
 
+const getAuthErrorMessage = (error: any): string => {
+  switch (error?.code) {
+    case 'invalid_credentials':
+      return 'The email or password is incorrect.';
+
+    case 'email_not_confirmed':
+      return 'Please verify your email before signing in.';
+
+    case 'user_already_exists':
+    case 'email_exists':
+      return 'An account already exists with this email.';
+
+    case 'weak_password':
+      return 'Choose a stronger password and try again.';
+
+    case 'over_email_send_rate_limit':
+      return 'Too many emails have been sent. Please wait before trying again.';
+
+    case 'over_request_rate_limit':
+      return 'Too many attempts. Please wait a few minutes and try again.';
+
+    case 'email_address_invalid':
+      return 'Enter a valid email address.';
+
+    case 'email_address_not_authorized':
+      return 'This email address cannot currently receive authentication emails.';
+
+    case 'signup_disabled':
+    case 'email_provider_disabled':
+      return 'Account creation is currently unavailable.';
+
+    case 'same_password':
+      return 'Your new password must be different from your current password.';
+
+    case 'session_expired':
+      return 'Your session has expired. Please sign in again.';
+
+    default:
+      console.error('Supabase auth error:', error);
+      return 'Something went wrong. Please try again.';
+  }
+};
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -35,8 +78,8 @@ interface AuthContextType {
   ) => Promise<{ error: Error | null }>;
 
   resendSignupConfirmation: (
-  email: string
-) => Promise<{ error: Error | null }>;
+    email: string
+  ) => Promise<{ error: Error | null }>;
 
   updatePassword: (
     password: string
@@ -45,15 +88,16 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
-);
+const AuthContext = createContext<
+  AuthContextType | undefined
+>(undefined);
 
 export const AuthProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] =
+    useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [passwordRecovery, setPasswordRecovery] =
     useState(false);
@@ -83,26 +127,28 @@ export const AuthProvider: React.FC<{
     };
   }, []);
 
- const signUp = async (
-  email: string,
-  password: string,
-  name: string
-) => {
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: window.location.origin,
-      data: {
-        name,
+  const signUp = async (
+    email: string,
+    password: string,
+    name: string
+  ) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: {
+          name,
+        },
       },
-    },
-  });
+    });
 
-  return {
-    error: error ? new Error(error.message) : null,
+    return {
+      error: error
+        ? new Error(getAuthErrorMessage(error))
+        : null,
+    };
   };
-};
 
   const signIn = async (
     email: string,
@@ -115,48 +161,64 @@ export const AuthProvider: React.FC<{
       });
 
     return {
-      error: error ? new Error(error.message) : null,
+      error: error
+        ? new Error(getAuthErrorMessage(error))
+        : null,
     };
   };
 
-  const sendPasswordReset = async (email: string) => {
+  const sendPasswordReset = async (
+    email: string
+  ) => {
     const { error } =
-      await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin,
-      });
+      await supabase.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo: window.location.origin,
+        }
+      );
 
     return {
-      error: error ? new Error(error.message) : null,
+      error: error
+        ? new Error(getAuthErrorMessage(error))
+        : null,
     };
   };
 
   const resendSignupConfirmation = async (
-  email: string
-) => {
-  const { error } = await supabase.auth.resend({
-    type: 'signup',
-    email,
-    options: {
-      emailRedirectTo: window.location.origin,
-    },
-  });
-
-  return {
-    error: error ? new Error(error.message) : null,
-  };
-};
-
-  const updatePassword = async (password: string) => {
-    const { error } = await supabase.auth.updateUser({
-      password,
+    email: string
+  ) => {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: window.location.origin,
+      },
     });
+
+    return {
+      error: error
+        ? new Error(getAuthErrorMessage(error))
+        : null,
+    };
+  };
+
+  const updatePassword = async (
+    password: string
+  ) => {
+    const { error } =
+      await supabase.auth.updateUser({
+        password,
+      });
 
     if (!error) {
       setPasswordRecovery(false);
     }
 
     return {
-      error: error ? new Error(error.message) : null,
+      error: error
+        ? new Error(getAuthErrorMessage(error))
+        : null,
     };
   };
 
