@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { CoffeeBean } from '../types';
 import { Icons } from '../constants';
@@ -10,107 +9,159 @@ interface CoffeeCardProps {
   onDelete: (coffee: CoffeeBean) => void;
 }
 
-const CoffeeCard: React.FC<CoffeeCardProps> = ({ coffee, onClick, onEdit, onDelete }) => {
-  const progress = (coffee.remainingWeight / coffee.totalWeight) * 100;
+const CoffeeCard: React.FC<CoffeeCardProps> = ({
+  coffee,
+  onClick,
+  onEdit,
+  onDelete,
+}) => {
+  const progress =
+    coffee.totalWeight > 0
+      ? Math.min(
+          100,
+          Math.max(
+            0,
+            (coffee.remainingWeight / coffee.totalWeight) * 100
+          )
+        )
+      : 0;
 
-  const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleEdit = (event: React.MouseEvent) => {
+    event.stopPropagation();
     onEdit(coffee);
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDelete = (event: React.MouseEvent) => {
+    event.stopPropagation();
     onDelete(coffee);
   };
 
   return (
-    <div 
+    <article
       onClick={() => onClick(coffee)}
-      className="bg-white rounded-xl shadow-sm border border-stone-200 p-4 cursor-pointer hover:shadow-md transition-shadow relative group"
+      className="group relative cursor-pointer overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-sm transition-all hover:border-stone-300 hover:shadow-md"
     >
-            {(coffee.bagImage || coffee.labelImage) && (
-        <div className="grid grid-cols-2 gap-2 mb-4">
+      {(coffee.bagImage || coffee.labelImage) && (
+        <div
+          className={`grid gap-px bg-stone-200 ${
+            coffee.bagImage && coffee.labelImage
+              ? 'grid-cols-2'
+              : 'grid-cols-1'
+          }`}
+        >
           {coffee.bagImage && (
-            <div
-              className={`overflow-hidden rounded-xl bg-stone-100 ${
-                coffee.labelImage ? '' : 'col-span-2'
-              }`}
-            >
+            <div className="overflow-hidden bg-stone-100">
               <img
                 src={coffee.bagImage}
                 alt={`${coffee.name} front of bag`}
-                className="w-full h-40 object-cover"
+                className="h-36 w-full object-cover sm:h-44"
               />
             </div>
           )}
 
           {coffee.labelImage && (
-            <div
-              className={`overflow-hidden rounded-xl bg-stone-100 ${
-                coffee.bagImage ? '' : 'col-span-2'
-              }`}
-            >
+            <div className="overflow-hidden bg-stone-100">
               <img
                 src={coffee.labelImage}
                 alt={`${coffee.name} back of bag`}
-                className="w-full h-40 object-cover"
+                className="h-36 w-full object-cover sm:h-44"
               />
             </div>
           )}
         </div>
       )}
-      <div className="flex justify-between items-start mb-2">
-        <div>
-          <h3 className="font-bold text-lg text-stone-800 leading-tight">{coffee.name}</h3>
-          <p className="text-sm text-stone-500 font-medium uppercase tracking-wider">{coffee.roaster}</p>
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          <span className="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded-full font-semibold">
+
+      <div className="p-5 sm:p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="mb-1 truncate text-[10px] font-black uppercase tracking-[0.2em] text-amber-800">
+              {coffee.roaster || 'Roaster not added'}
+            </p>
+
+            <h3 className="text-xl font-bold leading-tight text-stone-900 display-font">
+              {coffee.name}
+            </h3>
+          </div>
+
+          <span className="shrink-0 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-stone-600">
             {coffee.roastLevel}
           </span>
-          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button 
+        </div>
+
+        <div className="my-5 grid grid-cols-2 divide-x divide-stone-200 border-y border-stone-100 py-4">
+          <div className="min-w-0 pr-4">
+            <p className="mb-1 text-[9px] font-black uppercase tracking-[0.18em] text-stone-400">
+              Origin
+            </p>
+
+            <p className="truncate text-sm font-semibold text-stone-700">
+              {coffee.origin || 'Not recorded'}
+            </p>
+          </div>
+
+          <div className="min-w-0 pl-4">
+            <p className="mb-1 text-[9px] font-black uppercase tracking-[0.18em] text-stone-400">
+              Process
+            </p>
+
+            <p className="truncate text-sm font-semibold text-stone-700">
+              {coffee.process || 'Not recorded'}
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 flex items-end justify-between gap-4">
+            <p className="text-[9px] font-black uppercase tracking-[0.18em] text-stone-400">
+              Coffee remaining
+            </p>
+
+            <p className="font-mono text-xs font-bold text-stone-700">
+              {coffee.remainingWeight}g
+              <span className="text-stone-400">
+                {' '}
+                / {coffee.totalWeight}g
+              </span>
+            </p>
+          </div>
+
+          <div className="h-2 w-full overflow-hidden rounded-full bg-stone-100">
+            <div
+              className="h-full rounded-full bg-amber-800 transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="mt-5 flex items-center justify-between border-t border-stone-100 pt-4">
+          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-stone-400">
+            Tap card to log a brew
+          </p>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
               onClick={handleEdit}
-              className="p-1.5 bg-stone-50 text-stone-400 hover:text-amber-800 rounded-lg border border-stone-100 hover:border-amber-200 transition-all shadow-sm"
-              title="Edit Bean"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-500 transition-colors hover:border-amber-200 hover:text-amber-800"
+              title="Edit coffee"
+              aria-label={`Edit ${coffee.name}`}
             >
-              <Icons.Edit className="w-3.5 h-3.5" />
+              <Icons.Edit className="h-4 w-4" />
             </button>
-            <button 
+
+            <button
+              type="button"
               onClick={handleDelete}
-              className="p-1.5 bg-rose-50 text-rose-300 hover:text-rose-600 rounded-lg border border-rose-100 hover:border-rose-200 transition-all shadow-sm"
-              title="Delete Bean"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-400 transition-colors hover:border-rose-200 hover:text-rose-600"
+              title="Delete coffee"
+              aria-label={`Delete ${coffee.name}`}
             >
-              <Icons.Trash className="w-3.5 h-3.5" />
+              <Icons.Trash className="h-4 w-4" />
             </button>
           </div>
         </div>
       </div>
-      
-      <div className="grid grid-cols-2 gap-2 my-3 text-xs text-stone-600">
-        <div>
-          <p className="text-stone-400">Origin</p>
-          <p className="font-medium">{coffee.origin}</p>
-        </div>
-        <div>
-          <p className="text-stone-400">Process</p>
-          <p className="font-medium">{coffee.process}</p>
-        </div>
-      </div>
-
-      <div className="mt-4">
-        <div className="flex justify-between text-[10px] text-stone-400 mb-1 uppercase tracking-widest font-bold">
-          <span>Inventory</span>
-          <span>{coffee.remainingWeight}g / {coffee.totalWeight}g</span>
-        </div>
-        <div className="w-full bg-stone-100 h-1.5 rounded-full overflow-hidden">
-          <div 
-            className="bg-amber-800 h-full rounded-full transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-      </div>
-    </div>
+    </article>
   );
 };
 
