@@ -8,22 +8,33 @@ interface ProfileRow {
   default_method: string | null;
   default_grinder: string | null;
   default_brewer: string | null;
+  onboarding_completed: boolean | null;
 }
 
-const rowToProfile = (row: ProfileRow): UserProfile => ({
+const rowToProfile = (
+  row: ProfileRow
+): UserProfile => ({
   name: row.name ?? '',
   role: row.role ?? '',
   defaultMethod: row.default_method ?? '',
   defaultGrinder: row.default_grinder ?? '',
   defaultBrewer: row.default_brewer ?? '',
+  onboardingCompleted:
+    row.onboarding_completed ?? false,
 });
 
-const profileToRow = (profile: UserProfile) => ({
+const profileToRow = (
+  profile: UserProfile,
+  userId: string
+) => ({
+  id: userId,
   name: profile.name,
   role: profile.role,
   default_method: profile.defaultMethod,
   default_grinder: profile.defaultGrinder,
   default_brewer: profile.defaultBrewer,
+  onboarding_completed:
+    profile.onboardingCompleted ?? false,
 });
 
 export const profileService = {
@@ -44,7 +55,9 @@ export const profileService = {
       return null;
     }
 
-    return rowToProfile(data as ProfileRow);
+    return rowToProfile(
+      data as ProfileRow
+    );
   },
 
   update: async (
@@ -53,8 +66,12 @@ export const profileService = {
   ): Promise<UserProfile> => {
     const { data, error } = await supabase
       .from('profiles')
-      .update(profileToRow(profile))
-      .eq('id', userId)
+      .upsert(
+        profileToRow(profile, userId),
+        {
+          onConflict: 'id',
+        }
+      )
       .select()
       .single();
 
@@ -62,6 +79,24 @@ export const profileService = {
       throw error;
     }
 
-    return rowToProfile(data as ProfileRow);
+    return rowToProfile(
+      data as ProfileRow
+    );
+  },
+
+  setOnboardingCompleted: async (
+    userId: string,
+    completed: boolean
+  ): Promise<void> => {
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        onboarding_completed: completed,
+      })
+      .eq('id', userId);
+
+    if (error) {
+      throw error;
+    }
   },
 };

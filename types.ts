@@ -22,6 +22,7 @@ export interface UserProfile {
   defaultMethod: string;
   defaultGrinder: string;
   defaultBrewer: string;
+  onboardingCompleted?: boolean;
 }
 
 export interface SocialPost {

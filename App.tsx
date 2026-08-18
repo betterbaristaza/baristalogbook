@@ -14,6 +14,7 @@ import { coffeeService } from './services/coffeeService';
 import { brewLogService } from './services/brewLogService';
 import { profileService } from './services/profileService';
 import { imageService } from './services/imageService';
+import OnboardingWelcome from './components/OnboardingWelcome';
 
 
 const SENSORY_METADATA = [
@@ -144,19 +145,19 @@ const [brewLogsLoading, setBrewLogsLoading] = useState(true);
 const [profileLoading, setProfileLoading] = useState(true);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
+  const [onboardingStep, setOnboardingStep] = useState<
+    'welcome' | 'profile' | 'coffee' | 'brew' | null
+  >(null);
 
-    useEffect(() => {
+  const [onboardingInitialized, setOnboardingInitialized] =
+    useState(false);
+
+
+  useEffect(() => {
     if (!user) {
       setShowProfileModal(false);
-      return;
     }
-
-    if (profileLoading) {
-      return;
-    }
-
-    setShowProfileModal(profile === null);
-  }, [user, profile, profileLoading]);
+  }, [user]);
 
   useEffect(() => {
   if (!user) {
@@ -181,6 +182,34 @@ const [profileLoading, setProfileLoading] = useState(true);
 
   loadProfile();
 }, [user]);
+
+useEffect(() => {
+  if (!user) {
+    setOnboardingInitialized(false);
+    setOnboardingStep(null);
+    return;
+  }
+
+  if (profileLoading || onboardingInitialized) {
+    return;
+  }
+
+  if (
+    profile === null ||
+    profile.onboardingCompleted === false
+  ) {
+    setOnboardingStep('welcome');
+  } else {
+    setOnboardingStep(null);
+  }
+
+  setOnboardingInitialized(true);
+}, [
+  user,
+  profile,
+  profileLoading,
+  onboardingInitialized,
+]);
 
   // Sync to localStorage
  useEffect(() => {
@@ -400,6 +429,16 @@ const [profileLoading, setProfileLoading] = useState(true);
         ]);
       }
 
+      if (onboardingStep === 'coffee') {
+        setSelectedCoffee(savedBean);
+        setShowBeanForm(false);
+        setEditingCoffee(null);
+        setBrewFlowStep('brew');
+        setShowBrewFlow(true);
+        setOnboardingStep('brew');
+        return;
+      }
+
       if (brewFlowStep === 'new-bean') {
         setSelectedCoffee(savedBean);
         setBrewFlowStep('brew');
@@ -561,6 +600,24 @@ const [profileLoading, setProfileLoading] = useState(true);
       }
     }
 
+    if (onboardingStep === 'brew') {
+      await profileService.setOnboardingCompleted(
+        user.id,
+        true
+      );
+
+      setProfile(prev =>
+        prev
+          ? {
+              ...prev,
+              onboardingCompleted: true,
+            }
+          : prev
+      );
+
+      setOnboardingStep(null);
+    }
+
     setShowBrewFlow(false);
     setBrewFlowStep('select');
     setSelectedCoffee(null);
@@ -702,6 +759,63 @@ const [profileLoading, setProfileLoading] = useState(true);
     document.body.removeChild(link);
   };
 
+  const completeOnboarding = async () => {
+    if (!user) {
+      return;
+    }
+
+    try {
+      let completedProfile = profile;
+
+      if (!completedProfile) {
+        completedProfile = await profileService.update(
+          {
+            name:
+              user.user_metadata?.name ||
+              user.email?.split('@')[0] ||
+              'Coffee Lover',
+            role: 'Home Brewer',
+            defaultMethod: 'all',
+            defaultGrinder: '',
+            defaultBrewer: '',
+            onboardingCompleted: true,
+          },
+          user.id
+        );
+      } else {
+        await profileService.setOnboardingCompleted(
+          user.id,
+          true
+        );
+
+        completedProfile = {
+          ...completedProfile,
+          onboardingCompleted: true,
+        };
+      }
+
+      setProfile(completedProfile);
+      setOnboardingStep(null);
+      setShowProfileModal(false);
+      setShowBeanForm(false);
+      setShowBrewFlow(false);
+      setEditingCoffee(null);
+      setEditingLog(null);
+      setPrefillLog(null);
+      setSelectedCoffee(null);
+      setBrewFlowStep('select');
+    } catch (error) {
+      console.error(
+        'Error completing onboarding:',
+        error
+      );
+
+      alert(
+        'There was a problem completing setup. Please try again.'
+      );
+    }
+  };
+
   const startBrewCapture = () => {
     setEditingLog(null);
     setPrefillLog(null);
@@ -719,6 +833,26 @@ const [profileLoading, setProfileLoading] = useState(true);
 
 if (!user || passwordRecovery) {
   return <AuthScreen />;
+}
+
+if (!onboardingInitialized) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      Loading...
+    </div>
+  );
+}
+
+if (onboardingStep === 'welcome') {
+  return (
+    <OnboardingWelcome
+      onStart={() => {
+        setOnboardingStep('profile');
+        setShowProfileModal(true);
+      }}
+      onSkip={completeOnboarding}
+    />
+  );
 }
 
   return (
@@ -1065,7 +1199,16 @@ if (!user || passwordRecovery) {
               initialData={(editingLog || prefillLog) || undefined} 
               title={editingLog ? 'Update Entry' : (prefillLog ? 'Duplicate Recipe' : 'Log Brew')}
               onSave={handleSaveBrew} 
-              onCancel={() => { setShowBrewFlow(false); setEditingLog(null); setPrefillLog(null); }} 
+              onCancel={() => {
+                if (onboardingStep === 'brew') {
+                  void completeOnboarding();
+                  return;
+                }
+
+                setShowBrewFlow(false);
+                setEditingLog(null);
+                setPrefillLog(null);
+              }} 
             />
           )}
         </div>
@@ -1073,7 +1216,19 @@ if (!user || passwordRecovery) {
 
       {showBeanForm && (
         <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md flex items-center justify-center z-[70] p-6 overflow-y-auto">
-          <CoffeeBeanForm initialData={editingCoffee || undefined} onSave={handleSaveBean} onCancel={() => { setShowBeanForm(false); setEditingCoffee(null); }} />
+          <CoffeeBeanForm
+            initialData={editingCoffee || undefined}
+            onSave={handleSaveBean}
+            onCancel={() => {
+              if (onboardingStep === 'coffee') {
+                void completeOnboarding();
+                return;
+              }
+
+              setShowBeanForm(false);
+              setEditingCoffee(null);
+            }}
+          />
         </div>
       )}
 
@@ -1081,7 +1236,9 @@ if (!user || passwordRecovery) {
   <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md flex items-center justify-center z-[100] p-6 overflow-y-auto">
     <ProfileModal
       initialData={profile || undefined}
-      isFirstLaunch={!profile}
+      isFirstLaunch={
+        onboardingStep === 'profile' || !profile
+      }
       onSave={async (newProfile) => {
         if (!user) {
           return;
@@ -1089,21 +1246,39 @@ if (!user || passwordRecovery) {
 
         try {
           const savedProfile = await profileService.update(
-            newProfile,
+            {
+              ...newProfile,
+              onboardingCompleted:
+                onboardingStep === 'profile'
+                  ? false
+                  : (
+                      newProfile.onboardingCompleted ??
+                      profile?.onboardingCompleted ??
+                      false
+                    ),
+            },
             user.id
           );
 
           setProfile(savedProfile);
           setShowProfileModal(false);
+
+          if (onboardingStep === 'profile') {
+            setEditingCoffee(null);
+            setOnboardingStep('coffee');
+            setShowBeanForm(true);
+          }
         } catch (error) {
           console.error('Error saving profile:', error);
           alert('There was a problem saving your profile.');
         }
       }}
       onCancel={
-        profile
-          ? () => setShowProfileModal(false)
-          : undefined
+        onboardingStep === 'profile'
+          ? undefined
+          : profile
+            ? () => setShowProfileModal(false)
+            : undefined
       }
     />
   </div>
