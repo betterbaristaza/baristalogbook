@@ -60,8 +60,8 @@ P2 = Post-launch
 * [x] Front bag photo
 * [x] Back bag photo
 * [x] Private image storage
-* [ ] First-use empty state
-* [ ] Final mobile usability review
+* [x] First-use empty state
+* [x] Final mobile usability review
 
 ## Brew Log
 
@@ -88,12 +88,14 @@ P2 = Post-launch
 
 ## Onboarding
 
-* [ ] Welcome screen
-* [ ] First-time profile completion
-* [ ] Add first coffee
-* [ ] Log first brew
-* [ ] Clear first-use guidance
-* [ ] Skip options where appropriate
+## Onboarding
+
+* [x] Welcome screen
+* [x] First-time profile completion
+* [x] Add first coffee
+* [x] Log first brew
+* [x] Clear first-use guidance
+* [x] Skip options where appropriate
 
 ## Commercial System
 
@@ -215,10 +217,10 @@ Goal: Accounts and onboarding.
 * [x] Password recovery
 * [x] Email verification UX
 * [x] Authentication error states
-* [ ] Build onboarding
-* [ ] Improve first-use Coffee Library
-* [ ] Improve first-use Brew Log
-* [ ] Mobile usability testing
+* [x]Build onboarding
+* [x] Improve first-use Coffee Library
+* [x] Improve first-use Brew Log
+* [x] Mobile usability testing
 
 ## Week 3, 31 August to 6 September
 
