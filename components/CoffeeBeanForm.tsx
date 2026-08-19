@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { CoffeeBean, RoastLevel } from '../types';
 
 interface CoffeeBeanFormProps {
-  onSave: (bean: CoffeeBean) => void;
+  onSave: (bean: CoffeeBean) => void | Promise<void>;
   onCancel: () => void;
   initialData?: CoffeeBean;
 }
@@ -39,6 +39,7 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
   );
 
   const [tastingNoteInput, setTastingNoteInput] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const bagInputRef = useRef<HTMLInputElement>(null);
   const labelInputRef = useRef<HTMLInputElement>(null);
@@ -145,24 +146,36 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
     }));
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+  event.preventDefault();
 
-    if (!formData.name || !formData.roaster) {
-      return;
-    }
+  if (isSaving) {
+    return;
+  }
 
-    onSave({
+  if (!formData.name || !formData.roaster) {
+    return;
+  }
+
+  setIsSaving(true);
+
+  try {
+    const totalWeight = Number(formData.totalWeight) || 250;
+
+    await onSave({
       ...(formData as CoffeeBean),
       id:
         initialData?.id ||
         Math.random().toString(36).substring(2, 11),
+      totalWeight,
       remainingWeight: initialData
-        ? formData.remainingWeight
-        : formData.totalWeight || 250,
+        ? Number(formData.remainingWeight)
+        : totalWeight,
     });
-  };
-
+  } finally {
+    setIsSaving(false);
+  }
+};
   return (
     <form
   onSubmit={handleSubmit}
@@ -590,11 +603,16 @@ const CoffeeBeanForm: React.FC<CoffeeBeanFormProps> = ({
         </button>
 
         <button
-          type="submit"
-          className="flex-1 rounded-2xl bg-amber-800 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-amber-900/20 transition-all hover:bg-amber-900"
-        >
-          {initialData ? 'Update Record' : 'Save to Library'}
-        </button>
+  type="submit"
+  disabled={isSaving}
+  className="flex-1 rounded-2xl bg-amber-800 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-amber-900/20 transition-all hover:bg-amber-900 disabled:cursor-not-allowed disabled:opacity-50"
+>
+  {isSaving
+    ? 'Saving...'
+    : initialData
+      ? 'Update Record'
+      : 'Save to Library'}
+</button>
       </div>
     </form>
   );

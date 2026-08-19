@@ -1268,8 +1268,11 @@ if (onboardingStep === 'welcome') {
                 {filteredLogs.map(log => {
                   const coffee = coffees.find(c => c.id === log.coffeeId);
                   return (
-                    <div key={log.id} className="bg-white p-8 rounded-[3rem] shadow-sm border border-stone-100 hover:border-amber-200 transition-all group relative overflow-hidden">
-                     <div className="mb-6">
+                    <div
+  key={log.id}
+  className="bg-white p-5 rounded-[2rem] shadow-sm border border-stone-100 hover:border-amber-200 transition-all group relative overflow-hidden"
+>
+                     <div className="mb-4">
   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-5">
 
     <div className="min-w-0 flex-1">
@@ -1296,93 +1299,127 @@ if (onboardingStep === 'welcome') {
       </h3>
 
       <p className="text-[10px] text-stone-400 font-black uppercase tracking-widest mt-2 flex flex-wrap items-center gap-2">
-        {log.grinder}
-        <span>•</span>
-        <span className="text-amber-700">
-          {log.grindSetting}
-        </span>
-      </p>
+  {log.grinder}
+
+  {log.grindSetting && (
+    <>
+      <span>•</span>
+      <span className="text-amber-700">
+        {log.grindSetting}
+      </span>
+    </>
+  )}
+
+  {log.dose > 0 && log.yield > 0 && (
+    <>
+      <span>•</span>
+      <span className="text-stone-500">
+        1:{(log.yield / log.dose).toFixed(1)}
+      </span>
+    </>
+  )}
+</p>
     </div>
 
-    <div className="flex sm:flex-col justify-between sm:justify-start items-center sm:items-end gap-4 shrink-0">
-      <div className="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-        <button
-          onClick={() => {
-            setEditingLog(log);
-            setPrefillLog(null);
-            setSelectedCoffee(coffee || null);
-            setShowBrewFlow(true);
-            setBrewFlowStep('brew');
-          }}
-          className="p-2 bg-stone-50 text-stone-400 hover:text-amber-800 rounded-lg border border-stone-100 hover:border-amber-200 transition-all shadow-sm"
-          title="Edit Brew"
-        >
-          <Icons.Edit className="w-3.5 h-3.5" />
-        </button>
+    <div className="flex items-start justify-between gap-4 shrink-0">
+  <div className="flex gap-2">
+    <button
+      onClick={() => {
+        setEditingLog(log);
+        setPrefillLog(null);
+        setSelectedCoffee(coffee || null);
+        setShowBrewFlow(true);
+        setBrewFlowStep('brew');
+      }}
+      className="p-2 bg-stone-50 text-stone-400 hover:text-amber-800 rounded-lg border border-stone-100 hover:border-amber-200 transition-all"
+      title="Edit Brew"
+    >
+      <Icons.Edit className="w-3.5 h-3.5" />
+    </button>
 
-        <button
-          onClick={() => {
-            setPrefillLog(log);
-            setEditingLog(null);
-            setSelectedCoffee(coffee || null);
-            setShowBrewFlow(true);
-            setBrewFlowStep('brew');
-          }}
-          className="p-2 bg-stone-50 text-stone-400 hover:text-amber-800 rounded-lg border border-stone-100 hover:border-amber-200 transition-all shadow-sm"
-          title="Duplicate Brew"
-        >
-          <Icons.Copy className="w-3.5 h-3.5" />
-        </button>
+    <button
+      onClick={() => {
+        setPrefillLog(log);
+        setEditingLog(null);
+        setSelectedCoffee(coffee || null);
+        setShowBrewFlow(true);
+        setBrewFlowStep('brew');
+      }}
+      className="p-2 bg-stone-50 text-stone-400 hover:text-amber-800 rounded-lg border border-stone-100 hover:border-amber-200 transition-all"
+      title="Duplicate Brew"
+    >
+      <Icons.Copy className="w-3.5 h-3.5" />
+    </button>
 
-        <button
-          onClick={() => handleDeleteLog(log.id)}
-          className="p-2 bg-rose-50 text-rose-300 hover:text-rose-600 rounded-lg border border-rose-100 hover:border-rose-200 transition-all shadow-sm"
-          title="Delete Brew"
-        >
-          <Icons.Trash className="w-3.5 h-3.5" />
-        </button>
-      </div>
+    <button
+      onClick={() => handleDeleteLog(log.id)}
+      className="p-2 bg-rose-50 text-rose-300 hover:text-rose-600 rounded-lg border border-rose-100 hover:border-rose-200 transition-all"
+      title="Delete Brew"
+    >
+      <Icons.Trash className="w-3.5 h-3.5" />
+    </button>
+  </div>
 
-      <div className="text-right">
-        <p className="text-[10px] text-stone-300 font-black uppercase tracking-tighter whitespace-nowrap">
-          {new Date(log.date).toLocaleDateString()}
-        </p>
+  <div className="text-right">
+    <p className="text-[9px] text-stone-300 font-black uppercase tracking-tighter whitespace-nowrap">
+      {new Date(log.date).toLocaleDateString()}
+    </p>
 
-        <div className="flex justify-end gap-0.5 text-amber-500 mt-2">
-          {[...Array(5)].map((_, i) => (
-            <Icons.Star
-              key={i}
-              className={`w-3.5 h-3.5 ${
-                i < log.rating
-                  ? 'fill-current'
-                  : 'text-stone-100'
-              }`}
-            />
-          ))}
-        </div>
-      </div>
+    <div className="flex justify-end gap-0.5 text-amber-500 mt-1">
+      {[...Array(5)].map((_, i) => (
+        <Icons.Star
+          key={i}
+          className={`w-3 h-3 ${
+            i < log.rating
+              ? 'fill-current'
+              : 'text-stone-100'
+          }`}
+        />
+      ))}
     </div>
+  </div>
+</div>
 
   </div>
 </div>
-                        {log.brewImage && (
-                        <div className="mb-6 overflow-hidden rounded-[2rem] bg-stone-100 border border-stone-100">
-                          <img
-                            src={log.brewImage}
-                            alt={`${coffee?.name || 'Coffee'} brew`}
-                            className="w-full max-h-96 object-cover"
-                          />
-                        </div>
-                      )}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-8 bg-stone-50/40 p-6 rounded-[2.5rem] border border-stone-100/50">
-                        <div className="grid grid-cols-2 gap-4 text-center">
-                          <div className="flex flex-col bg-white p-3 rounded-2xl border border-stone-100/80 shadow-sm"><p className="text-[9px] text-stone-400 font-black uppercase mb-1">Dose</p><p className="font-black text-stone-800 text-sm">{log.dose}g</p></div>
-                          <div className="flex flex-col bg-white p-3 rounded-2xl border border-stone-100/80 shadow-sm"><p className="text-[9px] text-stone-400 font-black uppercase mb-1">Yield</p><p className="font-black text-stone-800 text-sm">{log.yield}g</p></div>
-                          <div className="flex flex-col bg-white p-3 rounded-2xl border border-stone-100/80 shadow-sm"><p className="text-[9px] text-stone-400 font-black uppercase mb-1">Time</p><p className="font-black text-stone-800 text-sm">{log.brewTime}s</p></div>
-                          <div className="flex flex-col bg-white p-3 rounded-2xl border border-stone-100/80 shadow-sm"><p className="text-[9px] text-stone-400 font-black uppercase mb-1">Temp</p><p className="font-black text-stone-800 text-sm">{log.waterTemp}°C</p></div>
-                        </div>
-                        <div className="flex flex-col items-center justify-center"><RadarChart log={log} /></div>
-                      </div>
+                      
+                      <div className="grid grid-cols-4 gap-2 mb-4">
+  <div className="bg-stone-50 rounded-xl px-2 py-3 text-center">
+    <p className="text-[8px] font-black uppercase tracking-widest text-stone-400">
+      Dose
+    </p>
+    <p className="mt-1 text-sm font-black text-stone-800">
+      {log.dose}g
+    </p>
+  </div>
+
+  <div className="bg-stone-50 rounded-xl px-2 py-3 text-center">
+    <p className="text-[8px] font-black uppercase tracking-widest text-stone-400">
+      Yield
+    </p>
+    <p className="mt-1 text-sm font-black text-stone-800">
+      {log.yield}g
+    </p>
+  </div>
+
+  <div className="bg-stone-50 rounded-xl px-2 py-3 text-center">
+    <p className="text-[8px] font-black uppercase tracking-widest text-stone-400">
+      Time
+    </p>
+    <p className="mt-1 text-sm font-black text-stone-800">
+      {log.brewTime}s
+    </p>
+  </div>
+
+  <div className="bg-stone-50 rounded-xl px-2 py-3 text-center">
+    <p className="text-[8px] font-black uppercase tracking-widest text-stone-400">
+      Temp
+    </p>
+    <p className="mt-1 text-sm font-black text-stone-800">
+      {log.waterTemp}°C
+    </p>
+  </div>
+</div>
                       {log.flavorGroups && log.flavorGroups.length > 0 && (
                         <div className="flex flex-wrap gap-2.5 mb-6">
                           {log.flavorGroups.map(group => (

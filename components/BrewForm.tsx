@@ -85,6 +85,7 @@ const DynamicSelect: React.FC<DynamicSelectProps> = ({
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [newValue, setNewValue] = useState('');
+  
 
   const labelClasses = `block font-bold uppercase mb-1 ${labelColor} ${labelSize === '10px' ? 'text-[10px]' : labelSize === 'xs' ? 'text-xs' : 'text-[9px]'}`;
 
@@ -178,6 +179,7 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
   const [method, setMethod] = useState<BrewMethod>(initialData?.method || BrewMethod.ESPRESSO);
   const [baristaName, setBaristaName] = useState(initialData?.baristaName || '');
   const [db, setDb] = useState(INITIAL_EQUIPMENT_DB);
+  const [isSaving, setIsSaving] = useState(false);
   
   // Shared
   const [dose, setDose] = useState(initialData?.dose ?? 18);
@@ -314,9 +316,17 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
     e.target.value = '';
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave({
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (isSaving) {
+    return;
+  }
+
+  setIsSaving(true);
+
+  try {
+    await onSave({
       coffeeId: coffee.id,
       baristaName,
       brewImage,
@@ -328,53 +338,150 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
       grindSetting: setting,
       dose,
       yield: yieldVal,
-      brewTime: method === BrewMethod.COLD_BREW ? steepTimeCB : (method === BrewMethod.FRENCH_PRESS ? fpImmersionTime : time),
+      brewTime:
+        method === BrewMethod.COLD_BREW
+          ? steepTimeCB
+          : method === BrewMethod.FRENCH_PRESS
+            ? fpImmersionTime
+            : time,
       waterTemp: temp,
       rating,
-      tastingNotes: notes.split(',').map(n => n.trim()).filter(n => n !== ''),
+      tastingNotes: notes
+        .split(',')
+        .map(n => n.trim())
+        .filter(n => n !== ''),
       processNotes,
-      
+
       ...sensory,
       flavorGroups: selectedFlavorGroups,
 
       // Espresso
-      machine: method === BrewMethod.ESPRESSO ? machineBrand : undefined,
-      basketType: method === BrewMethod.ESPRESSO ? basketType : undefined,
-      distributionTool: method === BrewMethod.ESPRESSO ? distTool : undefined,
-      puckScreen: method === BrewMethod.ESPRESSO ? puckScreen : undefined,
-      pressure: method === BrewMethod.ESPRESSO ? pressure : undefined,
+      machine:
+        method === BrewMethod.ESPRESSO
+          ? machineBrand
+          : undefined,
+      basketType:
+        method === BrewMethod.ESPRESSO
+          ? basketType
+          : undefined,
+      distributionTool:
+        method === BrewMethod.ESPRESSO
+          ? distTool
+          : undefined,
+      puckScreen:
+        method === BrewMethod.ESPRESSO
+          ? puckScreen
+          : undefined,
+      pressure:
+        method === BrewMethod.ESPRESSO
+          ? pressure
+          : undefined,
 
       // Cold Brew
-      coldBrewSystem: method === BrewMethod.COLD_BREW ? cbSystem : undefined,
-      coldBrewType: method === BrewMethod.COLD_BREW ? coldBrewType : undefined,
-      steepTime: method === BrewMethod.COLD_BREW ? steepTimeCB : (method === BrewMethod.AEROPRESS ? steepTimeAP : (method === BrewMethod.FRENCH_PRESS ? fpImmersionTime : undefined)),
-      bloomTime: (method === BrewMethod.COLD_BREW || method === BrewMethod.POUR_OVER) ? bloomTime : undefined,
+      coldBrewSystem:
+        method === BrewMethod.COLD_BREW
+          ? cbSystem
+          : undefined,
+      coldBrewType:
+        method === BrewMethod.COLD_BREW
+          ? coldBrewType
+          : undefined,
+      steepTime:
+        method === BrewMethod.COLD_BREW
+          ? steepTimeCB
+          : method === BrewMethod.AEROPRESS
+            ? steepTimeAP
+            : method === BrewMethod.FRENCH_PRESS
+              ? fpImmersionTime
+              : undefined,
+      bloomTime:
+        method === BrewMethod.COLD_BREW ||
+        method === BrewMethod.POUR_OVER
+          ? bloomTime
+          : undefined,
 
       // Pour Over / French Press shared brand property
-      brewerBrand: method === BrewMethod.POUR_OVER ? brewerBrand : (method === BrewMethod.FRENCH_PRESS ? fpBrand : (method === BrewMethod.MOKA_POT ? mokaBrand : undefined)),
-      brewer: method === BrewMethod.POUR_OVER ? brewerModel : (method === BrewMethod.MOKA_POT ? mokaModel : undefined),
-      filterType: method === BrewMethod.POUR_OVER ? filterType : undefined,
-      pourStructure: method === BrewMethod.POUR_OVER ? `${pulsesCount} pours` : undefined,
-      pourVolumes: method === BrewMethod.POUR_OVER ? pourVolumes : undefined,
+      brewerBrand:
+        method === BrewMethod.POUR_OVER
+          ? brewerBrand
+          : method === BrewMethod.FRENCH_PRESS
+            ? fpBrand
+            : method === BrewMethod.MOKA_POT
+              ? mokaBrand
+              : undefined,
+      brewer:
+        method === BrewMethod.POUR_OVER
+          ? brewerModel
+          : method === BrewMethod.MOKA_POT
+            ? mokaModel
+            : undefined,
+      filterType:
+        method === BrewMethod.POUR_OVER
+          ? filterType
+          : undefined,
+      pourStructure:
+        method === BrewMethod.POUR_OVER
+          ? `${pulsesCount} pours`
+          : undefined,
+      pourVolumes:
+        method === BrewMethod.POUR_OVER
+          ? pourVolumes
+          : undefined,
 
       // AeroPress
-      aeroMethod: method === BrewMethod.AEROPRESS ? aeroMethod : undefined,
-      filterCapUsed: method === BrewMethod.AEROPRESS ? filterCap : undefined,
-      plungeTime: method === BrewMethod.AEROPRESS ? plungeTime : undefined,
-      aeroPourVolumes: method === BrewMethod.AEROPRESS ? aeroPourVolumes : undefined,
+      aeroMethod:
+        method === BrewMethod.AEROPRESS
+          ? aeroMethod
+          : undefined,
+      filterCapUsed:
+        method === BrewMethod.AEROPRESS
+          ? filterCap
+          : undefined,
+      plungeTime:
+        method === BrewMethod.AEROPRESS
+          ? plungeTime
+          : undefined,
+      aeroPourVolumes:
+        method === BrewMethod.AEROPRESS
+          ? aeroPourVolumes
+          : undefined,
 
       // French Press specifics
-      timeBeforePlunge: method === BrewMethod.FRENCH_PRESS ? fpPlungeWait : undefined,
-      agitation: method === BrewMethod.FRENCH_PRESS ? fpAgitation : undefined,
-      agitationDuration: method === BrewMethod.FRENCH_PRESS ? fpAgitationDuration : undefined,
+      timeBeforePlunge:
+        method === BrewMethod.FRENCH_PRESS
+          ? fpPlungeWait
+          : undefined,
+      agitation:
+        method === BrewMethod.FRENCH_PRESS
+          ? fpAgitation
+          : undefined,
+      agitationDuration:
+        method === BrewMethod.FRENCH_PRESS
+          ? fpAgitationDuration
+          : undefined,
 
       // Moka Pot specifics
-      mokaPotModel: method === BrewMethod.MOKA_POT ? mokaModel : undefined,
-      waterStartTemp: method === BrewMethod.MOKA_POT ? waterStartTemp : undefined,
-      isAeropressFilterUsed: method === BrewMethod.MOKA_POT ? isAeropressFilterUsed : undefined,
-      flameControl: method === BrewMethod.MOKA_POT ? flameControl : undefined,
+      mokaPotModel:
+        method === BrewMethod.MOKA_POT
+          ? mokaModel
+          : undefined,
+      waterStartTemp:
+        method === BrewMethod.MOKA_POT
+          ? waterStartTemp
+          : undefined,
+      isAeropressFilterUsed:
+        method === BrewMethod.MOKA_POT
+          ? isAeropressFilterUsed
+          : undefined,
+      flameControl:
+        method === BrewMethod.MOKA_POT
+          ? flameControl
+          : undefined,
     });
-  };
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   const ratio = dose > 0 ? `1:${(yieldVal / dose).toFixed(1)}` : '0';
 
@@ -832,7 +939,17 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
 
       <div className="flex gap-4 pt-4 sticky bottom-0 bg-white/95 backdrop-blur-sm py-4 border-t border-stone-100 mt-2 z-10">
         <button type="button" onClick={onCancel} className="flex-1 py-4 bg-stone-100 text-stone-500 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:bg-stone-200 transition-all">Discard</button>
-        <button type="submit" className="flex-1 py-4 bg-stone-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:bg-black transition-all shadow-xl shadow-stone-900/20 active:scale-[0.98]">{title || (initialData ? 'Update Brew' : 'Log Brew')}</button>
+        <button
+  type="submit"
+  disabled={isSaving}
+  className="flex-1 rounded-2xl bg-stone-900 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl transition-all hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
+>
+  {isSaving
+    ? 'Saving...'
+    : initialData
+      ? 'Update Brew'
+      : 'Log Brew'}
+</button>
       </div>
     </form>
   );
