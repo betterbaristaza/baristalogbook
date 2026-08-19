@@ -10,6 +10,7 @@ export default async function handler(req: any, res: any) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+
   if (!supabaseUrl || !serviceRoleKey) {
     console.error('Supabase server credentials are not configured');
 

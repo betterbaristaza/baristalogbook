@@ -98,7 +98,7 @@ P2 = Post-launch
 * [x] Forgot password
 * [x] Password reset
 * [x] Authentication error states
-* [ ] Account deletion
+* [x] Account deletion
 
 ## Coffee Library
 
@@ -302,8 +302,8 @@ Goal: Technical foundation, launch scope and core mobile usability.
 
 Goal: Complete P0 account, security and mobile requirements.
 
-* [ ] Build account deletion
-* [ ] Build associated user data deletion
+* [x] Build account deletion
+* [x] Build associated user data deletion
 * [x] Verify RLS on all user tables
 * [x] Verify storage isolation between accounts
 * [x] Complete Supabase security hardening

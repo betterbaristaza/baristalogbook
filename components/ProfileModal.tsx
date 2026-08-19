@@ -124,36 +124,37 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
         </div>
 
         <div className="pt-4 space-y-4">
-          <button
-            type="submit"
-            className="w-full bg-amber-800 text-white py-5 rounded-3xl font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-amber-900/20 active:scale-95 transition-all"
-          >
-            {isFirstLaunch ? 'Start Brewing' : 'Save Profile'}
-            {!isFirstLaunch && onDeleteAccount && (
-  <div className="pt-4 border-t border-stone-100">
-    <button
-      type="button"
-      onClick={onDeleteAccount}
-      className="w-full py-4 rounded-2xl border border-red-200 text-red-600 font-black uppercase text-[10px] tracking-[0.2em] hover:bg-red-50 active:scale-95 transition-all"
-    >
-      Delete Account
-    </button>
+  <button
+    type="submit"
+    className="w-full bg-amber-800 text-white py-5 rounded-3xl font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-amber-900/20 active:scale-95 transition-all"
+  >
+    {isFirstLaunch ? 'Start Brewing' : 'Save Profile'}
+  </button>
 
-    <p className="mt-2 text-center text-[9px] text-stone-400 font-medium">
-      Permanently deletes your account and Brewprint data.
+  {!isFirstLaunch && onDeleteAccount && (
+    <div className="pt-4 border-t border-stone-100">
+      <button
+        type="button"
+        onClick={onDeleteAccount}
+        className="w-full py-4 rounded-2xl border border-red-200 text-red-600 font-black uppercase text-[10px] tracking-[0.2em] hover:bg-red-50 active:scale-95 transition-all"
+      >
+        Delete Account
+      </button>
+
+      <p className="mt-3 text-center text-[9px] text-stone-400 font-bold uppercase tracking-wider">
+        Permanently deletes your account and Brewprint data.
+      </p>
+    </div>
+  )}
+
+  <div className="flex items-center gap-2 justify-center py-2 px-4 bg-stone-50 rounded-xl border border-stone-100">
+    <Icons.Info className="w-3.5 h-3.5 text-stone-400" />
+    <p className="text-[9px] text-stone-400 font-bold uppercase tracking-tight">
+      Your profile and brew data are synced securely to your account.
     </p>
   </div>
-)}
-          </button>
-          
-          <div className="flex items-center gap-2 justify-center py-2 px-4 bg-stone-50 rounded-xl border border-stone-100">
-            <Icons.Info className="w-3.5 h-3.5 text-stone-400" />
-            <p className="text-[9px] text-stone-400 font-bold uppercase tracking-tight">
-              Your profile and brew data are synced securely to your account.
-            </p>
-          </div>
-        </div>
-      </form>
+</div>
+</form>
     </div>
   );
 };
