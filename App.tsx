@@ -1349,7 +1349,7 @@ if (onboardingStep === 'welcome') {
         setBrewFlowStep('brew');
       }}
       className="p-2 bg-stone-50 text-stone-400 hover:text-amber-800 rounded-lg border border-stone-100 hover:border-amber-200 transition-all"
-      title="Duplicate Brew"
+      title="Brew Again"
     >
       <Icons.Copy className="w-3.5 h-3.5" />
     </button>
@@ -1583,8 +1583,9 @@ if (onboardingStep === 'welcome') {
           {brewFlowStep === 'brew' && selectedCoffee && (
             <BrewForm 
               coffee={selectedCoffee} 
-              initialData={(editingLog || prefillLog) || undefined} 
-              title={editingLog ? 'Update Entry' : (prefillLog ? 'Duplicate Recipe' : 'Log Brew')}
+              initialData={(editingLog || prefillLog) || undefined}
+              isBrewAgain={Boolean(prefillLog)} 
+              title={editingLog ? 'Update Entry' : (prefillLog ? 'Brew Again' : 'Log Brew')}
               onSave={handleSaveBrew} 
               onCancel={() => {
                 if (onboardingStep === 'brew') {

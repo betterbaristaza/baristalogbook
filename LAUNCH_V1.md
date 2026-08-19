@@ -128,7 +128,9 @@ P2 = Post-launch
 * [x] Brew history
 * [x] Search and filtering
 * [x] First-use empty state
-* [ ] Brew Again
+* [x] Brew Again creates a new brew from an existing recipe
+* [x] Brew Again preserves recipe inputs while resetting tasting results, sensory scores, flavour groups and brew photo
+* [x] Brew Again preserves the original brew log and deducts the new dose from remaining coffee
 * [x] Final mobile usability review
 
 ## Security

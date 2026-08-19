@@ -173,9 +173,17 @@ interface BrewFormProps {
   onCancel: () => void;
   initialData?: BrewLog;
   title?: string;
+  isBrewAgain?: boolean;
 }
 
-const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialData, title }) => {
+const BrewForm: React.FC<BrewFormProps> = ({
+  coffee,
+  onSave,
+  onCancel,
+  initialData,
+  title,
+  isBrewAgain = false,
+}) => {
   const [method, setMethod] = useState<BrewMethod>(initialData?.method || BrewMethod.ESPRESSO);
   const [baristaName, setBaristaName] = useState(initialData?.baristaName || '');
   const [db, setDb] = useState(INITIAL_EQUIPMENT_DB);
@@ -188,12 +196,18 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
   const [temp, setTemp] = useState<number | ''>(initialData?.waterTemp ?? 93);
   const [grinder, setGrinder] = useState(initialData?.grinder || db.GRINDERS[0]);
   const [setting, setSetting] = useState(initialData?.grindSetting || '');
-  const [rating, setRating] = useState(initialData?.rating ?? 4);
-  const [notes, setNotes] = useState(initialData?.tastingNotes?.join(', ') || '');
+  const [rating, setRating] = useState(
+  isBrewAgain ? 4 : (initialData?.rating ?? 4)
+);
+  const [notes, setNotes] = useState(
+  isBrewAgain
+    ? ''
+    : (initialData?.tastingNotes?.join(', ') || '')
+);
   const [processNotes, setProcessNotes] = useState(initialData?.processNotes || '');
   const [brewImage, setBrewImage] = useState(
-    initialData?.brewImage
-  );
+  isBrewAgain ? undefined : initialData?.brewImage
+);
 
   const [brewImageFile, setBrewImageFile] =
     useState<File>();
@@ -252,14 +266,17 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
 
   // Sensory Analysis
   const [sensory, setSensory] = useState({
-    aroma: initialData?.aroma ?? 3,
-    acidity: initialData?.acidity ?? 3,
-    sweetness: initialData?.sweetness ?? 3,
-    bitterness: initialData?.bitterness ?? 3,
-    body: initialData?.body ?? 3,
-    aftertaste: initialData?.aftertaste ?? 3
-  });
-  const [selectedFlavorGroups, setSelectedFlavorGroups] = useState<string[]>(initialData?.flavorGroups || []);
+  aroma: isBrewAgain ? 3 : (initialData?.aroma ?? 3),
+  acidity: isBrewAgain ? 3 : (initialData?.acidity ?? 3),
+  sweetness: isBrewAgain ? 3 : (initialData?.sweetness ?? 3),
+  bitterness: isBrewAgain ? 3 : (initialData?.bitterness ?? 3),
+  body: isBrewAgain ? 3 : (initialData?.body ?? 3),
+  aftertaste: isBrewAgain ? 3 : (initialData?.aftertaste ?? 3),
+});
+
+const [selectedFlavorGroups, setSelectedFlavorGroups] = useState<string[]>(
+  isBrewAgain ? [] : (initialData?.flavorGroups || [])
+);
 
   // List Update Helpers
   const addToList = (key: keyof typeof db, value: string) => {
@@ -330,7 +347,9 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
       coffeeId: coffee.id,
       baristaName,
       brewImage,
-      brewImagePath: initialData?.brewImagePath,
+      bbrewImagePath: isBrewAgain
+  ? undefined
+  : initialData?.brewImagePath,
       brewImageFile,
       date: new Date().toISOString(),
       method,
