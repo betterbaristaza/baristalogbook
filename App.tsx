@@ -15,6 +15,7 @@ import { brewLogService } from './services/brewLogService';
 import { profileService } from './services/profileService';
 import { imageService } from './services/imageService';
 import OnboardingWelcome from './components/OnboardingWelcome';
+import { accountService } from './services/accountService';
 
 
 const SENSORY_METADATA = [
@@ -141,16 +142,18 @@ const [coffeesLoading, setCoffeesLoading] = useState(true);
 
  const [brewLogs, setBrewLogs] = useState<BrewLog[]>([]);
 const [brewLogsLoading, setBrewLogsLoading] = useState(true);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+const [profile, setProfile] = useState<UserProfile | null>(null);
 const [profileLoading, setProfileLoading] = useState(true);
-  const [showProfileModal, setShowProfileModal] = useState(false);
+const [showProfileModal, setShowProfileModal] = useState(false);
+const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
-  const [onboardingStep, setOnboardingStep] = useState<
-    'welcome' | 'profile' | 'coffee' | 'brew' | null
-  >(null);
+const [onboardingStep, setOnboardingStep] = useState<
+  'welcome' | 'profile' | 'coffee' | 'brew' | null
+>(null);
 
-  const [onboardingInitialized, setOnboardingInitialized] =
-    useState(false);
+const [onboardingInitialized, setOnboardingInitialized] =
+  useState(false);
 
 
   useEffect(() => {
@@ -1657,17 +1660,104 @@ if (onboardingStep === 'welcome') {
           alert('There was a problem saving your profile.');
         }
       }}
-      onCancel={
+  onCancel={
         onboardingStep === 'profile'
           ? undefined
           : profile
             ? () => setShowProfileModal(false)
             : undefined
       }
+      onDeleteAccount={
+  onboardingStep === 'profile'
+    ? undefined
+    : () => {
+        setShowProfileModal(false);
+        setShowDeleteAccountModal(true);
+      }
+}
     />
   </div>
 )}
+      {showDeleteAccountModal && (
+  <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md flex items-center justify-center z-[110] p-6">
+    <div className="bg-white rounded-[3rem] w-full max-w-md p-8 shadow-2xl">
+      <div className="space-y-4">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-500">
+            Permanent action
+          </p>
 
+          <h3 className="mt-2 text-2xl font-black text-stone-800 display-font">
+            Delete your account?
+          </h3>
+        </div>
+
+        <p className="text-sm text-stone-500 leading-6">
+          This will permanently delete your profile, coffees, brew logs and
+          uploaded images. This action cannot be undone.
+        </p>
+
+        <div className="pt-4 space-y-3">
+          <button
+            type="button"
+            disabled={isDeletingAccount}
+            onClick={async () => {
+              if (isDeletingAccount) {
+                return;
+              }
+
+              setIsDeletingAccount(true);
+
+              try {
+                await accountService.deleteAccount();
+
+                localStorage.clear();
+
+                setCoffees([]);
+                setBrewLogs([]);
+                setProfile(null);
+
+                setShowDeleteAccountModal(false);
+                setShowProfileModal(false);
+
+                await signOut();
+              } catch (error) {
+                console.error(
+                  'Account deletion failed:',
+                  error
+                );
+
+                alert(
+                  error instanceof Error
+                    ? error.message
+                    : 'Unable to delete account.'
+                );
+              } finally {
+                setIsDeletingAccount(false);
+              }
+            }}
+            className="w-full bg-red-600 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+          >
+            {isDeletingAccount
+              ? 'Deleting Account...'
+              : 'Permanently Delete Account'}
+          </button>
+
+          <button
+            type="button"
+            disabled={isDeletingAccount}
+            onClick={() => {
+              setShowDeleteAccountModal(false);
+            }}
+            className="w-full bg-stone-100 text-stone-700 py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-md bg-stone-900/90 backdrop-blur-xl border border-white/10 px-4 py-5 flex justify-around items-center z-50 rounded-[3rem] shadow-2xl">
         {[
           { id: 'home', icon: <Icons.Coffee className="w-6 h-6" />, label: 'Home' },

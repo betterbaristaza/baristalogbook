@@ -7,6 +7,7 @@ interface ProfileModalProps {
   initialData?: UserProfile;
   onSave: (profile: UserProfile) => void | Promise<void>;
   onCancel?: () => void;
+  onDeleteAccount?: () => void;
   isFirstLaunch?: boolean;
 }
 
@@ -18,7 +19,13 @@ const ROLES = [
   'Coffee Enthusiast'
 ];
 
-const ProfileModal: React.FC<ProfileModalProps> = ({ initialData, onSave, onCancel, isFirstLaunch }) => {
+const ProfileModal: React.FC<ProfileModalProps> = ({
+  initialData,
+  onSave,
+  onCancel,
+  onDeleteAccount,
+  isFirstLaunch
+}) => {
   const [formData, setFormData] = useState<UserProfile>(initialData || {
     name: '',
     role: 'Home Brewer',
@@ -122,6 +129,21 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ initialData, onSave, onCanc
             className="w-full bg-amber-800 text-white py-5 rounded-3xl font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-amber-900/20 active:scale-95 transition-all"
           >
             {isFirstLaunch ? 'Start Brewing' : 'Save Profile'}
+            {!isFirstLaunch && onDeleteAccount && (
+  <div className="pt-4 border-t border-stone-100">
+    <button
+      type="button"
+      onClick={onDeleteAccount}
+      className="w-full py-4 rounded-2xl border border-red-200 text-red-600 font-black uppercase text-[10px] tracking-[0.2em] hover:bg-red-50 active:scale-95 transition-all"
+    >
+      Delete Account
+    </button>
+
+    <p className="mt-2 text-center text-[9px] text-stone-400 font-medium">
+      Permanently deletes your account and Brewprint data.
+    </p>
+  </div>
+)}
           </button>
           
           <div className="flex items-center gap-2 justify-center py-2 px-4 bg-stone-50 rounded-xl border border-stone-100">
