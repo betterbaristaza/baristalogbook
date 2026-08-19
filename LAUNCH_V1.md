@@ -1,6 +1,6 @@
 # Barista Logbook V1 Launch Plan
 
-Last updated: 18 August 2026
+Last updated: 19 August 2026
 
 Target paid launch: 28 September 2026
 
@@ -34,7 +34,7 @@ Record → Brew → Compare → Improve
 
 ## Current Development Status
 
-Completed and verified by 18 August 2026:
+Completed and verified by 19 August 2026:
 
 * Authentication, profiles and cross-device data sync
 * Password recovery and email verification flows
@@ -66,14 +66,18 @@ Completed and verified by 18 August 2026:
 * Frontend password validation matched to Supabase rules
 * Local production builds passing
 * All completed changes committed and merged into main
+* Gemini API moved behind a server-side API endpoint
+* Gemini SDK removed from the frontend request flow
+* Gemini API key injection removed from the Vite browser bundle
+* Frontend verified with no remaining Gemini secret references
 
 Current recommended development focus:
 
 1. Brew Again
-2. Gemini server-side migration
-3. Account deletion and user data deletion
-4. Mobile navigation and product quality review
-5. Subscription system
+2. Account deletion and user data deletion
+3. Mobile navigation and product quality review
+4. Subscription system
+5. Beta and production preparation
 
 ## Priority Levels
 
@@ -129,8 +133,6 @@ P2 = Post-launch
 
 ## Security
 
-## Security
-
 * [x] Supabase Row Level Security foundation
 * [x] Verify RLS on all user tables
 * [x] Private user image storage
@@ -143,8 +145,8 @@ P2 = Post-launch
 * [x] Match frontend password validation to Supabase rules
 * [x] Confirm no service-role, database or payment secrets exist in client code
 * [ ] Add authentication CAPTCHA protection
-* [ ] Remove Gemini API key from browser
-* [ ] Create server-side Gemini request flow
+* [x] Remove Gemini API key from browser
+* [x] Create server-side Gemini request flow
 
 ## Onboarding
 
@@ -182,7 +184,7 @@ P2 = Post-launch
 * [x] Bean form mobile review
 * [x] iPhone safe-area header fix
 * [x] iPhone form input zoom prevention
-* [ ] Brew Log mobile review
+* [x] Brew Log mobile review
 * [ ] Mobile navigation review
 * [ ] PWA installation testing
 * [ ] Production console error review
@@ -205,6 +207,10 @@ P2 = Post-launch
 * [ ] Upgrade page
 * [ ] Production domain review
 * [ ] Beta feedback process
+* [ ] Create new Gemini API key before enabling AI features
+* [ ] Add GEMINI_API_KEY as a server-only Vercel environment variable
+* [ ] Test Gemini server endpoint in production
+* [ ] Revoke previous exposed Gemini API key
 
 # P1 Launch Features
 
