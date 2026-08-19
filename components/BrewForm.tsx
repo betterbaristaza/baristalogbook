@@ -182,12 +182,12 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
   const [isSaving, setIsSaving] = useState(false);
   
   // Shared
-  const [dose, setDose] = useState(initialData?.dose ?? 18);
-  const [yieldVal, setYieldVal] = useState(initialData?.yield ?? 36);
-  const [time, setTime] = useState(initialData?.brewTime ?? 30);
+  const [dose, setDose] = useState<number | ''>(initialData?.dose ?? 18);
+  const [yieldVal, setYieldVal] = useState<number | ''>(initialData?.yield ?? 36);
+  const [time, setTime] = useState<number | ''>(initialData?.brewTime ?? 30);
+  const [temp, setTemp] = useState<number | ''>(initialData?.waterTemp ?? 93);
   const [grinder, setGrinder] = useState(initialData?.grinder || db.GRINDERS[0]);
   const [setting, setSetting] = useState(initialData?.grindSetting || '');
-  const [temp, setTemp] = useState(initialData?.waterTemp ?? 93);
   const [rating, setRating] = useState(initialData?.rating ?? 4);
   const [notes, setNotes] = useState(initialData?.tastingNotes?.join(', ') || '');
   const [processNotes, setProcessNotes] = useState(initialData?.processNotes || '');
@@ -336,15 +336,15 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
       method,
       grinder,
       grindSetting: setting,
-      dose,
-      yield: yieldVal,
+      dose: dose === '' ? 0 : dose,
+      yield: yieldVal === '' ? 0 : yieldVal,
       brewTime:
         method === BrewMethod.COLD_BREW
           ? steepTimeCB
           : method === BrewMethod.FRENCH_PRESS
             ? fpImmersionTime
-            : time,
-      waterTemp: temp,
+            : time === '' ? 0 : time,
+      waterTemp: temp === '' ? 0 : temp,
       rating,
       tastingNotes: notes
         .split(',')
@@ -483,7 +483,12 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
   }
 };
 
-  const ratio = dose > 0 ? `1:${(yieldVal / dose).toFixed(1)}` : '0';
+  const ratio =
+  dose !== '' &&
+  yieldVal !== '' &&
+  dose > 0
+    ? `1:${(yieldVal / dose).toFixed(1)}`
+    : '—';
 
   return (
     <form
@@ -750,11 +755,35 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
         <div className="grid grid-cols-3 gap-3 p-6 bg-stone-50 rounded-[2rem] border border-stone-100">
           <div>
             <label className="block text-[9px] font-black text-stone-400 uppercase tracking-widest mb-1.5 text-center">Dose (g)</label>
-            <input type="number" step="0.1" value={dose} onChange={e => setDose(Number(e.target.value))} className="w-full bg-white border border-stone-200 rounded-xl p-3 text-center text-sm font-black outline-none focus:border-amber-300 transition-colors" />
+            <input
+  type="number"
+  step="0.1"
+  value={dose}
+  onChange={e =>
+    setDose(
+      e.target.value === ''
+        ? ''
+        : Number(e.target.value)
+    )
+  }
+  className="w-full bg-white border border-stone-200 rounded-xl p-3 text-center text-sm font-black outline-none focus:border-amber-300 transition-colors"
+/>
           </div>
           <div>
             <label className="block text-[9px] font-black text-stone-400 uppercase tracking-widest mb-1.5 text-center">Yield (g)</label>
-            <input type="number" step="1" value={yieldVal} onChange={e => setYieldVal(Number(e.target.value))} className="w-full bg-white border border-stone-200 rounded-xl p-3 text-center text-sm font-black outline-none focus:border-amber-300 transition-colors" />
+            <input
+  type="number"
+  step="1"
+  value={yieldVal}
+  onChange={e =>
+    setYieldVal(
+      e.target.value === ''
+        ? ''
+        : Number(e.target.value)
+    )
+  }
+  className="w-full bg-white border border-stone-200 rounded-xl p-3 text-center text-sm font-black outline-none focus:border-amber-300 transition-colors"
+/>
           </div>
           <div>
             <label className="block text-[9px] font-black text-stone-400 uppercase tracking-widest mb-1.5 text-center">Ratio</label>
@@ -765,23 +794,45 @@ const BrewForm: React.FC<BrewFormProps> = ({ coffee, onSave, onCancel, initialDa
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1.5">Water Temp (°C)</label>
-            <input type="number" value={temp} onChange={e => setTemp(Number(e.target.value))} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-amber-300 transition-colors" />
+            <input
+  type="number"
+  value={temp}
+  onChange={e =>
+    setTemp(
+      e.target.value === ''
+        ? ''
+        : Number(e.target.value)
+    )
+  }
+  className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-amber-300 transition-colors"
+/>
           </div>
           <div>
             <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1.5">
               {method === BrewMethod.COLD_BREW ? 'Steep (Hrs)' : 'Total Time (s)'}
             </label>
-            <input 
-              type="number" 
-              value={method === BrewMethod.COLD_BREW ? steepTimeCB : (method === BrewMethod.FRENCH_PRESS ? fpImmersionTime : time)} 
-              onChange={e => {
-                const val = Number(e.target.value);
-                if (method === BrewMethod.COLD_BREW) setSteepTimeCB(val);
-                else if (method === BrewMethod.FRENCH_PRESS) setFpImmersionTime(val);
-                else setTime(val);
-              }} 
-              className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-amber-300 transition-colors" 
-            />
+            <input
+  type="number"
+  value={
+    method === BrewMethod.COLD_BREW
+      ? steepTimeCB
+      : method === BrewMethod.FRENCH_PRESS
+        ? fpImmersionTime
+        : time
+  }
+  onChange={e => {
+    const value = e.target.value;
+
+    if (method === BrewMethod.COLD_BREW) {
+      setSteepTimeCB(value === '' ? 0 : Number(value));
+    } else if (method === BrewMethod.FRENCH_PRESS) {
+      setFpImmersionTime(value === '' ? 0 : Number(value));
+    } else {
+      setTime(value === '' ? '' : Number(value));
+    }
+  }}
+  className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-amber-300 transition-colors"
+/>
           </div>
         </div>
 
