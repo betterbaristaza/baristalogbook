@@ -50,6 +50,9 @@ const getAuthErrorMessage = (error: any): string => {
     case 'session_expired':
       return 'Your session has expired. Please sign in again.';
 
+    case 'captcha_failed':
+      return 'Security verification failed. Please try again.';
+
     default:
       console.error('Supabase auth error:', error);
       return 'Something went wrong. Please try again.';
@@ -65,20 +68,24 @@ interface AuthContextType {
   signUp: (
     email: string,
     password: string,
-    name: string
+    name: string,
+    captchaToken: string
   ) => Promise<{ error: Error | null }>;
 
   signIn: (
     email: string,
-    password: string
+    password: string,
+    captchaToken: string
   ) => Promise<{ error: Error | null }>;
 
   sendPasswordReset: (
-    email: string
+    email: string,
+    captchaToken: string
   ) => Promise<{ error: Error | null }>;
 
   resendSignupConfirmation: (
-    email: string
+    email: string,
+    captchaToken: string
   ) => Promise<{ error: Error | null }>;
 
   updatePassword: (
@@ -88,16 +95,17 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<
-  AuthContextType | undefined
->(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 export const AuthProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] =
-    useState<Session | null>(null);
+  const [session, setSession] = useState<Session | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [passwordRecovery, setPasswordRecovery] =
     useState(false);
@@ -130,13 +138,15 @@ export const AuthProvider: React.FC<{
   const signUp = async (
     email: string,
     password: string,
-    name: string
+    name: string,
+    captchaToken: string
   ) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: window.location.origin,
+        captchaToken,
         data: {
           name,
         },
@@ -152,12 +162,16 @@ export const AuthProvider: React.FC<{
 
   const signIn = async (
     email: string,
-    password: string
+    password: string,
+    captchaToken: string
   ) => {
     const { error } =
       await supabase.auth.signInWithPassword({
         email,
         password,
+        options: {
+          captchaToken,
+        },
       });
 
     return {
@@ -168,15 +182,14 @@ export const AuthProvider: React.FC<{
   };
 
   const sendPasswordReset = async (
-    email: string
+    email: string,
+    captchaToken: string
   ) => {
     const { error } =
-      await supabase.auth.resetPasswordForEmail(
-        email,
-        {
-          redirectTo: window.location.origin,
-        }
-      );
+      await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin,
+        captchaToken,
+      });
 
     return {
       error: error
@@ -186,13 +199,15 @@ export const AuthProvider: React.FC<{
   };
 
   const resendSignupConfirmation = async (
-    email: string
+    email: string,
+    captchaToken: string
   ) => {
     const { error } = await supabase.auth.resend({
       type: 'signup',
       email,
       options: {
         emailRedirectTo: window.location.origin,
+        captchaToken,
       },
     });
 
@@ -206,10 +221,9 @@ export const AuthProvider: React.FC<{
   const updatePassword = async (
     password: string
   ) => {
-    const { error } =
-      await supabase.auth.updateUser({
-        password,
-      });
+    const { error } = await supabase.auth.updateUser({
+      password,
+    });
 
     if (!error) {
       setPasswordRecovery(false);
