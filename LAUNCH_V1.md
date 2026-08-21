@@ -1,11 +1,13 @@
 # Barista Logbook V1 Launch Plan
 
-Last updated: 19 August 2026
+Last updated: 21 August 2026
 
 Target paid launch: 28 September 2026
 
-Development period: 17 August to 13 September  
-Closed beta: 14 September to 27 September  
+Development period: 17 August to 13 September
+
+Closed beta: 14 September to 27 September
+
 Paid launch: 28 September 2026
 
 ## Product Goal
@@ -34,7 +36,7 @@ Record → Brew → Compare → Improve
 
 ## Current Development Status
 
-Completed and verified by 19 August 2026:
+Completed and verified by 21 August 2026:
 
 * Authentication, profiles and cross-device data sync
 * Password recovery and email verification flows
@@ -45,6 +47,9 @@ Completed and verified by 19 August 2026:
 * Optional brew photo upload
 * Automatic and atomic coffee weight deduction
 * Brew history search and filtering
+* Brew Again flow from existing Journal entries
+* Brew Again recipe prefill with fresh result fields
+* Brew Again creates a separate brew while preserving the original
 * Home summary layout improvements
 * Header safe-area improvements for iPhone
 * Coffee Library empty state
@@ -64,25 +69,38 @@ Completed and verified by 19 August 2026:
 * Cross-user coffee and brew references blocked
 * Secure password changes enabled
 * Frontend password validation matched to Supabase rules
-* Local production builds passing
-* All completed changes committed and merged into main
+* Account deletion and associated user data deletion
 * Gemini API moved behind a server-side API endpoint
 * Gemini SDK removed from the frontend request flow
 * Gemini API key injection removed from the Vite browser bundle
 * Frontend verified with no remaining Gemini secret references
+* Local production builds passing
+* All previously completed changes committed and merged into main
+* Cloudflare Turnstile CAPTCHA protection added to authentication
+* CAPTCHA enabled in Supabase Authentication
+* CAPTCHA protection verified for sign in, signup, verification resend and password reset
+* Turnstile tested successfully on localhost and production
+* Turnstile production hostname configured in Cloudflare
+* Public Turnstile site key configured in Vercel
+* Turnstile secret stored only in Supabase
+* Production authentication flow verified with CAPTCHA enabled
+* Under P0 Launch Requirements → Security, change:
+
 
 Current recommended development focus:
 
-1. Brew Again
-2. Account deletion and user data deletion
-3. Mobile navigation and product quality review
-4. Subscription system
-5. Beta and production preparation
+1. Mobile navigation and product quality review
+2. Loading, error and empty-state review
+3. Subscription system
+4. Beta and production preparation
+5. Gemini production key setup immediately before beta and production testing
 
 ## Priority Levels
 
-P0 = Required before launch  
-P1 = Strongly preferred for launch  
+P0 = Required before launch
+
+P1 = Strongly preferred for launch
+
 P2 = Post-launch
 
 # P0 Launch Requirements
@@ -131,6 +149,7 @@ P2 = Post-launch
 * [x] Brew Again creates a new brew from an existing recipe
 * [x] Brew Again preserves recipe inputs while resetting tasting results, sensory scores, flavour groups and brew photo
 * [x] Brew Again preserves the original brew log and deducts the new dose from remaining coffee
+* [x] Previous brew image path does not carry into the new brew
 * [x] Final mobile usability review
 
 ## Security
@@ -146,10 +165,14 @@ P2 = Post-launch
 * [x] Enable secure password changes
 * [x] Match frontend password validation to Supabase rules
 * [x] Confirm no service-role, database or payment secrets exist in client code
-* [ ] Add authentication CAPTCHA protection
+* [x] Add authentication CAPTCHA protection
+* [x] Verify CAPTCHA on sign in
+* [x] Verify CAPTCHA on signup
+* [x] Verify CAPTCHA on password reset
+* [x] Verify CAPTCHA on verification resend
+* [x] Verify CAPTCHA in production
 * [x] Remove Gemini API key from browser
 * [x] Create server-side Gemini request flow
-
 ## Onboarding
 
 * [x] Welcome screen
@@ -196,9 +219,9 @@ P2 = Post-launch
 ## User Data
 
 * [ ] Export user data
-* [ ] Delete account
-* [ ] Delete associated user data
-* [ ] Confirm deleted users lose access
+* [x] Delete account
+* [x] Delete associated user data
+* [x] Confirm deleted users lose access
 
 ## Launch Requirements
 
@@ -295,22 +318,43 @@ Goal: Technical foundation, launch scope and core mobile usability.
 * [x] Prevent iPhone input zoom
 * [x] Complete Coffee Library mobile review
 * [x] Complete Brew Log mobile review
-* [ ] Move Gemini server-side
+* [x] Complete Supabase security audit and hardening
+* [x] Build account deletion
+* [x] Build associated user data deletion
+* [x] Move Gemini server-side
+* [x] Remove Gemini API key from browser
+* [x] Create server-side Gemini request flow
+* [x] Complete Brew Again
 * [ ] Test Gemini failure handling
 * [ ] Review application structure
 * [ ] Start reducing responsibilities in App.tsx
 
+### 19 August 2026, Session 3: Brew Again
+
+* [x] Added Brew Again flow from existing Journal entries
+* [x] Existing recipe parameters prefill into the new brew
+* [x] Tasting results reset for the new brew
+* [x] Sensory scores reset for the new brew
+* [x] Flavour groups reset for the new brew
+* [x] Brew photo resets for the new brew
+* [x] Previous brew image path does not carry into the new log
+* [x] Previous brew remains unchanged
+* [x] New brew saves as a separate log with a new ID and timestamp
+* [x] Coffee remaining weight deducts correctly for the repeated brew
+* [x] Production build passed
+
 ## Week 2, 24 to 30 August
 
-Goal: Complete P0 account, security and mobile requirements.
+Goal: Complete remaining P0 product quality, security and mobile requirements.
 
 * [x] Build account deletion
 * [x] Build associated user data deletion
 * [x] Verify RLS on all user tables
 * [x] Verify storage isolation between accounts
 * [x] Complete Supabase security hardening
-* [ ] Remove Gemini API key from browser
-* [ ] Create server-side Gemini request flow
+* [x] Remove Gemini API key from browser
+* [x] Create server-side Gemini request flow
+* [x] Add authentication CAPTCHA protection
 * [ ] Test Gemini failure handling
 * [x] Complete Brew Log mobile review
 * [ ] Complete mobile navigation review
@@ -323,7 +367,7 @@ Goal: Complete P0 account, security and mobile requirements.
 
 Goal: Retention features.
 
-* [ ] Brew Again
+* [x] Brew Again
 * [ ] Saved recipes
 * [ ] Brew comparison
 * [ ] Coffee statistics
@@ -371,7 +415,7 @@ Goal: Production readiness.
 * [ ] Privacy Policy
 * [ ] Terms
 * [ ] Support contact
-* [ ] Account deletion
+* [x] Account deletion
 * [ ] Data export
 * [ ] Security review
 * [ ] Full RLS test
@@ -380,6 +424,10 @@ Goal: Production readiness.
 * [ ] Cross-device test
 * [ ] Cross-browser test
 * [ ] Full new-user journey test
+* [ ] Create new Gemini API key
+* [ ] Add Gemini key to server-only Vercel environment
+* [ ] Test Gemini server endpoint in production
+* [ ] Revoke previous exposed Gemini API key
 
 ## 28 September
 
