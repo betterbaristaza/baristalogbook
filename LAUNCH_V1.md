@@ -1,6 +1,6 @@
 # Barista Logbook V1 Launch Plan
 
-Last updated: 21 August 2026
+Last updated: 23 August 2026
 
 Target paid launch: 28 September 2026
 
@@ -36,7 +36,7 @@ Record → Brew → Compare → Improve
 
 ## Current Development Status
 
-Completed and verified by 21 August 2026:
+Completed and verified by 23 August 2026:
 
 * Authentication, profiles and cross-device data sync
 * Password recovery and email verification flows
@@ -85,15 +85,29 @@ Completed and verified by 21 August 2026:
 * Turnstile secret stored only in Supabase
 * Production authentication flow verified with CAPTCHA enabled
 * Under P0 Launch Requirements → Security, change:
+* Production dependency security audit completed
+* npm audit reduced from 8 vulnerabilities to 0 vulnerabilities
+* Vite patched from 6.4.2 to 6.4.3
+* React and React DOM updated to 19.2.8
+* Tailwind CSS and @tailwindcss/vite updated to 4.3.3
+* @types/node updated within the Node 22 compatibility line
+* Production build passed after dependency updates
+* Development smoke test passed after dependency updates
+* Brew Journal cards restored to open the full brew entry on card click
+* Edit, Brew Again and Delete actions verified independently after card interaction fix
+* Node 24.19.0 confirmed for local development
+* Major dependency migrations identified and deliberately deferred for separate testing
 
 
 Current recommended development focus:
 
-1. Mobile navigation and product quality review
-2. Loading, error and empty-state review
+1. Production-quality review and remaining P0 reliability checks
+2. Mobile navigation and loading, error and empty-state review
 3. Subscription system
 4. Beta and production preparation
-5. Gemini production key setup immediately before beta and production testing
+5. Separate major dependency migration review for Vite, TypeScript and Google GenAI
+6. Gemini production key setup immediately before beta and production testing
+
 
 ## Priority Levels
 
@@ -210,6 +224,12 @@ P2 = Post-launch
 * [x] iPhone safe-area header fix
 * [x] iPhone form input zoom prevention
 * [x] Brew Log mobile review
+* [x] Complete production dependency compatibility pass
+* [x] Update compatible React, Tailwind and Node type dependencies
+* [x] Production build passes after dependency updates
+* [x] Development smoke test passes after dependency updates
+* [x] Restore full brew opening from Journal card
+* [x] Verify Edit, Brew Again and Delete actions after card interaction fix
 * [ ] Mobile navigation review
 * [ ] PWA installation testing
 * [ ] Production console error review
@@ -362,6 +382,14 @@ Goal: Complete remaining P0 product quality, security and mobile requirements.
 * [ ] Review error states
 * [ ] Review empty states
 * [ ] Complete new-account production test
+- [x] Complete production dependency security pass
+- [x] Resolve all known npm vulnerabilities
+- [x] Complete compatible dependency updates
+- [x] Verify production build after dependency changes
+- [x] Complete development smoke test after dependency changes
+- [x] Restore Journal card full-entry interaction
+- [ ] Review application structure
+- [ ] Start reducing responsibilities in App.tsx
 
 ## Week 3, 31 August to 6 September
 
