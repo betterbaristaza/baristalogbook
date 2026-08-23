@@ -50,7 +50,18 @@ Completed and verified by 23 August 2026:
 * Brew Again flow from existing Journal entries
 * Brew Again recipe prefill with fresh result fields
 * Brew Again creates a separate brew while preserving the original
-* Home summary layout improvements
+* Home dashboard rebuilt around real Coffee Library and Brew Log data
+* Recent Brew summary with direct brew access and Brew Again
+* Favourite Coffee analysis
+* Best Brews analysis
+* Common Approach analysis across successful brews
+* Brewing Trends analysis
+* Coffee Usage and estimated brews remaining
+* Full Analytics with selectable time periods
+* Coffee choice analytics for origins, processes, roasters and roast levels
+* Brew method performance analytics
+* Highest-rated method and coffee analysis with minimum sample sizes
+* Sensory profile and flavour-group analytics
 * Header safe-area improvements for iPhone
 * Coffee Library empty state
 * Brew Log empty state
@@ -84,7 +95,6 @@ Completed and verified by 23 August 2026:
 * Public Turnstile site key configured in Vercel
 * Turnstile secret stored only in Supabase
 * Production authentication flow verified with CAPTCHA enabled
-* Under P0 Launch Requirements → Security, change:
 * Production dependency security audit completed
 * npm audit reduced from 8 vulnerabilities to 0 vulnerabilities
 * Vite patched from 6.4.2 to 6.4.3
@@ -97,7 +107,9 @@ Completed and verified by 23 August 2026:
 * Edit, Brew Again and Delete actions verified independently after card interaction fix
 * Node 24.19.0 confirmed for local development
 * Major dependency migrations identified and deliberately deferred for separate testing
-
+* Home dashboard and Full Analytics production build passed
+* Home dashboard mobile interaction testing passed
+* BrewForm brew image path typo corrected during dashboard integration
 
 Current recommended development focus:
 
@@ -107,7 +119,6 @@ Current recommended development focus:
 4. Beta and production preparation
 5. Separate major dependency migration review for Vite, TypeScript and Google GenAI
 6. Gemini production key setup immediately before beta and production testing
-
 
 ## Priority Levels
 
@@ -187,6 +198,7 @@ P2 = Post-launch
 * [x] Verify CAPTCHA in production
 * [x] Remove Gemini API key from browser
 * [x] Create server-side Gemini request flow
+
 ## Onboarding
 
 * [x] Welcome screen
@@ -230,6 +242,9 @@ P2 = Post-launch
 * [x] Development smoke test passes after dependency updates
 * [x] Restore full brew opening from Journal card
 * [x] Verify Edit, Brew Again and Delete actions after card interaction fix
+* [x] Home dashboard mobile review
+* [x] Home dashboard detail-view navigation review
+* [x] Full Analytics functional review
 * [ ] Mobile navigation review
 * [ ] PWA installation testing
 * [ ] Production console error review
@@ -277,26 +292,63 @@ P2 = Post-launch
 
 ## Coffee Statistics
 
-* [ ] Number of brews
-* [ ] Average rating
-* [ ] Best-rated brew
-* [ ] Coffee consumed
-* [ ] Favourite brew method
+* [x] Number of brews
+* [x] Average rating
+* [x] Best-rated brew
+* [x] Coffee consumed
+* [x] Favourite brew method
+* [x] Coffee origin trends
+* [x] Coffee processing trends
+* [x] Roaster trends
+* [x] Roast-level trends
+* [x] Sensory profile averages
+* [x] Flavour-group frequency
 
 ## Dashboard
 
-* [ ] Current coffees
-* [ ] Recent brews
-* [ ] Brews this week
-* [ ] Coffee remaining
-* [ ] Best recent brew
-* [ ] Quick Log Brew action
-* [ ] Quick Add Coffee action
+* [x] Current coffees
+* [x] Recent brews
+* [x] Brew activity by selected period
+* [x] Coffee remaining
+* [x] Best brews
+* [x] Favourite Coffee
+* [x] Brewing Trends
+* [x] Coffee Usage
+* [x] Estimated brews remaining
+* [x] Common Approach across successful brews
+* [x] Quick Log Brew action
+* [x] Full Analytics access
+* [x] Mobile dashboard review
+
+## Analytics
+
+* [x] Selectable 30-day period
+* [x] Selectable 3-month period
+* [x] Selectable 6-month period
+* [x] Selectable 1-year period
+* [x] All-time analytics
+* [x] Total brew count
+* [x] Unique coffees brewed
+* [x] Average rating
+* [x] Total dry coffee used
+* [x] Median dose
+* [x] Median yield
+* [x] Median brew ratio
+* [x] Median brew time
+* [x] Median water temperature
+* [x] Brew method performance
+* [x] Highest-rated methods with minimum sample size
+* [x] Highest-rated coffees with minimum sample size
+* [x] Coffee choice analysis
+* [x] Sensory analysis
+* [x] Flavour-group analysis
+* [x] Correlation versus causation guidance
 
 # P2 Post-Launch
 
 Do not work on these before V1 unless launch-critical work is complete.
 
+* [ ] Experiments and structured variable testing
 * [ ] Café accounts
 * [ ] Team accounts
 * [ ] Roaster accounts
@@ -327,6 +379,14 @@ Goal: Technical foundation, launch scope and core mobile usability.
 * [x] Build onboarding
 * [x] Fix onboarding completion persistence
 * [x] Improve Home summary layout
+* [x] Build useful Home brewing dashboard
+* [x] Add Recent Brew dashboard interaction
+* [x] Add Favourite Coffee analysis
+* [x] Add Best Brews analysis
+* [x] Add Brewing Trends
+* [x] Add Coffee Usage tracking
+* [x] Add Full Analytics
+* [x] Complete dashboard mobile review
 * [x] Fix iPhone header safe area
 * [x] Improve first-use Coffee Library
 * [x] Improve first-use Brew Log
@@ -363,6 +423,80 @@ Goal: Technical foundation, launch scope and core mobile usability.
 * [x] Coffee remaining weight deducts correctly for the repeated brew
 * [x] Production build passed
 
+### 23 August 2026, Session 6: Home Dashboard and Brewing Analytics
+
+Goal: Turn the Home summary cards into a useful brewing dashboard based on real Coffee Library and Brew Log data.
+
+* [x] Rebuilt Home around useful brewing summaries
+* [x] Connected dashboard calculations to existing Coffee Library and Brew Log data
+* [x] Added Recent Brew summary with direct access to the full brew entry
+* [x] Added Brew Again access from Recent Brew
+* [x] Added Favourite Coffee analysis
+* [x] Added Favourite Coffee brew count and average rating
+* [x] Added typical dose, yield, ratio, temperature and brew time
+* [x] Added Best Recorded Brew access
+* [x] Added estimated brews remaining
+* [x] Added Best Brews analysis
+* [x] Added Common Approach analysis across successful brews
+* [x] Added View Brew and Brew Again actions from Best Brews
+* [x] Added brew-frequency Trends
+* [x] Added brew-method Trends
+* [x] Added coffee-origin Trends
+* [x] Added coffee-processing Trends
+* [x] Added Coffee Usage tracking
+* [x] Added total coffee remaining
+* [x] Added remaining weight and percentage per coffee
+* [x] Added typical dose and estimated brews remaining
+* [x] Added detailed views behind Home summary cards
+* [x] Added Full Analytics view
+* [x] Added 30-day, 3-month, 6-month, 1-year and all-time filters
+* [x] Added total brew, unique coffee, average rating and coffee-used analytics
+* [x] Added median dose, yield, ratio, brew time and water-temperature analytics
+* [x] Added origin, process, roaster and roast-level frequency analysis
+* [x] Added brew-method performance analysis
+* [x] Added highest-rated methods with minimum sample-size protection
+* [x] Added highest-rated coffees with minimum sample-size protection
+* [x] Added average sensory profile
+* [x] Added recorded flavour-group frequency
+* [x] Added guidance that brewing correlations do not prove causation
+* [x] Removed Experiments card from V1 scope
+* [x] Moved structured experiment tracking to potential post-launch development
+* [x] Fixed BrewForm brewImagePath typo found during integration
+* [x] Recent Brew interaction tested
+* [x] Brew Again interaction tested
+* [x] Favourite Coffee data tested
+* [x] Best Brews data and actions tested
+* [x] Trends calculations tested
+* [x] Coffee Usage calculations tested
+* [x] Home dashboard mobile layout tested
+* [x] Detail-card scrolling and navigation tested
+* [x] Full Analytics tested
+* [x] Analytics time-range switching tested
+* [x] npm run dev passed
+* [x] npm run build passed
+
+Product direction confirmed:
+
+The dashboard should help answer:
+
+* What have I been brewing?
+* Which coffees and brew methods do I use most?
+* Which recipes have produced my best results?
+* What variables commonly appear in my better brews?
+* Can I reuse a successful approach on another coffee?
+* How are my coffee choices changing over time?
+* How much coffee am I using?
+* How much coffee do I have left?
+* Approximately how many brews remain?
+
+Analytics should report patterns from the user's brewing history without presenting correlation as proof that a specific variable caused a better result.
+
+V1 decision:
+
+Home Dashboard and Brewing Analytics are complete for the current V1 scope.
+
+Further analytics should only be added before launch if beta testing identifies a clear user need.
+
 ## Week 2, 24 to 30 August
 
 Goal: Complete remaining P0 product quality, security and mobile requirements.
@@ -382,14 +516,14 @@ Goal: Complete remaining P0 product quality, security and mobile requirements.
 * [ ] Review error states
 * [ ] Review empty states
 * [ ] Complete new-account production test
-- [x] Complete production dependency security pass
-- [x] Resolve all known npm vulnerabilities
-- [x] Complete compatible dependency updates
-- [x] Verify production build after dependency changes
-- [x] Complete development smoke test after dependency changes
-- [x] Restore Journal card full-entry interaction
-- [ ] Review application structure
-- [ ] Start reducing responsibilities in App.tsx
+* [x] Complete production dependency security pass
+* [x] Resolve all known npm vulnerabilities
+* [x] Complete compatible dependency updates
+* [x] Verify production build after dependency changes
+* [x] Complete development smoke test after dependency changes
+* [x] Restore Journal card full-entry interaction
+* [ ] Review application structure
+* [ ] Start reducing responsibilities in App.tsx
 
 ## Week 3, 31 August to 6 September
 
@@ -398,8 +532,9 @@ Goal: Retention features.
 * [x] Brew Again
 * [ ] Saved recipes
 * [ ] Brew comparison
-* [ ] Coffee statistics
-* [ ] Dashboard improvements
+* [x] Coffee statistics
+* [x] Dashboard improvements
+* [x] Brewing analytics
 * [ ] Search improvements
 
 ## Week 4, 7 to 13 September

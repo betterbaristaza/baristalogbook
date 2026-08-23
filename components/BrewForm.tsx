@@ -347,7 +347,7 @@ const [selectedFlavorGroups, setSelectedFlavorGroups] = useState<string[]>(
       coffeeId: coffee.id,
       baristaName,
       brewImage,
-      bbrewImagePath: isBrewAgain
+      brewImagePath: isBrewAgain
   ? undefined
   : initialData?.brewImagePath,
       brewImageFile,
