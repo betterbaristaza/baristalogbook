@@ -1273,7 +1273,14 @@ if (onboardingStep === 'welcome') {
                   return (
                     <div
   key={log.id}
-  className="bg-white p-5 rounded-[2rem] shadow-sm border border-stone-100 hover:border-amber-200 transition-all group relative overflow-hidden"
+  onClick={() => {
+    setEditingLog(log);
+    setPrefillLog(null);
+    setSelectedCoffee(coffee || null);
+    setShowBrewFlow(true);
+    setBrewFlowStep('brew');
+  }}
+  className="bg-white p-5 rounded-[2rem] shadow-sm border border-stone-100 hover:border-amber-200 transition-all group relative overflow-hidden cursor-pointer"
 >
                      <div className="mb-4">
   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-5">
@@ -1327,7 +1334,8 @@ if (onboardingStep === 'welcome') {
     <div className="flex items-start justify-between gap-4 shrink-0">
   <div className="flex gap-2">
     <button
-      onClick={() => {
+      onClick={(e) => {
+        e.stopPropagation();
         setEditingLog(log);
         setPrefillLog(null);
         setSelectedCoffee(coffee || null);
@@ -1341,7 +1349,8 @@ if (onboardingStep === 'welcome') {
     </button>
 
     <button
-      onClick={() => {
+      onClick={(e) => {
+        e.stopPropagation();
         setPrefillLog(log);
         setEditingLog(null);
         setSelectedCoffee(coffee || null);
@@ -1355,7 +1364,10 @@ if (onboardingStep === 'welcome') {
     </button>
 
     <button
-      onClick={() => handleDeleteLog(log.id)}
+      onClick={(e) => {
+        e.stopPropagation();
+        handleDeleteLog(log.id);
+      }}
       className="p-2 bg-rose-50 text-rose-300 hover:text-rose-600 rounded-lg border border-rose-100 hover:border-rose-200 transition-all"
       title="Delete Brew"
     >
