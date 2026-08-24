@@ -1348,246 +1348,706 @@ const HomeDashboard: React.FC<HomeDashboardProps> = ({
       </div>
 
       {detailView === 'favourite' &&
-        favouriteDetails && (
-          <DetailShell
-            eyebrow="Favourite Coffee"
-            title={
-              favouriteDetails.coffee.name
+  favouriteDetails && (
+    <DetailShell
+      eyebrow="02.01 / FAVOURITE COFFEE"
+      title={
+        favouriteDetails.coffee.name
+      }
+      onClose={() =>
+        setDetailView(null)
+      }
+    >
+      <section className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+        <div className="border-b border-[var(--bp-line)] p-5">
+          <p className="bp-label text-[var(--bp-orange)]">
+            {
+              favouriteDetails.coffee
+                .roaster
             }
-            onClose={() =>
-              setDetailView(null)
+          </p>
+
+          <h3 className="bp-coffee-name mt-2 text-3xl text-[var(--bp-blue)]">
+            {
+              favouriteDetails.coffee
+                .name
             }
-          >
-            <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-800">
-                {
-                  favouriteDetails.coffee
-                    .roaster
-                }
-              </p>
+          </h3>
+        </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-5">
-                <Metric
-                  label="Origin"
-                  value={
-                    favouriteDetails.coffee
-                      .origin || '—'
-                  }
-                />
+        <div className="grid grid-cols-2">
+          <div className="border-b border-r border-[var(--bp-line)] p-4">
+            <Metric
+              label="Origin"
+              value={
+                favouriteDetails.coffee
+                  .origin || '—'
+              }
+            />
+          </div>
 
-                <Metric
-                  label="Process"
-                  value={
-                    favouriteDetails.coffee
-                      .process || '—'
-                  }
-                />
+          <div className="border-b border-[var(--bp-line)] p-4">
+            <Metric
+              label="Process"
+              value={
+                favouriteDetails.coffee
+                  .process || '—'
+              }
+            />
+          </div>
 
-                <Metric
-                  label="Brews"
-                  value={
-                    favouriteDetails.brewCount
-                  }
-                />
+          <div className="border-r border-[var(--bp-line)] p-4">
+            <Metric
+              label="Brews"
+              value={
+                favouriteDetails.brewCount
+              }
+            />
+          </div>
 
-                <Metric
-                  label="Avg Rating"
-                  value={
-                    favouriteDetails.averageRating >
-                    0
-                      ? favouriteDetails.averageRating.toFixed(
-                          1
-                        )
-                      : '—'
+          <div className="p-4">
+            <Metric
+              label="Avg Rating"
+              value={
+                favouriteDetails.averageRating >
+                0
+                  ? favouriteDetails.averageRating.toFixed(
+                      1
+                    )
+                  : '—'
+              }
+            />
+          </div>
+        </div>
+
+        {(favouriteDetails.firstBrew ||
+          favouriteDetails.latestBrew) && (
+          <div className="border-t border-[var(--bp-line)] p-4">
+            <p className="bp-code text-[var(--bp-muted)]">
+              {favouriteDetails.firstBrew && (
+                <>
+                  FIRST{' '}
+                  {formatDate(
+                    favouriteDetails
+                      .firstBrew.date
+                  )}
+                </>
+              )}
+
+              {favouriteDetails.firstBrew &&
+                favouriteDetails.latestBrew && (
+                  <> / </>
+                )}
+
+              {favouriteDetails.latestBrew && (
+                <>
+                  LATEST{' '}
+                  {formatDate(
+                    favouriteDetails
+                      .latestBrew.date
+                  )}
+                </>
+              )}
+            </p>
+          </div>
+        )}
+      </section>
+
+      <section>
+        <div className="mb-3">
+          <p className="bp-index">
+            02.02 / TYPICAL RECIPE
+          </p>
+
+          <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+            Your Typical Recipe
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-2 border border-[var(--bp-line)]">
+          <div className="border-b border-r border-[var(--bp-line)] p-4">
+            <Metric
+              label="Method"
+              value={
+                favouriteDetails.topMethod ||
+                '—'
+              }
+            />
+          </div>
+
+          <div className="border-b border-[var(--bp-line)] p-4">
+            <Metric
+              label="Grinder"
+              value={
+                favouriteDetails.topGrinder ||
+                '—'
+              }
+            />
+          </div>
+
+          <div className="border-b border-r border-[var(--bp-line)] p-4">
+            <Metric
+              label="Dose"
+              value={
+                favouriteDetails.typicalDose >
+                0
+                  ? `${formatNumber(
+                      favouriteDetails.typicalDose
+                    )}g`
+                  : '—'
+              }
+            />
+          </div>
+
+          <div className="border-b border-[var(--bp-line)] p-4">
+            <Metric
+              label="Yield"
+              value={
+                favouriteDetails.typicalYield >
+                0
+                  ? `${formatNumber(
+                      favouriteDetails.typicalYield
+                    )}g`
+                  : '—'
+              }
+            />
+          </div>
+
+          <div className="border-b border-r border-[var(--bp-line)] p-4">
+            <Metric
+              label="Ratio"
+              value={
+                favouriteDetails.typicalRatio >
+                0
+                  ? `1:${favouriteDetails.typicalRatio.toFixed(
+                      1
+                    )}`
+                  : '—'
+              }
+            />
+          </div>
+
+          <div className="border-b border-[var(--bp-line)] p-4">
+            <Metric
+              label="Temperature"
+              value={
+                favouriteDetails.typicalTemperature >
+                0
+                  ? `${formatNumber(
+                      favouriteDetails.typicalTemperature
+                    )}°C`
+                  : '—'
+              }
+            />
+          </div>
+
+          <div className="col-span-2 p-4">
+            <Metric
+              label="Brew Time"
+              value={
+                favouriteDetails.typicalBrewTime >
+                0
+                  ? `${formatNumber(
+                      favouriteDetails.typicalBrewTime
+                    )}s`
+                  : '—'
+              }
+            />
+          </div>
+        </div>
+      </section>
+
+      {favouriteDetails.bestBrew && (
+        <section>
+          <div className="mb-3">
+            <p className="bp-index">
+              02.03 / BEST RECORDED BREW
+            </p>
+          </div>
+
+          <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+            <div className="flex items-start justify-between border-b border-[var(--bp-line)] p-5">
+              <div>
+                <p className="bp-label text-[var(--bp-muted)]">
+                  Rating
+                </p>
+
+                <p className="bp-measurement mt-2 text-4xl font-semibold text-[var(--bp-blue)]">
+                  {
+                    favouriteDetails
+                      .bestBrew.rating
                   }
+                  /5
+                </p>
+              </div>
+
+              <Icons.Star className="h-6 w-6 fill-current text-[var(--bp-orange)]" />
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4">
+              <div className="border-b border-r border-[var(--bp-line)] p-4 sm:border-b-0">
+                <Metric
+                  label="Dose"
+                  value={`${formatNumber(
+                    favouriteDetails.bestBrew
+                      .dose
+                  )}g`}
                 />
               </div>
 
-              {(favouriteDetails.firstBrew ||
-                favouriteDetails.latestBrew) && (
-                <div className="mt-5 border-t border-stone-100 pt-4 text-[10px] font-semibold text-stone-400">
-                  {favouriteDetails.firstBrew && (
-                    <span>
-                      First brewed{' '}
-                      {formatDate(
-                        favouriteDetails
-                          .firstBrew.date
-                      )}
-                    </span>
-                  )}
-
-                  {favouriteDetails.firstBrew &&
-                    favouriteDetails.latestBrew && (
-                      <span> · </span>
-                    )}
-
-                  {favouriteDetails.latestBrew && (
-                    <span>
-                      Latest{' '}
-                      {formatDate(
-                        favouriteDetails
-                          .latestBrew.date
-                      )}
-                    </span>
-                  )}
-                </div>
-              )}
-            </section>
-
-            <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-                Your Typical Recipe
-              </p>
-
-              <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6">
-                <Metric
-                  label="Method"
-                  value={
-                    favouriteDetails.topMethod ||
-                    '—'
-                  }
-                />
-
-                <Metric
-                  label="Grinder"
-                  value={
-                    favouriteDetails.topGrinder ||
-                    '—'
-                  }
-                />
-
-                <Metric
-                  label="Dose"
-                  value={
-                    favouriteDetails.typicalDose >
-                    0
-                      ? `${formatNumber(
-                          favouriteDetails.typicalDose
-                        )}g`
-                      : '—'
-                  }
-                />
-
+              <div className="border-b border-[var(--bp-line)] p-4 sm:border-b-0 sm:border-r">
                 <Metric
                   label="Yield"
-                  value={
-                    favouriteDetails.typicalYield >
-                    0
-                      ? `${formatNumber(
-                          favouriteDetails.typicalYield
-                        )}g`
-                      : '—'
-                  }
+                  value={`${formatNumber(
+                    favouriteDetails.bestBrew
+                      .yield
+                  )}g`}
                 />
+              </div>
 
+              <div className="border-r border-[var(--bp-line)] p-4">
                 <Metric
                   label="Ratio"
                   value={
-                    favouriteDetails.typicalRatio >
-                    0
-                      ? `1:${favouriteDetails.typicalRatio.toFixed(
-                          1
-                        )}`
-                      : '—'
-                  }
-                />
-
-                <Metric
-                  label="Temperature"
-                  value={
-                    favouriteDetails.typicalTemperature >
-                    0
-                      ? `${formatNumber(
-                          favouriteDetails.typicalTemperature
-                        )}°C`
-                      : '—'
-                  }
-                />
-
-                <Metric
-                  label="Brew Time"
-                  value={
-                    favouriteDetails.typicalBrewTime >
-                    0
-                      ? `${formatNumber(
-                          favouriteDetails.typicalBrewTime
-                        )}s`
+                    getRatio(
+                      favouriteDetails.bestBrew
+                    )
+                      ? `1:${getRatio(
+                          favouriteDetails.bestBrew
+                        )?.toFixed(1)}`
                       : '—'
                   }
                 />
               </div>
-            </section>
 
-            {favouriteDetails.bestBrew && (
-              <section className="rounded-[2rem] border border-amber-100 bg-[#fdf8f3] p-6 shadow-sm">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-800/50">
-                      Best Recorded Brew
+              <div className="p-4">
+                <Metric
+                  label="Time"
+                  value={
+                    favouriteDetails.bestBrew
+                      .brewTime > 0
+                      ? `${favouriteDetails.bestBrew.brewTime}s`
+                      : '—'
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 border-t border-[var(--bp-line)]">
+              <button
+                type="button"
+                onClick={() =>
+                  onOpenBrew(
+                    favouriteDetails.bestBrew as BrewLog
+                  )
+                }
+                className="bp-label border-r border-[var(--bp-line)] px-4 py-4 text-[var(--bp-blue)]"
+              >
+                View Brew
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  onBrewAgain(
+                    favouriteDetails.bestBrew as BrewLog
+                  )
+                }
+                className="flex items-center justify-center gap-2 bg-[var(--bp-orange)] px-4 py-4 text-[var(--bp-blue)]"
+              >
+                <Icons.Copy className="h-3.5 w-3.5" />
+
+                <span className="bp-label">
+                  Brew Again
+                </span>
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {dashboard.highestRatedCoffee &&
+        dashboard.highestRatedCoffee
+          .coffee.id !==
+          favouriteDetails.coffee.id && (
+          <section className="border border-[var(--bp-line)] bg-[var(--bp-paper)]">
+            <div className="border-b border-[var(--bp-line)] p-5">
+              <p className="bp-index">
+                02.04 / HIGHEST RATED
+              </p>
+
+              <h3 className="bp-coffee-name mt-2 text-2xl text-[var(--bp-blue)]">
+                {
+                  dashboard
+                    .highestRatedCoffee.coffee
+                    .name
+                }
+              </h3>
+
+              <p className="bp-code mt-2 text-[var(--bp-muted)]">
+                {
+                  dashboard
+                    .highestRatedCoffee
+                    .brewCount
+                }{' '}
+                BREWS /{' '}
+                {dashboard.highestRatedCoffee.averageRating.toFixed(
+                  1
+                )}
+                /5 AVG
+              </p>
+            </div>
+
+            <div className="p-5">
+              <p className="text-sm leading-relaxed text-[var(--bp-muted)]">
+                Favourite is based on the coffee you brew most.
+                Highest Rated is calculated separately and requires
+                at least 3 recorded brews.
+              </p>
+            </div>
+          </section>
+        )}
+
+      {favouriteDetails.highRated.length >
+        0 && (
+        <section>
+          <div className="mb-3">
+            <p className="bp-index">
+              02.05 / HIGHER RATED BREWS
+            </p>
+
+            <p className="bp-code mt-1 text-[var(--bp-muted)]">
+              {
+                favouriteDetails.highRated
+                  .length
+              }{' '}
+              BREWS RATED 4.5 OR HIGHER
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 border border-[var(--bp-line)]">
+            <div className="border-b border-r border-[var(--bp-line)] p-4">
+              <Metric
+                label="Sweetness"
+                value={
+                  favouriteDetails.sensory.sweetness.toFixed(
+                    1
+                  )
+                }
+              />
+            </div>
+
+            <div className="border-b border-[var(--bp-line)] p-4">
+              <Metric
+                label="Acidity"
+                value={
+                  favouriteDetails.sensory.acidity.toFixed(
+                    1
+                  )
+                }
+              />
+            </div>
+
+            <div className="border-r border-[var(--bp-line)] p-4">
+              <Metric
+                label="Body"
+                value={
+                  favouriteDetails.sensory.body.toFixed(
+                    1
+                  )
+                }
+              />
+            </div>
+
+            <div className="p-4">
+              <Metric
+                label="Aftertaste"
+                value={
+                  favouriteDetails.sensory.aftertaste.toFixed(
+                    1
+                  )
+                }
+              />
+            </div>
+          </div>
+
+          {favouriteDetails
+            .highRatedFlavours.length >
+            0 && (
+            <div className="border-x border-b border-[var(--bp-line)] p-4">
+              <p className="bp-label text-[var(--bp-muted)]">
+                Most Recorded Flavour Groups
+              </p>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {favouriteDetails.highRatedFlavours
+                  .slice(0, 4)
+                  .map(
+                    ([name, count]) => (
+                      <span
+                        key={name}
+                        className="border border-[var(--bp-line)] px-3 py-2 bp-code text-[var(--bp-blue)]"
+                      >
+                        {name} / {count}
+                      </span>
+                    )
+                  )}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      <section>
+        <div className="mb-3">
+          <p className="bp-index">
+            02.06 / COFFEE USAGE
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 border border-[var(--bp-line)]">
+          <div className="border-b border-r border-[var(--bp-line)] p-4">
+            <Metric
+              label="Bag Size"
+              value={`${favouriteDetails.coffee.totalWeight}g`}
+            />
+          </div>
+
+          <div className="border-b border-[var(--bp-line)] p-4">
+            <Metric
+              label="Remaining"
+              value={`${favouriteDetails.coffee.remainingWeight}g`}
+            />
+          </div>
+
+          <div className="border-r border-[var(--bp-line)] p-4">
+            <Metric
+              label="Used"
+              value={`${Math.max(
+                0,
+                favouriteDetails.coffee
+                  .totalWeight -
+                  favouriteDetails.coffee
+                    .remainingWeight
+              )}g`}
+            />
+          </div>
+
+          <div className="p-4">
+            <Metric
+              label="Est. Brews Left"
+              value={
+                favouriteDetails.estimatedBrewsRemaining
+              }
+            />
+          </div>
+        </div>
+      </section>
+    </DetailShell>
+  )}
+
+      {detailView === 'best' && (
+  <DetailShell
+    eyebrow="03.01 / BEST BREWS"
+    title="What has worked well"
+    onClose={() =>
+      setDetailView(null)
+    }
+  >
+    {bestBrewPatterns && (
+      <section>
+        <div className="mb-3">
+          <p className="bp-index">
+            03.02 / COMMON APPROACH
+          </p>
+
+          <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+            Your Common Approach
+          </h3>
+
+          <p className="bp-code mt-1 text-[var(--bp-muted)]">
+            Median values across your 5 highest-rated recorded brews.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+          <div className="border-b border-r border-[var(--bp-line)] p-4">
+            <Metric
+              label="Method"
+              value={
+                bestBrewPatterns.method ||
+                '—'
+              }
+            />
+          </div>
+
+          <div className="border-b border-[var(--bp-line)] p-4">
+            <Metric
+              label="Dose"
+              value={
+                bestBrewPatterns.dose > 0
+                  ? `${formatNumber(
+                      bestBrewPatterns.dose
+                    )}g`
+                  : '—'
+              }
+            />
+          </div>
+
+          <div className="border-b border-r border-[var(--bp-line)] p-4">
+            <Metric
+              label="Ratio"
+              value={
+                bestBrewPatterns.ratio > 0
+                  ? `1:${bestBrewPatterns.ratio.toFixed(
+                      1
+                    )}`
+                  : '—'
+              }
+            />
+          </div>
+
+          <div className="border-b border-[var(--bp-line)] p-4">
+            <Metric
+              label="Temperature"
+              value={
+                bestBrewPatterns.temperature >
+                0
+                  ? `${formatNumber(
+                      bestBrewPatterns.temperature
+                    )}°C`
+                  : '—'
+              }
+            />
+          </div>
+
+          <div className="col-span-2 p-4">
+            <Metric
+              label="Brew Time"
+              value={
+                bestBrewPatterns.brewTime >
+                0
+                  ? `${formatNumber(
+                      bestBrewPatterns.brewTime
+                    )}s`
+                  : '—'
+              }
+            />
+          </div>
+        </div>
+      </section>
+    )}
+
+    <section>
+      <div className="mb-4">
+        <p className="bp-index">
+          03.03 / HIGHEST RATED BREWS
+        </p>
+
+        <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+          Highest Rated Brews
+        </h3>
+
+        <p className="bp-code mt-1 text-[var(--bp-muted)]">
+          Recorded outcomes only. This does not claim that one variable caused the result.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {dashboard.bestBrews.map(
+          (log, index) => {
+            const coffee =
+              getCoffeeForLog(
+                log,
+                coffees
+              );
+
+            return (
+              <div
+                key={log.id}
+                className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]"
+              >
+                <div className="grid grid-cols-[1fr_auto] border-b border-[var(--bp-line)]">
+                  <div className="min-w-0 p-5">
+                    <p className="bp-label text-[var(--bp-orange)]">
+                      #{index + 1} / {log.method}
                     </p>
 
-                    <p className="mt-2 text-3xl font-black text-amber-950">
-                      {
-                        favouriteDetails
-                          .bestBrew.rating
-                      }
-                      /5
+                    <h4 className="bp-coffee-name mt-2 truncate text-2xl text-[var(--bp-blue)]">
+                      {coffee?.name ||
+                        'Unknown Coffee'}
+                    </h4>
+
+                    <p className="bp-code mt-1 truncate text-[var(--bp-muted)]">
+                      {coffee?.roaster ||
+                        'Roaster not recorded'}
                     </p>
                   </div>
 
-                  <Icons.Star className="h-6 w-6 fill-current text-amber-500" />
+                  <div className="flex min-w-[82px] flex-col items-center justify-center border-l border-[var(--bp-line)] px-4">
+                    <Icons.Star className="h-4 w-4 fill-current text-[var(--bp-orange)]" />
+
+                    <span className="bp-measurement mt-1 text-lg font-semibold text-[var(--bp-blue)]">
+                      {log.rating}
+                    </span>
+
+                    <span className="bp-label mt-1 text-[var(--bp-muted)]">
+                      Rating
+                    </span>
+                  </div>
                 </div>
 
-                <div className="mt-5 grid grid-cols-4 gap-3 border-t border-amber-100 pt-4">
-                  <Metric
-                    label="Dose"
-                    value={`${formatNumber(
-                      favouriteDetails.bestBrew
-                        .dose
-                    )}g`}
-                  />
+                <div className="grid grid-cols-2 sm:grid-cols-4">
+                  <div className="border-b border-r border-[var(--bp-line)] p-4 sm:border-b-0">
+                    <Metric
+                      label="Dose"
+                      value={`${formatNumber(
+                        log.dose
+                      )}g`}
+                    />
+                  </div>
 
-                  <Metric
-                    label="Yield"
-                    value={`${formatNumber(
-                      favouriteDetails.bestBrew
-                        .yield
-                    )}g`}
-                  />
+                  <div className="border-b border-[var(--bp-line)] p-4 sm:border-b-0 sm:border-r">
+                    <Metric
+                      label="Yield"
+                      value={`${formatNumber(
+                        log.yield
+                      )}g`}
+                    />
+                  </div>
 
-                  <Metric
-                    label="Ratio"
-                    value={
-                      getRatio(
-                        favouriteDetails.bestBrew
-                      )
-                        ? `1:${getRatio(
-                            favouriteDetails.bestBrew
-                          )?.toFixed(1)}`
-                        : '—'
-                    }
-                  />
+                  <div className="border-r border-[var(--bp-line)] p-4">
+                    <Metric
+                      label="Ratio"
+                      value={
+                        getRatio(log)
+                          ? `1:${getRatio(
+                              log
+                            )?.toFixed(1)}`
+                          : '—'
+                      }
+                    />
+                  </div>
 
-                  <Metric
-                    label="Time"
-                    value={
-                      favouriteDetails.bestBrew
-                        .brewTime > 0
-                        ? `${favouriteDetails.bestBrew.brewTime}s`
-                        : '—'
-                    }
-                  />
+                  <div className="p-4">
+                    <Metric
+                      label="Time"
+                      value={
+                        log.brewTime > 0
+                          ? `${log.brewTime}s`
+                          : '—'
+                      }
+                    />
+                  </div>
                 </div>
 
-                <div className="mt-5 grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 border-t border-[var(--bp-line)]">
                   <button
                     type="button"
                     onClick={() =>
-                      onOpenBrew(
-                        favouriteDetails.bestBrew as BrewLog
-                      )
+                      onOpenBrew(log)
                     }
-                    className="rounded-2xl border border-amber-200 bg-white py-3 text-[9px] font-black uppercase tracking-[0.16em] text-amber-900"
+                    className="bp-label border-r border-[var(--bp-line)] px-4 py-4 text-[var(--bp-blue)]"
                   >
                     View Brew
                   </button>
@@ -1595,738 +2055,486 @@ const HomeDashboard: React.FC<HomeDashboardProps> = ({
                   <button
                     type="button"
                     onClick={() =>
-                      onBrewAgain(
-                        favouriteDetails.bestBrew as BrewLog
-                      )
+                      onBrewAgain(log)
                     }
-                    className="flex items-center justify-center gap-2 rounded-2xl bg-amber-900 py-3 text-[9px] font-black uppercase tracking-[0.16em] text-white"
+                    className="flex items-center justify-center gap-2 bg-[var(--bp-orange)] px-4 py-4 text-[var(--bp-blue)]"
                   >
                     <Icons.Copy className="h-3.5 w-3.5" />
-                    Brew Again
+
+                    <span className="bp-label">
+                      Brew Again
+                    </span>
                   </button>
                 </div>
-              </section>
-            )}
-
-            {dashboard.highestRatedCoffee &&
-              dashboard.highestRatedCoffee
-                .coffee.id !==
-                favouriteDetails.coffee.id && (
-                <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-400">
-                    Highest Rated Coffee
-                  </p>
-
-                  <p className="mt-2 text-xl font-black text-stone-900 display-font">
-                    {
-                      dashboard
-                        .highestRatedCoffee.coffee
-                        .name
-                    }
-                  </p>
-
-                  <p className="mt-1 text-xs font-semibold text-stone-400">
-                    {
-                      dashboard
-                        .highestRatedCoffee
-                        .brewCount
-                    }{' '}
-                    brews ·{' '}
-                    {dashboard.highestRatedCoffee.averageRating.toFixed(
-                      1
-                    )}
-                    /5 average
-                  </p>
-
-                  <p className="mt-4 text-[10px] leading-relaxed text-stone-500">
-                    Favourite is based on the
-                    coffee you brew most. Highest
-                    Rated is shown separately and
-                    requires at least 3 brews.
-                  </p>
-                </section>
-              )}
-
-            {favouriteDetails.highRated.length >
-              0 && (
-              <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-                  Higher Rated Brews
-                </p>
-
-                <p className="mt-1 text-xs font-medium text-stone-400">
-                  {
-                    favouriteDetails.highRated
-                      .length
-                  }{' '}
-                  brews rated 4.5 or higher
-                </p>
-
-                <div className="mt-5 grid grid-cols-2 gap-4">
-                  <Metric
-                    label="Sweetness"
-                    value={
-                      favouriteDetails.sensory.sweetness.toFixed(
-                        1
-                      )
-                    }
-                  />
-
-                  <Metric
-                    label="Acidity"
-                    value={
-                      favouriteDetails.sensory.acidity.toFixed(
-                        1
-                      )
-                    }
-                  />
-
-                  <Metric
-                    label="Body"
-                    value={
-                      favouriteDetails.sensory.body.toFixed(
-                        1
-                      )
-                    }
-                  />
-
-                  <Metric
-                    label="Aftertaste"
-                    value={
-                      favouriteDetails.sensory.aftertaste.toFixed(
-                        1
-                      )
-                    }
-                  />
-                </div>
-
-                {favouriteDetails
-                  .highRatedFlavours.length >
-                  0 && (
-                  <div className="mt-5 border-t border-stone-100 pt-4">
-                    <p className="mb-3 text-[8px] font-black uppercase tracking-[0.18em] text-stone-400">
-                      Most Recorded Flavour Groups
-                    </p>
-
-                    <div className="flex flex-wrap gap-2">
-                      {favouriteDetails.highRatedFlavours
-                        .slice(0, 4)
-                        .map(
-                          ([name, count]) => (
-                            <span
-                              key={name}
-                              className="rounded-full bg-stone-50 px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-stone-600"
-                            >
-                              {name} · {count}
-                            </span>
-                          )
-                        )}
-                    </div>
-                  </div>
-                )}
-              </section>
-            )}
-
-            <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-                Coffee Usage
-              </p>
-
-              <div className="mt-5 grid grid-cols-2 gap-5">
-                <Metric
-                  label="Bag Size"
-                  value={`${favouriteDetails.coffee.totalWeight}g`}
-                />
-
-                <Metric
-                  label="Remaining"
-                  value={`${favouriteDetails.coffee.remainingWeight}g`}
-                />
-
-                <Metric
-                  label="Used"
-                  value={`${Math.max(
-                    0,
-                    favouriteDetails.coffee
-                      .totalWeight -
-                      favouriteDetails.coffee
-                        .remainingWeight
-                  )}g`}
-                />
-
-                <Metric
-                  label="Est. Brews Left"
-                  value={
-                    favouriteDetails.estimatedBrewsRemaining
-                  }
-                />
               </div>
-            </section>
-          </DetailShell>
-        )}
-
-      {detailView === 'best' && (
-        <DetailShell
-          eyebrow="Best Brews"
-          title="What has worked well"
-          onClose={() =>
-            setDetailView(null)
+            );
           }
-        >
-          {bestBrewPatterns && (
-            <section className="rounded-[2rem] border border-amber-100 bg-[#fdf8f3] p-6 shadow-sm">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-800/50">
-                Your Common Approach
-              </p>
-
-              <p className="mt-1 text-xs leading-relaxed text-amber-950/60">
-                Median values across your 5
-                highest-rated recorded brews.
-              </p>
-
-              <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6">
-                <Metric
-                  label="Method"
-                  value={
-                    bestBrewPatterns.method ||
-                    '—'
-                  }
-                />
-
-                <Metric
-                  label="Dose"
-                  value={
-                    bestBrewPatterns.dose > 0
-                      ? `${formatNumber(
-                          bestBrewPatterns.dose
-                        )}g`
-                      : '—'
-                  }
-                />
-
-                <Metric
-                  label="Ratio"
-                  value={
-                    bestBrewPatterns.ratio > 0
-                      ? `1:${bestBrewPatterns.ratio.toFixed(
-                          1
-                        )}`
-                      : '—'
-                  }
-                />
-
-                <Metric
-                  label="Temperature"
-                  value={
-                    bestBrewPatterns.temperature >
-                    0
-                      ? `${formatNumber(
-                          bestBrewPatterns.temperature
-                        )}°C`
-                      : '—'
-                  }
-                />
-
-                <Metric
-                  label="Brew Time"
-                  value={
-                    bestBrewPatterns.brewTime >
-                    0
-                      ? `${formatNumber(
-                          bestBrewPatterns.brewTime
-                        )}s`
-                      : '—'
-                  }
-                />
-              </div>
-            </section>
-          )}
-
-          <section className="space-y-3">
-            <div className="px-1">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-                Highest Rated Brews
-              </p>
-
-              <p className="mt-1 text-xs text-stone-400">
-                These are recorded outcomes, not
-                claims that one variable caused
-                the result.
-              </p>
-            </div>
-
-            {dashboard.bestBrews.map(
-              (log, index) => {
-                const coffee =
-                  getCoffeeForLog(
-                    log,
-                    coffees
-                  );
-
-                return (
-                  <div
-                    key={log.id}
-                    className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <p className="text-[8px] font-black uppercase tracking-[0.2em] text-stone-300">
-                          #{index + 1} ·{' '}
-                          {log.method}
-                        </p>
-
-                        <p className="mt-1 truncate text-lg font-black text-stone-900 display-font">
-                          {coffee?.name ||
-                            'Unknown Coffee'}
-                        </p>
-
-                        <p className="mt-1 truncate text-[10px] font-semibold text-stone-400">
-                          {coffee?.roaster ||
-                            'Roaster not recorded'}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-1 text-amber-500">
-                        <Icons.Star className="h-4 w-4 fill-current" />
-
-                        <span className="text-sm font-black">
-                          {log.rating}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="mt-5 grid grid-cols-4 gap-2 border-t border-stone-100 pt-4">
-                      <Metric
-                        label="Dose"
-                        value={`${formatNumber(
-                          log.dose
-                        )}g`}
-                      />
-
-                      <Metric
-                        label="Yield"
-                        value={`${formatNumber(
-                          log.yield
-                        )}g`}
-                      />
-
-                      <Metric
-                        label="Ratio"
-                        value={
-                          getRatio(log)
-                            ? `1:${getRatio(
-                                log
-                              )?.toFixed(1)}`
-                            : '—'
-                        }
-                      />
-
-                      <Metric
-                        label="Time"
-                        value={
-                          log.brewTime > 0
-                            ? `${log.brewTime}s`
-                            : '—'
-                        }
-                      />
-                    </div>
-
-                    <div className="mt-5 grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          onOpenBrew(log)
-                        }
-                        className="rounded-2xl border border-stone-200 bg-stone-50 py-3 text-[9px] font-black uppercase tracking-[0.16em] text-stone-600"
-                      >
-                        View Brew
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          onBrewAgain(log)
-                        }
-                        className="flex items-center justify-center gap-2 rounded-2xl bg-stone-900 py-3 text-[9px] font-black uppercase tracking-[0.16em] text-white"
-                      >
-                        <Icons.Copy className="h-3.5 w-3.5" />
-                        Brew Again
-                      </button>
-                    </div>
-                  </div>
-                );
-              }
-            )}
-          </section>
-        </DetailShell>
-      )}
+        )}
+      </div>
+    </section>
+  </DetailShell>
+)}
 
       {detailView === 'trends' && (
-        <DetailShell
-          eyebrow="Brewing Trends"
-          title="How your brewing is changing"
-          onClose={() =>
-            setDetailView(null)
-          }
-        >
-          <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-              Last 30 Days
-            </p>
+  <DetailShell
+    eyebrow="04.01 / BREWING TRENDS"
+    title="How your brewing is changing"
+    onClose={() =>
+      setDetailView(null)
+    }
+  >
+    <section>
+      <div className="mb-3">
+        <p className="bp-index">
+          04.02 / LAST 30 DAYS
+        </p>
 
-            <div className="mt-5 grid grid-cols-2 gap-5">
-              <Metric
-                label="Brews"
-                value={
-                  dashboard.monthlyBrews
-                }
-                sublabel={`${dashboard.previousMonthlyBrews} previous 30 days`}
-              />
+        <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+          Activity
+        </h3>
+      </div>
 
-              <Metric
-                label="Change"
-                value={
-                  <ChangeValue
-                    value={
-                      dashboard.monthlyGrowth
-                    }
-                  />
-                }
-              />
+      <div className="grid grid-cols-2 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+        <div className="border-b border-r border-[var(--bp-line)] p-4">
+          <Metric
+            label="Brews"
+            value={
+              dashboard.monthlyBrews
+            }
+            sublabel={`${dashboard.previousMonthlyBrews} previous 30 days`}
+          />
+        </div>
 
-              <Metric
-                label="Coffees"
+        <div className="border-b border-[var(--bp-line)] p-4">
+          <Metric
+            label="Change"
+            value={
+              <ChangeValue
                 value={
-                  dashboard.monthlyCoffeeCount
-                }
-              />
-
-              <Metric
-                label="Methods"
-                value={
-                  dashboard.monthlyMethodCount
+                  dashboard.monthlyGrowth
                 }
               />
-            </div>
-          </section>
+            }
+          />
+        </div>
 
-          <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-              Brew Method Trends
-            </p>
+        <div className="border-r border-[var(--bp-line)] p-4">
+          <Metric
+            label="Coffees"
+            value={
+              dashboard.monthlyCoffeeCount
+            }
+          />
+        </div>
 
-            <div className="mt-5 space-y-4">
-              {dashboard.currentMethods
-                .slice(0, 5)
-                .map(([name, count]) => {
-                  const percentage =
-                    dashboard.current30.length >
-                    0
-                      ? Math.round(
-                          (count /
-                            dashboard.current30
-                              .length) *
-                            100
-                        )
-                      : 0;
+        <div className="p-4">
+          <Metric
+            label="Methods"
+            value={
+              dashboard.monthlyMethodCount
+            }
+          />
+        </div>
+      </div>
+    </section>
 
-                  return (
-                    <div key={name}>
-                      <div className="flex items-center justify-between gap-4">
-                        <span className="text-xs font-black text-stone-700">
-                          {name}
-                        </span>
+    <section>
+      <div className="mb-3">
+        <p className="bp-index">
+          04.03 / METHOD TRENDS
+        </p>
 
-                        <span className="text-[10px] font-black text-stone-400">
-                          {count} brews ·{' '}
-                          {percentage}%
-                        </span>
-                      </div>
+        <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+          Brew Methods
+        </h3>
+      </div>
 
-                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-stone-100">
-                        <div
-                          className="h-full rounded-full bg-stone-800"
-                          style={{
-                            width: `${percentage}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          </section>
+      <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+        {dashboard.currentMethods
+          .slice(0, 5)
+          .map(([name, count], index) => {
+            const percentage =
+              dashboard.current30.length >
+              0
+                ? Math.round(
+                    (count /
+                      dashboard.current30
+                        .length) *
+                      100
+                  )
+                : 0;
 
-          <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-              Origin Trends
-            </p>
+            return (
+              <div
+                key={name}
+                className={`p-4 ${
+                  index <
+                  Math.min(
+                    dashboard.currentMethods.length,
+                    5
+                  ) -
+                    1
+                    ? 'border-b border-[var(--bp-line)]'
+                    : ''
+                }`}
+              >
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    <p className="bp-label text-[var(--bp-muted)]">
+                      Method
+                    </p>
 
-            <div className="mt-5 space-y-3">
-              {dashboard.currentOrigins
-                .slice(0, 5)
-                .map(([name, count]) => (
-                  <div
-                    key={name}
-                    className="flex items-center justify-between border-b border-stone-50 pb-3 last:border-0 last:pb-0"
-                  >
-                    <span className="text-xs font-black text-stone-700">
+                    <p className="bp-code mt-1 text-[var(--bp-blue)]">
                       {name}
-                    </span>
-
-                    <span className="text-[10px] font-black text-stone-400">
-                      {count} brews
-                    </span>
+                    </p>
                   </div>
-                ))}
-            </div>
-          </section>
 
-          <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-              Processing Trends
-            </p>
+                  <div className="text-right">
+                    <p className="bp-measurement text-lg font-semibold text-[var(--bp-blue)]">
+                      {percentage}%
+                    </p>
 
-            <div className="mt-5 space-y-3">
-              {dashboard.currentProcesses
-                .slice(0, 5)
-                .map(([name, count]) => (
+                    <p className="bp-code text-[var(--bp-muted)]">
+                      {count} BREWS
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-3 h-[3px] bg-[var(--bp-paper-dark)]">
                   <div
-                    key={name}
-                    className="flex items-center justify-between border-b border-stone-50 pb-3 last:border-0 last:pb-0"
-                  >
-                    <span className="text-xs font-black text-stone-700">
-                      {name}
-                    </span>
+                    className="h-full bg-[var(--bp-orange)]"
+                    style={{
+                      width: `${percentage}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+      </div>
+    </section>
 
-                    <span className="text-[10px] font-black text-stone-400">
-                      {count} brews
-                    </span>
-                  </div>
-                ))}
+    <section>
+      <div className="mb-3">
+        <p className="bp-index">
+          04.04 / ORIGIN TRENDS
+        </p>
+      </div>
+
+      <div className="border border-[var(--bp-line)] bg-[var(--bp-paper)]">
+        {dashboard.currentOrigins
+          .slice(0, 5)
+          .map(([name, count], index) => (
+            <div
+              key={name}
+              className={`flex items-center justify-between gap-4 p-4 ${
+                index <
+                Math.min(
+                  dashboard.currentOrigins.length,
+                  5
+                ) -
+                  1
+                  ? 'border-b border-[var(--bp-line)]'
+                  : ''
+              }`}
+            >
+              <span className="bp-code text-[var(--bp-blue)]">
+                {name}
+              </span>
+
+              <span className="bp-code text-[var(--bp-muted)]">
+                {count} BREWS
+              </span>
             </div>
-          </section>
+          ))}
+      </div>
+    </section>
 
-          <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-              Current Leaders
-            </p>
+    <section>
+      <div className="mb-3">
+        <p className="bp-index">
+          04.05 / PROCESSING TRENDS
+        </p>
+      </div>
 
-            <div className="mt-5 space-y-5">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-[8px] font-black uppercase tracking-wider text-stone-400">
-                    Most Used Method
-                  </p>
+      <div className="border border-[var(--bp-line)] bg-[var(--bp-paper)]">
+        {dashboard.currentProcesses
+          .slice(0, 5)
+          .map(([name, count], index) => (
+            <div
+              key={name}
+              className={`flex items-center justify-between gap-4 p-4 ${
+                index <
+                Math.min(
+                  dashboard.currentProcesses.length,
+                  5
+                ) -
+                  1
+                  ? 'border-b border-[var(--bp-line)]'
+                  : ''
+              }`}
+            >
+              <span className="bp-code text-[var(--bp-blue)]">
+                {name}
+              </span>
 
-                  <p className="mt-1 text-sm font-black text-stone-900">
-                    {dashboard.topMethod?.[0] ||
-                      '—'}
-                  </p>
-                </div>
-
-                {dashboard.topMethod && (
-                  <ChangeValue
-                    value={
-                      dashboard.methodChange
-                    }
-                  />
-                )}
-              </div>
-
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-[8px] font-black uppercase tracking-wider text-stone-400">
-                    Most Brewed Origin
-                  </p>
-
-                  <p className="mt-1 text-sm font-black text-stone-900">
-                    {dashboard.topOrigin?.[0] ||
-                      '—'}
-                  </p>
-                </div>
-
-                {dashboard.topOrigin && (
-                  <ChangeValue
-                    value={
-                      dashboard.originChange
-                    }
-                  />
-                )}
-              </div>
-
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-[8px] font-black uppercase tracking-wider text-stone-400">
-                    Most Used Process
-                  </p>
-
-                  <p className="mt-1 text-sm font-black text-stone-900">
-                    {dashboard.topProcess?.[0] ||
-                      '—'}
-                  </p>
-                </div>
-
-                {dashboard.topProcess && (
-                  <ChangeValue
-                    value={
-                      dashboard.processChange
-                    }
-                  />
-                )}
-              </div>
+              <span className="bp-code text-[var(--bp-muted)]">
+                {count} BREWS
+              </span>
             </div>
-          </section>
+          ))}
+      </div>
+    </section>
 
-          <section className="rounded-[2rem] border border-amber-100 bg-amber-50/50 p-6">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-800">
-              About These Trends
+    <section>
+      <div className="mb-3">
+        <p className="bp-index">
+          04.06 / CURRENT LEADERS
+        </p>
+      </div>
+
+      <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+        <div className="flex items-center justify-between gap-4 border-b border-[var(--bp-line)] p-4">
+          <div>
+            <p className="bp-label text-[var(--bp-muted)]">
+              Most Used Method
             </p>
 
-            <p className="mt-3 text-xs leading-relaxed text-stone-600">
-              Brewprint reports what appears in
-              your recorded history. A change in
-              rating or recipe variable does not
-              prove that one variable caused the
-              result.
+            <p className="bp-code mt-2 text-[var(--bp-blue)]">
+              {dashboard.topMethod?.[0] ||
+                '—'}
             </p>
-          </section>
-        </DetailShell>
-      )}
+          </div>
+
+          {dashboard.topMethod && (
+            <ChangeValue
+              value={
+                dashboard.methodChange
+              }
+            />
+          )}
+        </div>
+
+        <div className="flex items-center justify-between gap-4 border-b border-[var(--bp-line)] p-4">
+          <div>
+            <p className="bp-label text-[var(--bp-muted)]">
+              Most Brewed Origin
+            </p>
+
+            <p className="bp-code mt-2 text-[var(--bp-blue)]">
+              {dashboard.topOrigin?.[0] ||
+                '—'}
+            </p>
+          </div>
+
+          {dashboard.topOrigin && (
+            <ChangeValue
+              value={
+                dashboard.originChange
+              }
+            />
+          )}
+        </div>
+
+        <div className="flex items-center justify-between gap-4 p-4">
+          <div>
+            <p className="bp-label text-[var(--bp-muted)]">
+              Most Used Process
+            </p>
+
+            <p className="bp-code mt-2 text-[var(--bp-blue)]">
+              {dashboard.topProcess?.[0] ||
+                '—'}
+            </p>
+          </div>
+
+          {dashboard.topProcess && (
+            <ChangeValue
+              value={
+                dashboard.processChange
+              }
+            />
+          )}
+        </div>
+      </div>
+    </section>
+
+    <section className="border border-[var(--bp-line)] bg-[var(--bp-paper)]">
+      <div className="border-l-2 border-[var(--bp-orange)] p-5">
+        <p className="bp-label text-[var(--bp-orange)]">
+          About These Trends
+        </p>
+
+        <p className="mt-3 text-sm leading-relaxed text-[var(--bp-muted)]">
+          BREWPRINT reports what appears in your recorded history.
+          A change in rating or recipe variable does not prove that
+          one variable caused the result.
+        </p>
+      </div>
+    </section>
+  </DetailShell>
+)}
 
       {detailView === 'usage' && (
-        <DetailShell
-          eyebrow="Coffee Usage"
-          title="What you have and what you use"
-          onClose={() =>
-            setDetailView(null)
-          }
-        >
-          <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-            <div className="grid grid-cols-2 gap-5">
-              <Metric
-                label="Available"
-                value={`${Math.round(
-                  dashboard.totalRemaining
-                )}g`}
-              />
+  <DetailShell
+    eyebrow="05.01 / COFFEE USAGE"
+    title="What you have and what you use"
+    onClose={() =>
+      setDetailView(null)
+    }
+  >
+    <section>
+      <div className="mb-3">
+        <p className="bp-index">
+          05.02 / STOCK SUMMARY
+        </p>
 
-              <Metric
-                label="Active Coffees"
-                value={
-                  dashboard.activeCoffees.length
-                }
-              />
+        <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+          Current Coffee Position
+        </h3>
+      </div>
 
-              <Metric
-                label="Used 30 Days"
-                value={`${Math.round(
-                  dashboard.coffeeUsed30Days
-                )}g`}
-              />
+      <div className="grid grid-cols-2 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+        <div className="border-b border-r border-[var(--bp-line)] p-4">
+          <Metric
+            label="Available"
+            value={`${Math.round(
+              dashboard.totalRemaining
+            )}g`}
+          />
+        </div>
 
-              <Metric
-                label="Typical Dose"
-                value={`${formatNumber(
-                  dashboard.overallMedianDose
-                )}g`}
-              />
-            </div>
-          </section>
+        <div className="border-b border-[var(--bp-line)] p-4">
+          <Metric
+            label="Active Coffees"
+            value={
+              dashboard.activeCoffees.length
+            }
+          />
+        </div>
 
-          <section className="space-y-3">
-            <div className="px-1">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-                Current Coffees
-              </p>
+        <div className="border-r border-[var(--bp-line)] p-4">
+          <Metric
+            label="Used 30 Days"
+            value={`${Math.round(
+              dashboard.coffeeUsed30Days
+            )}g`}
+          />
+        </div>
 
-              <p className="mt-1 text-xs text-stone-400">
-                Estimated brews use your median
-                dose for each coffee where
-                possible.
-              </p>
-            </div>
+        <div className="p-4">
+          <Metric
+            label="Typical Dose"
+            value={`${formatNumber(
+              dashboard.overallMedianDose
+            )}g`}
+          />
+        </div>
+      </div>
+    </section>
 
-            {dashboard.coffeeStats
-              .filter(
-                item =>
-                  item.coffee
-                    .remainingWeight > 0
-              )
-              .sort(
-                (a, b) =>
-                  a.coffee.remainingWeight -
-                  b.coffee.remainingWeight
-              )
-              .map(item => {
-                const progress =
-                  item.coffee.totalWeight > 0
-                    ? Math.min(
-                        100,
-                        Math.max(
-                          0,
-                          (item.coffee
-                            .remainingWeight /
-                            item.coffee
-                              .totalWeight) *
-                            100
-                        )
-                      )
-                    : 0;
+    <section>
+      <div className="mb-4">
+        <p className="bp-index">
+          05.03 / CURRENT COFFEES
+        </p>
 
-                return (
-                  <div
-                    key={item.coffee.id}
-                    className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <p className="truncate text-lg font-black text-stone-900 display-font">
-                          {item.coffee.name}
-                        </p>
+        <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+          Current Coffees
+        </h3>
 
-                        <p className="mt-1 truncate text-[10px] font-semibold text-stone-400">
-                          {item.coffee.roaster}
-                        </p>
-                      </div>
+        <p className="bp-code mt-1 text-[var(--bp-muted)]">
+          Estimated brews use your median dose for each coffee where possible.
+        </p>
+      </div>
 
-                      <div className="text-right">
-                        <p className="text-lg font-black text-stone-900">
-                          {
-                            item.coffee
-                              .remainingWeight
-                          }
-                          g
-                        </p>
+      <div className="space-y-4">
+        {dashboard.coffeeStats
+          .filter(
+            item =>
+              item.coffee.remainingWeight >
+              0
+          )
+          .sort(
+            (a, b) =>
+              a.coffee.remainingWeight -
+              b.coffee.remainingWeight
+          )
+          .map(item => {
+            const progress =
+              item.coffee.totalWeight > 0
+                ? Math.min(
+                    100,
+                    Math.max(
+                      0,
+                      (item.coffee
+                        .remainingWeight /
+                        item.coffee
+                          .totalWeight) *
+                        100
+                    )
+                  )
+                : 0;
 
-                        <p className="text-[8px] font-black uppercase tracking-wider text-stone-400">
-                          remaining
-                        </p>
-                      </div>
-                    </div>
+            return (
+              <div
+                key={item.coffee.id}
+                className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]"
+              >
+                <div className="grid grid-cols-[1fr_auto] border-b border-[var(--bp-line)]">
+                  <div className="min-w-0 p-5">
+                    <h4 className="bp-coffee-name truncate text-2xl text-[var(--bp-blue)]">
+                      {item.coffee.name}
+                    </h4>
 
-                    <div className="mt-5 h-2 overflow-hidden rounded-full bg-stone-100">
-                      <div
-                        className="h-full rounded-full bg-amber-800"
-                        style={{
-                          width: `${progress}%`,
-                        }}
-                      />
-                    </div>
+                    <p className="bp-code mt-1 truncate text-[var(--bp-muted)]">
+                      {item.coffee.roaster}
+                    </p>
+                  </div>
 
-                    <div className="mt-4 grid grid-cols-3 gap-3 border-t border-stone-100 pt-4">
+                  <div className="flex min-w-[96px] flex-col items-end justify-center border-l border-[var(--bp-line)] px-4">
+                    <p className="bp-measurement text-xl font-semibold text-[var(--bp-blue)]">
+                      {
+                        item.coffee
+                          .remainingWeight
+                      }
+                      g
+                    </p>
+
+                    <p className="bp-label mt-1 text-[var(--bp-muted)]">
+                      Remaining
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4">
+                  <div className="h-[3px] bg-[var(--bp-paper-dark)]">
+                    <div
+                      className="h-full bg-[var(--bp-orange)]"
+                      style={{
+                        width: `${progress}%`,
+                      }}
+                    />
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-3 border-t border-[var(--bp-line)]">
+                    <div className="border-r border-[var(--bp-line)] py-4 pr-3">
                       <Metric
                         label="Brews"
                         value={item.brewCount}
                       />
+                    </div>
 
+                    <div className="border-r border-[var(--bp-line)] px-3 py-4">
                       <Metric
                         label="Typical Dose"
                         value={`${formatNumber(
                           item.medianDose
                         )}g`}
                       />
+                    </div>
 
+                    <div className="py-4 pl-3">
                       <Metric
                         label="Est. Left"
                         value={
@@ -2335,61 +2543,86 @@ const HomeDashboard: React.FC<HomeDashboardProps> = ({
                       />
                     </div>
                   </div>
-                );
-              })}
-          </section>
+                </div>
+              </div>
+            );
+          })}
+      </div>
+    </section>
 
-          <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-              Usage By Origin
-            </p>
+    <section>
+      <div className="mb-3">
+        <p className="bp-index">
+          05.04 / USAGE BY ORIGIN
+        </p>
+      </div>
 
-            <div className="mt-5 space-y-3">
-              {dashboard.currentOrigins
-                .slice(0, 5)
-                .map(([name, count]) => (
-                  <div
-                    key={name}
-                    className="flex items-center justify-between border-b border-stone-50 pb-3 last:border-0 last:pb-0"
-                  >
-                    <span className="text-xs font-black text-stone-700">
-                      {name}
-                    </span>
+      <div className="border border-[var(--bp-line)] bg-[var(--bp-paper)]">
+        {dashboard.currentOrigins
+          .slice(0, 5)
+          .map(([name, count], index) => (
+            <div
+              key={name}
+              className={`flex items-center justify-between gap-4 p-4 ${
+                index <
+                Math.min(
+                  dashboard.currentOrigins.length,
+                  5
+                ) -
+                  1
+                  ? 'border-b border-[var(--bp-line)]'
+                  : ''
+              }`}
+            >
+              <span className="bp-code text-[var(--bp-blue)]">
+                {name}
+              </span>
 
-                    <span className="text-[10px] font-black text-stone-400">
-                      {count} brews
-                    </span>
-                  </div>
-                ))}
+              <span className="bp-code text-[var(--bp-muted)]">
+                {count} BREWS
+              </span>
             </div>
-          </section>
+          ))}
+      </div>
+    </section>
 
-          <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-              Usage By Roaster
-            </p>
+    <section>
+      <div className="mb-3">
+        <p className="bp-index">
+          05.05 / USAGE BY ROASTER
+        </p>
+      </div>
 
-            <div className="mt-5 space-y-3">
-              {dashboard.currentRoasters
-                .slice(0, 5)
-                .map(([name, count]) => (
-                  <div
-                    key={name}
-                    className="flex items-center justify-between border-b border-stone-50 pb-3 last:border-0 last:pb-0"
-                  >
-                    <span className="text-xs font-black text-stone-700">
-                      {name}
-                    </span>
+      <div className="border border-[var(--bp-line)] bg-[var(--bp-paper)]">
+        {dashboard.currentRoasters
+          .slice(0, 5)
+          .map(([name, count], index) => (
+            <div
+              key={name}
+              className={`flex items-center justify-between gap-4 p-4 ${
+                index <
+                Math.min(
+                  dashboard.currentRoasters.length,
+                  5
+                ) -
+                  1
+                  ? 'border-b border-[var(--bp-line)]'
+                  : ''
+              }`}
+            >
+              <span className="bp-code text-[var(--bp-blue)]">
+                {name}
+              </span>
 
-                    <span className="text-[10px] font-black text-stone-400">
-                      {count} brews
-                    </span>
-                  </div>
-                ))}
+              <span className="bp-code text-[var(--bp-muted)]">
+                {count} BREWS
+              </span>
             </div>
-          </section>
-        </DetailShell>
-      )}
+          ))}
+      </div>
+    </section>
+  </DetailShell>
+)}
     </>
   );
 };
