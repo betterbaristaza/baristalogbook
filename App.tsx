@@ -36,18 +36,6 @@ import { profileService } from './services/profileService';
 import { imageService } from './services/imageService';
 import { accountService } from './services/accountService';
 
-const FLAVOR_GROUP_STYLING: Record<string, string> = {
-  Floral: 'bg-rose-50 text-rose-700 border-rose-100',
-  Fruity: 'bg-red-50 text-red-700 border-red-100',
-  'Nutty/Sweet':
-    'bg-amber-50 text-amber-700 border-amber-100',
-  Chocolatey:
-    'bg-stone-50 text-stone-700 border-stone-100',
-  Earthy:
-    'bg-emerald-50 text-emerald-700 border-emerald-100',
-};
-
-
 interface BrewDetailCellProps {
   label: string;
   value: React.ReactNode;
@@ -1490,7 +1478,7 @@ const App: React.FC = () => {
 
     link.setAttribute(
       'download',
-      `barista_journal_export_${
+      `brewprint_history_export_${
         new Date()
           .toISOString()
           .split('T')[0]
@@ -1875,73 +1863,92 @@ const App: React.FC = () => {
 
         {activeTab === 'journal' && !viewingBrew && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold text-stone-800 display-font">
-                Daily Journal
-              </h2>
+            <section className="border-b border-[var(--bp-line)] pb-6">
+              <p className="bp-index">
+                07 / HISTORY
+              </p>
 
-              <div className="flex gap-2">
-                <button
-                  onClick={handleExportCSV}
-                  className="p-4 bg-white border border-stone-100 text-stone-400 hover:text-amber-800 hover:border-amber-200 rounded-2xl transition-all shadow-sm flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
-                  title="Export CSV"
-                >
-                  <Icons.Download className="w-4 h-4" />
-                  Export
-                </button>
+              <div className="mt-2 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                <div className="min-w-0">
+                  <h1 className="bp-heading text-3xl text-[var(--bp-blue)]">
+                    Brew History
+                  </h1>
 
-                {coffees.length > 0 && (
+                  <p className="bp-code mt-2 max-w-md text-[var(--bp-muted)]">
+                    Search, compare and reopen your saved brew records.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 border border-[var(--bp-line)] sm:flex">
                   <button
-                    onClick={
-                      startBrewCapture
-                    }
-                    className="bg-amber-800 text-white p-4 px-6 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-amber-900/20 active:scale-95 transition-all"
+                    type="button"
+                    onClick={handleExportCSV}
+                    className="bp-label flex min-h-12 items-center justify-center gap-2 border-r border-[var(--bp-line)] px-4 text-[var(--bp-blue)] sm:min-w-[120px]"
+                    title="Export CSV"
                   >
-                    <Icons.Plus className="w-4 h-4" />
-                    Capture Brew
+                    <Icons.Download className="h-4 w-4" />
+                    Export
                   </button>
-                )}
+
+                  {coffees.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={startBrewCapture}
+                      className="flex min-h-12 items-center justify-center gap-2 bg-[var(--bp-orange)] px-4 text-[var(--bp-blue)] sm:min-w-[140px]"
+                    >
+                      <Icons.Plus className="h-4 w-4" />
+                      <span className="bp-label">
+                        New Brew
+                      </span>
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
+            </section>
 
             {brewLogs.length > 0 && (
-              <div className="mb-8 space-y-4">
-                <div className="relative group">
-                  <Icons.Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 group-focus-within:text-amber-800 transition-colors" />
+              <section className="mt-6 space-y-4">
+                <div className="grid grid-cols-[1fr_auto] border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+                  <div className="relative min-w-0">
+                    <Icons.Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--bp-muted)]" />
 
-                  <input
-                    type="text"
-                    placeholder="Search journals, beans, or grinders..."
-                    value={searchQuery}
-                    onChange={event =>
-                      setSearchQuery(
-                        event.target.value
-                      )
-                    }
-                    className="w-full bg-white border border-stone-100 rounded-2xl py-4 pl-12 pr-14 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-amber-800/5 focus:border-amber-800/20 transition-all shadow-sm"
-                  />
+                    <input
+                      type="text"
+                      placeholder="Search coffee, roaster, grinder or notes..."
+                      value={searchQuery}
+                      onChange={event =>
+                        setSearchQuery(
+                          event.target.value
+                        )
+                      }
+                      className="w-full bg-transparent py-4 pl-11 pr-4 text-sm text-[var(--bp-blue)] outline-none placeholder:text-[var(--bp-muted)]"
+                    />
+                  </div>
 
                   <button
+                    type="button"
                     onClick={() =>
                       setShowFilters(
                         !showFilters
                       )
                     }
-                    className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl border transition-all ${
+                    className={`bp-label flex min-w-[92px] items-center justify-center gap-2 border-l border-[var(--bp-line)] px-4 ${
                       showFilters
-                        ? 'bg-amber-100 border-amber-200 text-amber-800'
-                        : 'bg-stone-50 border-stone-100 text-stone-400 hover:text-stone-600'
+                        ? 'bg-[var(--bp-blue)] text-[var(--bp-paper)]'
+                        : 'text-[var(--bp-blue)]'
                     }`}
+                    aria-expanded={showFilters}
                   >
-                    <Icons.Filter className="w-4 h-4" />
+                    <Icons.Filter className="h-4 w-4" />
+                    Filter
                   </button>
                 </div>
 
                 {showFilters && (
-                  <div className="p-6 bg-white rounded-3xl border border-stone-100 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-stone-400">
+                  <div className="border border-[var(--bp-line)] bg-[var(--bp-paper)]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2">
+                      <div className="border-b border-[var(--bp-line)] p-4 sm:border-r">
+                        <label className="bp-label text-[var(--bp-muted)]">
                           Method
                         </label>
 
@@ -1955,7 +1962,7 @@ const App: React.FC = () => {
                                 | 'all'
                             )
                           }
-                          className="w-full p-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold text-stone-700 outline-none focus:border-amber-200 transition-all"
+                          className="bp-input mt-2 w-full"
                         >
                           <option value="all">
                             All Methods
@@ -1974,9 +1981,9 @@ const App: React.FC = () => {
                         </select>
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-stone-400">
-                          Min Rating
+                      <div className="border-b border-[var(--bp-line)] p-4">
+                        <label className="bp-label text-[var(--bp-muted)]">
+                          Minimum Rating
                         </label>
 
                         <select
@@ -1993,7 +2000,7 @@ const App: React.FC = () => {
                                   )
                             )
                           }
-                          className="w-full p-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold text-stone-700 outline-none focus:border-amber-200 transition-all"
+                          className="bp-input mt-2 w-full"
                         >
                           <option value="all">
                             Any Rating
@@ -2011,123 +2018,174 @@ const App: React.FC = () => {
                           )}
                         </select>
                       </div>
+                    </div>
 
-                      <div className="space-y-2 col-span-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-stone-400">
-                          Timeframe
-                        </label>
+                    <div className="border-b border-[var(--bp-line)] p-4">
+                      <p className="bp-label text-[var(--bp-muted)]">
+                        Date Range
+                      </p>
 
-                        <div className="flex gap-2">
-                          {[
-                            'all',
-                            'today',
-                            'week',
-                            'month',
-                          ].map(range => (
-                            <button
-                              key={range}
-                              onClick={() =>
-                                setDateRange(
-                                  range as
-                                    | 'all'
-                                    | 'today'
-                                    | 'week'
-                                    | 'month'
-                                )
-                              }
-                              className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all border ${
-                                dateRange ===
-                                range
-                                  ? 'bg-stone-900 border-stone-900 text-white shadow-lg'
-                                  : 'bg-white border-stone-100 text-stone-400 hover:bg-stone-50'
-                              }`}
-                            >
-                              {range}
-                            </button>
-                          ))}
-                        </div>
+                      <div className="mt-2 grid grid-cols-4 border border-[var(--bp-line)]">
+                        {[
+                          'all',
+                          'today',
+                          'week',
+                          'month',
+                        ].map(range => (
+                          <button
+                            key={range}
+                            type="button"
+                            onClick={() =>
+                              setDateRange(
+                                range as
+                                  | 'all'
+                                  | 'today'
+                                  | 'week'
+                                  | 'month'
+                              )
+                            }
+                            className={`bp-label min-h-11 border-r border-[var(--bp-line)] px-2 last:border-r-0 ${
+                              dateRange ===
+                              range
+                                ? 'bg-[var(--bp-blue)] text-[var(--bp-paper)]'
+                                : 'text-[var(--bp-blue)]'
+                            }`}
+                          >
+                            {range}
+                          </button>
+                        ))}
                       </div>
                     </div>
 
                     <button
+                      type="button"
                       onClick={clearFilters}
-                      className="w-full py-3 text-[10px] font-black uppercase tracking-widest text-amber-800 hover:bg-amber-50 rounded-xl transition-all"
+                      className="bp-label min-h-12 w-full px-4 text-[var(--bp-orange)]"
                     >
                       Clear All Filters
                     </button>
                   </div>
                 )}
-              </div>
+
+                <div className="flex items-end justify-between gap-4 border-b border-[var(--bp-line)] pb-3">
+                  <div>
+                    <p className="bp-index">
+                      07.01 / BREW RECORDS
+                    </p>
+
+                    <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+                      Saved Brews
+                    </h2>
+                  </div>
+
+                  <span className="bp-code text-[var(--bp-muted)]">
+                    {filteredLogs.length} / {brewLogs.length} RECORDS
+                  </span>
+                </div>
+              </section>
             )}
 
             {brewLogsLoading ? (
-              <div className="py-24 text-center">
-                <p className="text-[10px] font-black uppercase tracking-widest text-stone-300">
-                  Loading brews...
-                </p>
+              <div className="mt-8 space-y-4">
+                {[1, 2, 3].map(item => (
+                  <div
+                    key={item}
+                    className="h-48 animate-pulse border border-[var(--bp-line)] bg-[var(--bp-paper-light)]"
+                  />
+                ))}
               </div>
             ) : brewLogs.length === 0 ? (
-              <div className="bg-white border-2 border-dashed border-stone-200 rounded-[3rem] px-8 py-16 text-center">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-[2rem] bg-amber-50 flex items-center justify-center text-amber-800">
-                  <Icons.Book className="w-9 h-9" />
+              <section className="mt-8 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+                <div className="border-b border-[var(--bp-line)] p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center border border-[var(--bp-line-strong)]">
+                      <Icons.Book className="h-5 w-5 text-[var(--bp-blue)]" />
+                    </div>
+
+                    <div>
+                      <p className="bp-index">
+                        07.01 / FIRST RECORD
+                      </p>
+
+                      <h2 className="bp-heading mt-1 text-xl text-[var(--bp-blue)]">
+                        No brews yet
+                      </h2>
+                    </div>
+                  </div>
                 </div>
 
-                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-800 mb-3">
-                  Brew Journal
-                </p>
-
-                <h3 className="text-2xl font-black text-stone-800 display-font">
-                  No brews logged yet
-                </h3>
-
-                <p className="text-sm text-stone-400 leading-relaxed max-w-sm mx-auto mt-3 mb-8">
-                  Record your recipes and
-                  tasting results so you can
-                  compare brews and improve over
-                  time.
-                </p>
+                <div className="p-5">
+                  <p className="max-w-md text-sm leading-relaxed text-[var(--bp-muted)]">
+                    Log a brew to start building a searchable record of recipes, equipment and cup results.
+                  </p>
+                </div>
 
                 {coffees.length === 0 ? (
                   <button
+                    type="button"
                     onClick={() =>
-                      goToTab(
-                        'library'
-                      )
+                      goToTab('library')
                     }
-                    className="bg-stone-900 text-white px-8 py-5 rounded-2xl inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-stone-900/10 active:scale-95 transition-all"
+                    className="flex w-full items-center justify-between border-t border-[var(--bp-line)] bg-[var(--bp-orange)] px-5 py-4 text-[var(--bp-blue)]"
                   >
-                    <Icons.Plus className="w-4 h-4" />
-                    Add A Coffee First
+                    <div className="text-left">
+                      <p className="bp-label">
+                        First step
+                      </p>
+
+                      <p className="mt-1 text-sm font-semibold">
+                        Add a Coffee
+                      </p>
+                    </div>
+
+                    <Icons.Plus className="h-5 w-5" />
                   </button>
                 ) : (
                   <button
-                    onClick={
-                      startBrewCapture
-                    }
-                    className="bg-stone-900 text-white px-8 py-5 rounded-2xl inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-stone-900/10 active:scale-95 transition-all"
+                    type="button"
+                    onClick={startBrewCapture}
+                    className="flex w-full items-center justify-between border-t border-[var(--bp-line)] bg-[var(--bp-orange)] px-5 py-4 text-[var(--bp-blue)]"
                   >
-                    <Icons.Plus className="w-4 h-4" />
-                    Log Your First Brew
+                    <div className="text-left">
+                      <p className="bp-label">
+                        First record
+                      </p>
+
+                      <p className="mt-1 text-sm font-semibold">
+                        Log a Brew
+                      </p>
+                    </div>
+
+                    <Icons.Plus className="h-5 w-5" />
                   </button>
                 )}
-              </div>
+              </section>
             ) : filteredLogs.length === 0 ? (
-              <div className="text-center py-24 bg-white rounded-[2.5rem] border-2 border-dashed border-stone-200">
-                <Icons.Coffee className="w-16 h-16 text-stone-100 mx-auto mb-4" />
+              <section className="mt-8 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+                <div className="p-6">
+                  <p className="bp-index">
+                    07.02 / NO MATCH
+                  </p>
 
-                <p className="text-stone-400 font-bold uppercase text-[10px] tracking-widest">
-                  No matching results
-                </p>
+                  <h2 className="bp-heading mt-2 text-xl text-[var(--bp-blue)]">
+                    No matching brews
+                  </h2>
+
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--bp-muted)]">
+                    No saved records match the current search and filters.
+                  </p>
+                </div>
 
                 <button
+                  type="button"
                   onClick={clearFilters}
-                  className="mt-4 text-amber-800 font-bold text-sm underline underline-offset-4"
+                  className="bp-label min-h-12 w-full border-t border-[var(--bp-line)] px-4 text-[var(--bp-orange)]"
                 >
-                  Reset filters
+                  Reset Search and Filters
                 </button>
-              </div>
+              </section>
             ) : (
-              <div className="space-y-6">
+              <div className="mt-6 space-y-4">
                 {filteredLogs.map(log => {
                   const coffee =
                     coffees.find(
@@ -2136,244 +2194,255 @@ const App: React.FC = () => {
                         log.coffeeId
                     );
 
+                  const ratio =
+                    log.dose > 0 &&
+                    log.yield > 0
+                      ? `1:${(
+                          log.yield /
+                          log.dose
+                        ).toFixed(1)}`
+                      : '—';
+
+                  const equipment =
+                    log.machine ||
+                    [
+                      log.brewerBrand,
+                      log.brewer,
+                    ]
+                      .filter(Boolean)
+                      .join(' ') ||
+                    log.coldBrewSystem ||
+                    log.mokaPotModel ||
+                    log.aeroPressModel ||
+                    'Equipment not recorded';
+
                   return (
-                    <div
+                    <article
                       key={log.id}
+                      role="button"
+                      tabIndex={0}
                       onClick={() =>
                         openExistingBrew(log)
                       }
-                      className="bg-white p-5 rounded-[2rem] shadow-sm border border-stone-100 hover:border-amber-200 transition-all group relative overflow-hidden cursor-pointer"
+                      onKeyDown={event => {
+                        if (
+                          event.key ===
+                            'Enter' ||
+                          event.key === ' '
+                        ) {
+                          event.preventDefault();
+                          openExistingBrew(
+                            log
+                          );
+                        }
+                      }}
+                      className="cursor-pointer border border-[var(--bp-line)] bg-[var(--bp-paper-light)] transition-colors hover:border-[var(--bp-line-strong)]"
                     >
-                      <div className="mb-4">
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-5">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2 mb-3">
-                              <span className="text-[9px] uppercase font-black text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md">
-                                {log.method}
-                              </span>
+                      <div className="grid grid-cols-[1fr_auto] border-b border-[var(--bp-line)]">
+                        <div className="min-w-0 p-4">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="bp-label text-[var(--bp-orange)]">
+                              {log.method}
+                            </span>
 
-                              {log.machine && (
-                                <span className="text-[9px] uppercase font-bold text-stone-500 bg-stone-50 px-2 py-0.5 rounded-md">
-                                  {
-                                    log.machine
-                                  }
-                                </span>
-                              )}
-
-                              {log.brewerBrand && (
-                                <span className="text-[9px] uppercase font-bold text-stone-500 bg-stone-50 px-2 py-0.5 rounded-md">
-                                  {
-                                    log.brewerBrand
-                                  }{' '}
-                                  {log.brewer}
-                                </span>
-                              )}
-                            </div>
-
-                            <h3 className="font-bold text-2xl text-stone-800 leading-tight break-words">
-                              {coffee?.name ||
-                                'Unknown Blend'}
-                            </h3>
-
-                            <p className="text-[10px] text-stone-400 font-black uppercase tracking-widest mt-2 flex flex-wrap items-center gap-2">
-                              {log.grinder}
-
-                              {log.grindSetting && (
-                                <>
-                                  <span>
-                                    •
-                                  </span>
-
-                                  <span className="text-amber-700">
-                                    {
-                                      log.grindSetting
-                                    }
-                                  </span>
-                                </>
-                              )}
-
-                              {log.dose > 0 &&
-                                log.yield >
-                                  0 && (
-                                  <>
-                                    <span>
-                                      •
-                                    </span>
-
-                                    <span className="text-stone-500">
-                                      1:
-                                      {(
-                                        log.yield /
-                                        log.dose
-                                      ).toFixed(
-                                        1
-                                      )}
-                                    </span>
-                                  </>
-                                )}
-                            </p>
+                            <span className="bp-code text-[var(--bp-muted)]">
+                              {equipment}
+                            </span>
                           </div>
 
-                          <div className="flex items-start justify-between gap-4 shrink-0">
-                            <div className="flex gap-2">
-                              <button
-                                onClick={event => {
-                                  event.stopPropagation();
-                                  editExistingBrew(
-                                    log
-                                  );
-                                }}
-                                className="p-2 bg-stone-50 text-stone-400 hover:text-amber-800 rounded-lg border border-stone-100 hover:border-amber-200 transition-all"
-                                title="Edit Brew"
-                              >
-                                <Icons.Edit className="w-3.5 h-3.5" />
-                              </button>
+                          <h3 className="bp-coffee-name mt-2 break-words text-2xl text-[var(--bp-blue)]">
+                            {coffee?.name ||
+                              'Unknown Coffee'}
+                          </h3>
 
-                              <button
-                                onClick={event => {
-                                  event.stopPropagation();
-                                  brewAgainFromLog(
-                                    log
-                                  );
-                                }}
-                                className="p-2 bg-stone-50 text-stone-400 hover:text-amber-800 rounded-lg border border-stone-100 hover:border-amber-200 transition-all"
-                                title="Brew Again"
-                              >
-                                <Icons.Copy className="w-3.5 h-3.5" />
-                              </button>
+                          <p className="bp-code mt-1 text-[var(--bp-muted)]">
+                            {coffee?.roaster ||
+                              'Roaster not recorded'}
+                            {coffee?.origin
+                              ? ` / ${coffee.origin}`
+                              : ''}
+                            {coffee?.process
+                              ? ` / ${coffee.process}`
+                              : ''}
+                          </p>
+                        </div>
 
-                              <button
-                                onClick={event => {
-                                  event.stopPropagation();
+                        <div className="flex min-w-[104px] flex-col items-end justify-center border-l border-[var(--bp-line)] px-4 py-3 text-right">
+                          <p className="bp-code text-[var(--bp-muted)]">
+                            {new Date(
+                              log.date
+                            ).toLocaleDateString()}
+                          </p>
 
-                                  handleDeleteLog(
-                                    log.id
-                                  );
-                                }}
-                                className="p-2 bg-rose-50 text-rose-300 hover:text-rose-600 rounded-lg border border-rose-100 hover:border-rose-200 transition-all"
-                                title="Delete Brew"
-                              >
-                                <Icons.Trash className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
+                          <div className="mt-2 flex items-center gap-1 text-[var(--bp-orange)]">
+                            <Icons.Star className="h-4 w-4 fill-current" />
 
-                            <div className="text-right">
-                              <p className="text-[9px] text-stone-300 font-black uppercase tracking-tighter whitespace-nowrap">
-                                {new Date(
-                                  log.date
-                                ).toLocaleDateString()}
-                              </p>
-
-                              <div className="flex justify-end gap-0.5 text-amber-500 mt-1">
-                                {[
-                                  ...Array(5),
-                                ].map(
-                                  (
-                                    _,
-                                    index
-                                  ) => (
-                                    <Icons.Star
-                                      key={
-                                        index
-                                      }
-                                      className={`w-3 h-3 ${
-                                        index <
-                                        log.rating
-                                          ? 'fill-current'
-                                          : 'text-stone-100'
-                                      }`}
-                                    />
-                                  )
-                                )}
-                              </div>
-                            </div>
+                            <span className="bp-measurement font-semibold">
+                              {log.rating}/5
+                            </span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-4 gap-2 mb-4">
-                        <div className="bg-stone-50 rounded-xl px-2 py-3 text-center">
-                          <p className="text-[8px] font-black uppercase tracking-widest text-stone-400">
+                      <div className="grid grid-cols-4 border-b border-[var(--bp-line)]">
+                        <div className="border-r border-[var(--bp-line)] p-3 text-center">
+                          <p className="bp-label text-[var(--bp-muted)]">
                             Dose
                           </p>
 
-                          <p className="mt-1 text-sm font-black text-stone-800">
+                          <p className="bp-measurement mt-1 font-semibold text-[var(--bp-blue)]">
                             {log.dose}g
                           </p>
                         </div>
 
-                        <div className="bg-stone-50 rounded-xl px-2 py-3 text-center">
-                          <p className="text-[8px] font-black uppercase tracking-widest text-stone-400">
+                        <div className="border-r border-[var(--bp-line)] p-3 text-center">
+                          <p className="bp-label text-[var(--bp-muted)]">
                             Yield
                           </p>
 
-                          <p className="mt-1 text-sm font-black text-stone-800">
+                          <p className="bp-measurement mt-1 font-semibold text-[var(--bp-blue)]">
                             {log.yield}g
                           </p>
                         </div>
 
-                        <div className="bg-stone-50 rounded-xl px-2 py-3 text-center">
-                          <p className="text-[8px] font-black uppercase tracking-widest text-stone-400">
-                            Time
+                        <div className="border-r border-[var(--bp-line)] p-3 text-center">
+                          <p className="bp-label text-[var(--bp-muted)]">
+                            Ratio
                           </p>
 
-                          <p className="mt-1 text-sm font-black text-stone-800">
-                            {log.brewTime}s
+                          <p className="bp-measurement mt-1 font-semibold text-[var(--bp-blue)]">
+                            {ratio}
                           </p>
                         </div>
 
-                        <div className="bg-stone-50 rounded-xl px-2 py-3 text-center">
-                          <p className="text-[8px] font-black uppercase tracking-widest text-stone-400">
-                            Temp
+                        <div className="p-3 text-center">
+                          <p className="bp-label text-[var(--bp-muted)]">
+                            Time
                           </p>
 
-                          <p className="mt-1 text-sm font-black text-stone-800">
-                            {log.waterTemp}
-                            °C
+                          <p className="bp-measurement mt-1 font-semibold text-[var(--bp-blue)]">
+                            {log.brewTime}
+                            {log.method ===
+                            BrewMethod.COLD_BREW
+                              ? 'h'
+                              : 's'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 border-b border-[var(--bp-line)] sm:grid-cols-2">
+                        <div className="border-b border-[var(--bp-line)] p-4 sm:border-b-0 sm:border-r">
+                          <p className="bp-label text-[var(--bp-muted)]">
+                            Grinder / Setting
+                          </p>
+
+                          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                            {log.grinder || '—'}
+                            {log.grindSetting
+                              ? ` / ${log.grindSetting}`
+                              : ''}
+                          </p>
+                        </div>
+
+                        <div className="p-4">
+                          <p className="bp-label text-[var(--bp-muted)]">
+                            Water
+                          </p>
+
+                          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                            {log.waterTemp
+                              ? `${log.waterTemp}°C`
+                              : 'Temp —'}
+                            {' / '}
+                            {log.waterType ||
+                              'Type not recorded'}
                           </p>
                         </div>
                       </div>
 
                       {log.flavorGroups &&
-                        log.flavorGroups
-                          .length > 0 && (
-                          <div className="flex flex-wrap gap-2.5 mb-6">
-                            {log.flavorGroups.map(
-                              group => (
-                                <span
-                                  key={
-                                    group
-                                  }
-                                  className={`px-3 py-1.5 rounded-xl border text-[9px] font-black uppercase tracking-widest shadow-sm ${
-                                    FLAVOR_GROUP_STYLING[
-                                      group
-                                    ] ||
-                                    'bg-stone-50 text-stone-500 border-stone-100'
-                                  }`}
-                                >
-                                  {group}
-                                </span>
-                              )
-                            )}
+                        log.flavorGroups.length >
+                          0 && (
+                          <div className="border-b border-[var(--bp-line)] p-4">
+                            <p className="bp-label text-[var(--bp-muted)]">
+                              Flavour Groups
+                            </p>
+
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {log.flavorGroups.map(
+                                group => (
+                                  <span
+                                    key={group}
+                                    className="border border-[var(--bp-line)] px-2.5 py-1.5 bp-code text-[var(--bp-blue)]"
+                                  >
+                                    {group}
+                                  </span>
+                                )
+                              )}
+                            </div>
                           </div>
                         )}
 
                       {log.processNotes && (
-                        <div className="mb-6 p-5 bg-amber-50/30 rounded-2xl border border-amber-100/50">
-                          <p className="text-[9px] font-black text-amber-800 uppercase tracking-widest mb-1.5">
-                            Method Notes
+                        <div className="border-b border-[var(--bp-line)] p-4">
+                          <p className="bp-label text-[var(--bp-muted)]">
+                            Process Notes
                           </p>
 
-                          <p className="text-xs text-stone-600 leading-relaxed font-medium whitespace-pre-wrap italic">
-                            "
-                            {
-                              log.processNotes
-                            }
-                            "
+                          <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[var(--bp-blue)]">
+                            {log.processNotes}
                           </p>
                         </div>
                       )}
-                    </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4">
+                        <button
+                          type="button"
+                          onClick={event => {
+                            event.stopPropagation();
+                            openExistingBrew(log);
+                          }}
+                          className="bp-label min-h-12 border-b border-r border-[var(--bp-line)] px-3 text-[var(--bp-blue)] sm:border-b-0"
+                        >
+                          Open
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={event => {
+                            event.stopPropagation();
+                            editExistingBrew(log);
+                          }}
+                          className="bp-label min-h-12 border-b border-[var(--bp-line)] px-3 text-[var(--bp-blue)] sm:border-b-0 sm:border-r"
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={event => {
+                            event.stopPropagation();
+                            brewAgainFromLog(log);
+                          }}
+                          className="bp-label min-h-12 border-r border-[var(--bp-line)] px-3 text-[var(--bp-blue)]"
+                        >
+                          Brew Again
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={event => {
+                            event.stopPropagation();
+                            void handleDeleteLog(
+                              log.id
+                            );
+                          }}
+                          className="bp-label min-h-12 px-3 text-[var(--bp-danger)]"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </article>
                   );
                 })}
               </div>
