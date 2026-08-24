@@ -88,6 +88,9 @@ const App: React.FC = () => {
     setIsDeletingAccount,
   ] = useState(false);
 
+  const [viewingCoffee, setViewingCoffee] =
+  useState<CoffeeBean | null>(null);
+
   const [onboardingStep, setOnboardingStep] =
     useState<
       'welcome' | 'profile' | 'coffee' | 'brew' | null
@@ -1709,117 +1712,624 @@ const App: React.FC = () => {
           </div>
         )}
 
+        {viewingCoffee && (
+  <section className="space-y-8">
+    <div className="border-b border-[var(--bp-line)] pb-6">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="bp-index">
+            03 / COFFEE DETAIL
+          </p>
+
+          <p className="bp-label mt-3 text-[var(--bp-orange)]">
+            {viewingCoffee.roaster ||
+              'Roaster not recorded'}
+          </p>
+
+          <h1 className="bp-coffee-name mt-2 break-words text-4xl text-[var(--bp-blue)]">
+            {viewingCoffee.name}
+          </h1>
+        </div>
+
+        <button
+          type="button"
+          onClick={() =>
+            setViewingCoffee(null)
+          }
+          className="bp-button h-10 min-h-0 px-3"
+        >
+          Back
+        </button>
+      </div>
+    </div>
+
+    {(viewingCoffee.bagImage ||
+      viewingCoffee.labelImage) && (
+      <section className="border border-[var(--bp-line)]">
+        <div
+          className={`grid gap-px bg-[var(--bp-line)] ${
+            viewingCoffee.bagImage &&
+            viewingCoffee.labelImage
+              ? 'grid-cols-2'
+              : 'grid-cols-1'
+          }`}
+        >
+          {viewingCoffee.bagImage && (
+            <div className="bg-[var(--bp-paper-dark)]">
+              <img
+                src={
+                  viewingCoffee.bagImage
+                }
+                alt={`${viewingCoffee.name} front of bag`}
+                className="h-56 w-full object-cover"
+              />
+            </div>
+          )}
+
+          {viewingCoffee.labelImage && (
+            <div className="bg-[var(--bp-paper-dark)]">
+              <img
+                src={
+                  viewingCoffee.labelImage
+                }
+                alt={`${viewingCoffee.name} rear label`}
+                className="h-56 w-full object-cover"
+              />
+            </div>
+          )}
+        </div>
+      </section>
+    )}
+
+    <section>
+      <div className="mb-3">
+        <p className="bp-index">
+          03.01 / IDENTITY
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+        <div className="border-b border-r border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Roaster
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {viewingCoffee.roaster ||
+              '—'}
+          </p>
+        </div>
+
+        <div className="border-b border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Roaster Location
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {viewingCoffee.roasterLocation ||
+              '—'}
+          </p>
+        </div>
+
+        <div className="border-b border-r border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Origin
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {viewingCoffee.origin ||
+              '—'}
+          </p>
+        </div>
+
+        <div className="border-b border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Region
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {viewingCoffee.region ||
+              '—'}
+          </p>
+        </div>
+
+        <div className="border-r border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Farm
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {viewingCoffee.farm ||
+              '—'}
+          </p>
+        </div>
+
+        <div className="p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Producer
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {viewingCoffee.producer ||
+              '—'}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div className="mb-3">
+        <p className="bp-index">
+          03.02 / PRODUCTION
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 border border-[var(--bp-line)] bg-[var(--bp-paper)]">
+        <div className="border-b border-r border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Process
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {viewingCoffee.process ||
+              '—'}
+          </p>
+        </div>
+
+        <div className="border-b border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Varietal
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {viewingCoffee.varietal ||
+              '—'}
+          </p>
+        </div>
+
+        <div className="border-b border-r border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Altitude
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {viewingCoffee.altitude ||
+              '—'}
+          </p>
+        </div>
+
+        <div className="border-b border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Harvest
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {viewingCoffee.harvestSeason ||
+              '—'}
+          </p>
+        </div>
+
+        <div className="col-span-2 p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Terroir
+          </p>
+
+          <p className="mt-2 text-sm leading-relaxed text-[var(--bp-blue)]">
+            {viewingCoffee.terroir ||
+              'Not recorded'}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div className="mb-3">
+        <p className="bp-index">
+          03.03 / ROAST
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+        <div className="border-b border-r border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Roast Level
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {viewingCoffee.roastLevel ||
+              '—'}
+          </p>
+        </div>
+
+        <div className="border-b border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Roast Date
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {viewingCoffee.roastDate
+              ? new Date(
+                  viewingCoffee.roastDate
+                ).toLocaleDateString()
+              : '—'}
+          </p>
+        </div>
+
+        <div className="border-r border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Purchase Date
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {viewingCoffee.purchaseDate
+              ? new Date(
+                  viewingCoffee.purchaseDate
+                ).toLocaleDateString()
+              : '—'}
+          </p>
+        </div>
+
+        <div className="p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Price
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {typeof viewingCoffee.price ===
+            'number'
+              ? viewingCoffee.price
+              : '—'}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div className="mb-3">
+        <p className="bp-index">
+          03.04 / BAG
+        </p>
+      </div>
+
+      <div className="grid grid-cols-3 border border-[var(--bp-line)] bg-[var(--bp-paper)]">
+        <div className="border-r border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Starting
+          </p>
+
+          <p className="bp-measurement mt-2 text-xl font-semibold text-[var(--bp-blue)]">
+            {viewingCoffee.totalWeight}g
+          </p>
+        </div>
+
+        <div className="border-r border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Remaining
+          </p>
+
+          <p className="bp-measurement mt-2 text-xl font-semibold text-[var(--bp-blue)]">
+            {viewingCoffee.remainingWeight}g
+          </p>
+        </div>
+
+        <div className="p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Used
+          </p>
+
+          <p className="bp-measurement mt-2 text-xl font-semibold text-[var(--bp-blue)]">
+            {Math.max(
+              0,
+              viewingCoffee.totalWeight -
+                viewingCoffee.remainingWeight
+            )}
+            g
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div className="mb-3">
+        <p className="bp-index">
+          03.05 / CUP NOTES
+        </p>
+      </div>
+
+      <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+        <div className="border-b border-[var(--bp-line)] p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Roaster Tasting Notes
+          </p>
+
+          <p className="mt-2 text-sm leading-relaxed text-[var(--bp-blue)]">
+            {viewingCoffee.bagTastingNotes &&
+            viewingCoffee.bagTastingNotes
+              .length > 0
+              ? viewingCoffee.bagTastingNotes.join(
+                  ' / '
+                )
+              : 'Not recorded'}
+          </p>
+        </div>
+
+        <div className="p-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Personal Notes
+          </p>
+
+          <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[var(--bp-blue)]">
+            {viewingCoffee.personalNotes ||
+              'Not recorded'}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    {viewingCoffee.roasterURL && (
+      <a
+        href={viewingCoffee.roasterURL}
+        target="_blank"
+        rel="noreferrer"
+        className="bp-button block w-full text-center"
+      >
+        Roaster Website
+      </a>
+    )}
+
+    <div className="grid grid-cols-3 border border-[var(--bp-line)]">
+      <button
+        type="button"
+        onClick={() => {
+          setEditingCoffee(
+            viewingCoffee
+          );
+          setShowBeanForm(true);
+        }}
+        className="bp-label border-r border-[var(--bp-line)] px-4 py-4 text-[var(--bp-blue)]"
+      >
+        Edit Coffee
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          handleDeleteCoffee(
+            viewingCoffee.id
+          );
+        }}
+        className="bp-label border-r border-[var(--bp-line)] px-4 py-4 text-[var(--bp-danger)]"
+      >
+        Delete
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          setSelectedCoffee(
+            viewingCoffee
+          );
+          setEditingLog(null);
+          setPrefillLog(null);
+          setBrewFlowStep('brew');
+          setShowBrewFlow(true);
+        }}
+        className="bg-[var(--bp-orange)] px-4 py-4 text-[var(--bp-blue)]"
+      >
+        <span className="bp-label">
+          Brew
+        </span>
+      </button>
+    </div>
+  </section>
+)}
+
         {activeTab === 'library' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-5 mb-8">
-              <div className="min-w-0">
-                <h2 className="text-3xl font-bold text-stone-800 display-font">
-                  Coffee Library
-                </h2>
+  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <section className="border-b border-[var(--bp-line)] pb-6">
+      <p className="bp-index">
+        02 / ARCHIVE
+      </p>
 
-                <p className="text-sm text-stone-400 mt-1">
-                  Keep track of the
-                  coffees you are brewing.
-                </p>
-              </div>
+      <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="bp-heading text-3xl text-[var(--bp-blue)]">
+            Coffee Archive
+          </h1>
 
-              {coffees.length > 0 && (
-                <button
-                  onClick={() => {
-                    setEditingCoffee(
-                      null
-                    );
-                    setShowBeanForm(true);
-                  }}
-                  className="w-full sm:w-auto bg-stone-900 text-white px-6 py-4 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] active:scale-95 transition-all shadow-xl shadow-stone-900/10 shrink-0"
-                >
-                  <Icons.Plus className="w-4 h-4" />
-                  Add Bean
-                </button>
-              )}
+          <p className="bp-code mt-2 max-w-md text-[var(--bp-muted)]">
+            Your current and previous coffees, weights, references and brew records.
+          </p>
+        </div>
+
+        {coffees.length > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              setEditingCoffee(null);
+              setShowBeanForm(true);
+            }}
+            className="flex w-full items-center justify-between bg-[var(--bp-orange)] px-5 py-4 text-[var(--bp-blue)] sm:w-auto sm:min-w-[170px]"
+          >
+            <div className="text-left">
+              <p className="bp-label">
+                New record
+              </p>
+
+              <p className="mt-1 text-sm font-semibold">
+                Add coffee
+              </p>
             </div>
 
-            {coffeesLoading ? (
-              <div className="py-24 text-center">
-                <p className="text-[10px] font-black uppercase tracking-widest text-stone-300">
-                  Loading coffees...
-                </p>
-              </div>
-            ) : coffees.length === 0 ? (
-              <div className="bg-white border-2 border-dashed border-stone-200 rounded-[3rem] px-8 py-16 text-center">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-[2rem] bg-amber-50 flex items-center justify-center text-amber-800">
-                  <Icons.Coffee className="w-9 h-9" />
-                </div>
-
-                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-800 mb-3">
-                  Coffee Library
-                </p>
-
-                <h3 className="text-2xl font-black text-stone-800 display-font">
-                  No coffees yet
-                </h3>
-
-                <p className="text-sm text-stone-400 leading-relaxed max-w-sm mx-auto mt-3 mb-8">
-                  Add the coffee you are
-                  brewing so you can use it
-                  in your brew logs and keep
-                  track of your recipes.
-                </p>
-
-                <button
-                  onClick={() => {
-                    setEditingCoffee(
-                      null
-                    );
-                    setShowBeanForm(true);
-                  }}
-                  className="bg-stone-900 text-white px-8 py-5 rounded-2xl inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-stone-900/10 active:scale-95 transition-all"
-                >
-                  <Icons.Plus className="w-4 h-4" />
-                  Add Your First Coffee
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-6">
-                {coffees.map(
-                  coffee => (
-                    <CoffeeCard
-                      key={coffee.id}
-                      coffee={coffee}
-                      onClick={current => {
-                        setSelectedCoffee(
-                          current
-                        );
-                        setEditingLog(null);
-                        setPrefillLog(null);
-                        setBrewFlowStep(
-                          'brew'
-                        );
-                        setShowBrewFlow(
-                          true
-                        );
-                      }}
-                      onEdit={current => {
-                        setEditingCoffee(
-                          current
-                        );
-                        setShowBeanForm(
-                          true
-                        );
-                      }}
-                      onDelete={current =>
-                        handleDeleteCoffee(
-                          current.id
-                        )
-                      }
-                    />
-                  )
-                )}
-              </div>
-            )}
-          </div>
+            <Icons.Plus className="h-5 w-5" />
+          </button>
         )}
+      </div>
+    </section>
 
+    {coffeesLoading ? (
+      <div className="mt-8 space-y-4">
+        {[1, 2, 3].map(item => (
+          <div
+            key={item}
+            className="h-36 animate-pulse border border-[var(--bp-line)] bg-[var(--bp-paper-light)]"
+          />
+        ))}
+      </div>
+    ) : coffees.length === 0 ? (
+      <section className="mt-8 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+        <div className="border-b border-[var(--bp-line)] p-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center border border-[var(--bp-line-strong)]">
+              <Icons.Coffee className="h-5 w-5 text-[var(--bp-blue)]" />
+            </div>
+
+            <div>
+              <p className="bp-index">
+                02.01 / FIRST COFFEE
+              </p>
+
+              <h2 className="bp-heading mt-1 text-xl text-[var(--bp-blue)]">
+                No coffees yet
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5">
+          <p className="max-w-md text-sm leading-relaxed text-[var(--bp-muted)]">
+            Add the coffee you are brewing so BREWPRINT can connect it to brew records, track remaining weight and build your coffee history.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setEditingCoffee(null);
+            setShowBeanForm(true);
+          }}
+          className="flex w-full items-center justify-between border-t border-[var(--bp-line)] bg-[var(--bp-orange)] px-5 py-4 text-[var(--bp-blue)]"
+        >
+          <div className="text-left">
+            <p className="bp-label">
+              Create record
+            </p>
+
+            <p className="mt-1 text-sm font-semibold">
+              Add your first coffee
+            </p>
+          </div>
+
+          <Icons.Plus className="h-5 w-5" />
+        </button>
+      </section>
+    ) : (
+      <section className="mt-8 space-y-8">
+  <section>
+    <div className="mb-4 flex items-end justify-between gap-4">
+      <div>
+        <p className="bp-index">
+          02.01 / ACTIVE COFFEES
+        </p>
+
+        <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+          Active Records
+        </h2>
+      </div>
+
+      <span className="bp-code text-[var(--bp-muted)]">
+        {
+          coffees.filter(
+            coffee => coffee.remainingWeight > 0
+          ).length
+        }{' '}
+        ACTIVE
+      </span>
+    </div>
+
+    <div className="grid grid-cols-1 gap-4">
+      {coffees
+        .filter(
+          coffee => coffee.remainingWeight > 0
+        )
+        .map(coffee => (
+          <CoffeeCard
+            key={coffee.id}
+            coffee={coffee}
+            onClick={current => {
+  setViewingCoffee(current);
+}}
+            onEdit={current => {
+              setEditingCoffee(current);
+              setShowBeanForm(true);
+            }}
+            onDelete={current =>
+              handleDeleteCoffee(
+                current.id
+              )
+            }
+          />
+        ))}
+    </div>
+  </section>
+
+  {coffees.some(
+    coffee => coffee.remainingWeight <= 0
+  ) && (
+    <section>
+      <div className="mb-4 flex items-end justify-between gap-4 border-t border-[var(--bp-line)] pt-8">
+        <div>
+          <p className="bp-index">
+            02.02 / FINISHED COFFEES
+          </p>
+
+          <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+            Finished Records
+          </h2>
+        </div>
+
+        <span className="bp-code text-[var(--bp-muted)]">
+          {
+            coffees.filter(
+              coffee =>
+                coffee.remainingWeight <= 0
+            ).length
+          }{' '}
+          FINISHED
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4">
+        {coffees
+          .filter(
+            coffee =>
+              coffee.remainingWeight <= 0
+          )
+          .map(coffee => (
+            <CoffeeCard
+              key={coffee.id}
+              coffee={coffee}
+              onClick={current => {
+  setViewingCoffee(current);
+}}
+              onEdit={current => {
+                setEditingCoffee(current);
+                setShowBeanForm(true);
+              }}
+              onDelete={current =>
+                handleDeleteCoffee(
+                  current.id
+                )
+              }
+            />
+          ))}
+      </div>
+    </section>
+  )}
+</section>
+    )}
+  </div>
+)}
         {activeTab === 'grind' && (
           <GrindReference />
         )}
@@ -2253,6 +2763,8 @@ const App: React.FC = () => {
           : 'text-[var(--bp-muted)]'
       }`}
     >
+
+
       {activeTab === 'library' && (
         <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
       )}
