@@ -17,6 +17,8 @@ import CoffeeCard from './components/CoffeeCard';
 import BrewForm from './components/BrewForm';
 import CoffeeBeanForm from './components/CoffeeBeanForm';
 import ProfileModal from './components/ProfileModal';
+import ProfileView from './components/ProfileView';
+import DeleteAccountModal from './components/DeleteAccountModal';
 import GrindReference from './components/GrindReference';
 import AnalyticsView from './components/AnalyticsView';
 import AuthScreen from './components/AuthScreen';
@@ -1745,87 +1747,19 @@ const App: React.FC = () => {
 
 
         {activeTab === 'profile' && !viewingBrew && (
-  <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
-    <div className="border-b border-[var(--bp-line)] pb-6">
-      <p className="bp-index">
-        08 / PROFILE
-      </p>
-
-      <h1 className="bp-heading mt-2 text-3xl text-[var(--bp-blue)]">
-        Profile
-      </h1>
-
-      <p className="mt-2 text-sm text-[var(--bp-muted)]">
-        Your account, defaults and BREWPRINT settings.
-      </p>
-    </div>
-
-    {profile && (
-      <div className="mt-8 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
-        <div className="border-b border-[var(--bp-line)] p-5">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Brewer
-          </p>
-
-          <p className="mt-2 text-lg font-semibold text-[var(--bp-blue)]">
-            {profile.name}
-          </p>
-
-          <p className="bp-code mt-1 text-[var(--bp-muted)]">
-            {profile.role}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 border-b border-[var(--bp-line)]">
-          <div className="border-r border-[var(--bp-line)] p-5">
-            <p className="bp-label text-[var(--bp-muted)]">
-              Default method
-            </p>
-
-            <p className="bp-code mt-2 text-[var(--bp-blue)]">
-              {profile.defaultMethod || 'All'}
-            </p>
-          </div>
-
-          <div className="p-5">
-            <p className="bp-label text-[var(--bp-muted)]">
-              Default grinder
-            </p>
-
-            <p className="bp-code mt-2 text-[var(--bp-blue)]">
-              {profile.defaultGrinder || 'Not set'}
-            </p>
-          </div>
-        </div>
-
-        <div className="p-5">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Default brewer
-          </p>
-
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {profile.defaultBrewer || 'Not set'}
-          </p>
-        </div>
-      </div>
-    )}
-
-    <button
-      type="button"
-      onClick={() => setShowProfileModal(true)}
-      className="bp-button bp-button-primary mt-6 w-full"
-    >
-      Edit Profile
-    </button>
-
-    <button
-      type="button"
-      onClick={signOut}
-      className="bp-button mt-3 w-full"
-    >
-      Sign Out
-    </button>
-  </div>
+  <ProfileView
+    profile={profile}
+    email={user.email || ''}
+    coffeeCount={coffees.length}
+    brewCount={brewLogs.length}
+    onEdit={() =>
+      setShowProfileModal(true)
+    }
+    onSignOut={signOut}
+    onDeleteAccount={() =>
+      setShowDeleteAccountModal(true)
+    }
+  />
 )}
 {activeTab === 'home' && !viewingBrew && (
   <HomeDashboard
@@ -3325,7 +3259,7 @@ const App: React.FC = () => {
       )}
 
       {showProfileModal && (
-        <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md flex items-center justify-center z-[100] p-6 overflow-y-auto">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-[rgba(12,39,72,0.48)] p-0 backdrop-blur-sm sm:p-6">
           <ProfileModal
             initialData={
               profile || undefined
@@ -3422,105 +3356,47 @@ const App: React.FC = () => {
       )}
 
       {showDeleteAccountModal && (
-        <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md flex items-center justify-center z-[110] p-6">
-          <div className="bg-white rounded-[3rem] w-full max-w-md p-8 shadow-2xl">
-            <div className="space-y-4">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-500">
-                  Permanent action
-                </p>
+        <DeleteAccountModal
+          isDeleting={isDeletingAccount}
+          onCancel={() =>
+            setShowDeleteAccountModal(false)
+          }
+          onConfirm={async () => {
+            if (isDeletingAccount) {
+              return;
+            }
 
-                <h3 className="mt-2 text-2xl font-black text-stone-800 display-font">
-                  Delete your account?
-                </h3>
-              </div>
+            setIsDeletingAccount(true);
 
-              <p className="text-sm text-stone-500 leading-6">
-                This will permanently
-                delete your profile,
-                coffees, brew logs and
-                uploaded images. This
-                action cannot be undone.
-              </p>
+            try {
+              await accountService.deleteAccount();
 
-              <div className="pt-4 space-y-3">
-                <button
-                  type="button"
-                  disabled={
-                    isDeletingAccount
-                  }
-                  onClick={async () => {
-                    if (
-                      isDeletingAccount
-                    ) {
-                      return;
-                    }
+              localStorage.clear();
 
-                    setIsDeletingAccount(
-                      true
-                    );
+              setCoffees([]);
+              setBrewLogs([]);
+              setProfile(null);
 
-                    try {
-                      await accountService.deleteAccount();
+              setShowDeleteAccountModal(false);
+              setShowProfileModal(false);
 
-                      localStorage.clear();
+              await signOut();
+            } catch (error) {
+              console.error(
+                'Account deletion failed:',
+                error
+              );
 
-                      setCoffees([]);
-                      setBrewLogs([]);
-                      setProfile(null);
-
-                      setShowDeleteAccountModal(
-                        false
-                      );
-
-                      setShowProfileModal(
-                        false
-                      );
-
-                      await signOut();
-                    } catch (error) {
-                      console.error(
-                        'Account deletion failed:',
-                        error
-                      );
-
-                      alert(
-                        error instanceof
-                          Error
-                          ? error.message
-                          : 'Unable to delete account.'
-                      );
-                    } finally {
-                      setIsDeletingAccount(
-                        false
-                      );
-                    }
-                  }}
-                  className="w-full bg-red-600 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
-                >
-                  {isDeletingAccount
-                    ? 'Deleting Account...'
-                    : 'Permanently Delete Account'}
-                </button>
-
-                <button
-                  type="button"
-                  disabled={
-                    isDeletingAccount
-                  }
-                  onClick={() =>
-                    setShowDeleteAccountModal(
-                      false
-                    )
-                  }
-                  className="w-full bg-stone-100 text-stone-700 py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+              alert(
+                error instanceof Error
+                  ? error.message
+                  : 'Unable to delete account.'
+              );
+            } finally {
+              setIsDeletingAccount(false);
+            }
+          }}
+        />
       )}
 
       <nav
