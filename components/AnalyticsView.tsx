@@ -118,16 +118,16 @@ const Metric: React.FC<{
 }) => {
   return (
     <div>
-      <p className="text-[8px] font-black uppercase tracking-[0.18em] text-stone-400">
+      <p className="bp-label text-[var(--bp-muted)]">
         {label}
       </p>
 
-      <p className="mt-1 text-xl font-black text-stone-900">
+      <p className="bp-measurement mt-2 text-2xl font-semibold text-[var(--bp-blue)]">
         {value}
       </p>
 
       {sublabel && (
-        <p className="mt-1 text-[9px] font-medium text-stone-400">
+        <p className="bp-code mt-1 text-[var(--bp-muted)]">
           {sublabel}
         </p>
       )}
@@ -136,31 +136,38 @@ const Metric: React.FC<{
 };
 
 const Leaderboard: React.FC<{
+  index: string;
   title: string;
   items: Array<[string, number]>;
   total: number;
 }> = ({
+  index,
   title,
   items,
   total,
 }) => {
   return (
-    <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-      <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-        {title}
-      </h3>
+    <section className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+      <div className="border-b border-[var(--bp-line)] px-4 py-3">
+        <p className="bp-index">
+          {index}
+        </p>
 
-      <div className="mt-5 space-y-4">
+        <h3 className="bp-heading mt-1 text-base text-[var(--bp-blue)]">
+          {title}
+        </h3>
+      </div>
+
+      <div>
         {items.length === 0 ? (
-          <p className="text-xs text-stone-400">
-            No data recorded in this
-            period.
+          <p className="p-4 text-sm text-[var(--bp-muted)]">
+            No data recorded in this period.
           </p>
         ) : (
           items
             .slice(0, 5)
             .map(
-              ([name, count], index) => {
+              ([name, count], itemIndex) => {
                 const percentage =
                   total > 0
                     ? Math.round(
@@ -172,32 +179,46 @@ const Leaderboard: React.FC<{
                 return (
                   <div
                     key={name}
-                    className="space-y-2"
+                    className={`grid grid-cols-[36px_1fr_auto] items-center gap-3 px-4 py-3 ${
+                      itemIndex <
+                      Math.min(
+                        items.length,
+                        5
+                      ) -
+                        1
+                        ? 'border-b border-[var(--bp-line)]'
+                        : ''
+                    }`}
                   >
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex min-w-0 items-center gap-3">
-                        <span className="text-[10px] font-black text-stone-200">
-                          {index + 1}
-                        </span>
+                    <span className="bp-code text-[var(--bp-muted)]">
+                      {String(
+                        itemIndex + 1
+                      ).padStart(2, '0')}
+                    </span>
 
-                        <span className="truncate text-xs font-black text-stone-700">
-                          {name}
-                        </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-[var(--bp-blue)]">
+                        {name}
+                      </p>
+
+                      <div className="mt-2 h-[2px] bg-[var(--bp-line)]">
+                        <div
+                          className="h-full bg-[var(--bp-blue)]"
+                          style={{
+                            width: `${percentage}%`,
+                          }}
+                        />
                       </div>
-
-                      <span className="shrink-0 text-[9px] font-black text-stone-400">
-                        {count} ·{' '}
-                        {percentage}%
-                      </span>
                     </div>
 
-                    <div className="h-1.5 overflow-hidden rounded-full bg-stone-100">
-                      <div
-                        className="h-full rounded-full bg-stone-800"
-                        style={{
-                          width: `${percentage}%`,
-                        }}
-                      />
+                    <div className="text-right">
+                      <p className="bp-measurement text-sm font-semibold text-[var(--bp-blue)]">
+                        {count}
+                      </p>
+
+                      <p className="bp-code text-[var(--bp-muted)]">
+                        {percentage}%
+                      </p>
                     </div>
                   </div>
                 );
@@ -596,380 +617,451 @@ const AnalyticsView: React.FC<
 
   if (brewLogs.length === 0) {
     return (
-      <div className="animate-in fade-in duration-500 py-24 text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-[2rem] bg-amber-50 text-amber-800">
-          <svg
-            className="h-8 w-8"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2"
-            />
-          </svg>
+      <section className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+        <div className="border-b border-[var(--bp-line)] p-5">
+          <p className="bp-index">
+            04 / ANALYTICS
+          </p>
+
+          <h1 className="bp-heading mt-2 text-3xl text-[var(--bp-blue)]">
+            Brewing Analytics
+          </h1>
         </div>
 
-        <h3 className="mb-2 text-2xl font-bold display-font">
-          Brewing Analytics
-        </h3>
-
-        <p className="mx-auto mb-8 max-w-xs text-sm font-medium text-stone-400">
-          Start logging brews to build your
-          personal brewing history.
-        </p>
+        <div className="p-5">
+          <p className="max-w-md text-sm leading-relaxed text-[var(--bp-muted)]">
+            Start logging brews to build your personal brewing history and reveal patterns across coffees, methods and sensory results.
+          </p>
+        </div>
 
         <button
+          type="button"
           onClick={onBack}
-          className="text-sm font-bold text-amber-800 underline underline-offset-4"
+          className="flex min-h-14 w-full items-center justify-between border-t border-[var(--bp-line)] bg-[var(--bp-orange)] px-5 text-[var(--bp-blue)]"
         >
-          Back to Dashboard
+          <span className="bp-label">
+            Back to Home
+          </span>
+
+          <span
+            aria-hidden="true"
+            className="bp-code text-lg"
+          >
+            →
+          </span>
         </button>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8 pb-10">
-      <div className="flex items-center justify-between gap-4">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-stone-400 transition-colors hover:text-stone-800"
-        >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-
-          Back
-        </button>
-
-        <div className="text-right">
-          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-800">
-            Brewprint
-          </p>
-
-          <h2 className="text-2xl font-black text-stone-900 display-font">
-            Analytics
-          </h2>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-5 gap-1 rounded-2xl bg-stone-100 p-1">
-        {[
-          {
-            id: '30d',
-            label: '30D',
-          },
-          {
-            id: '3m',
-            label: '3M',
-          },
-          {
-            id: '6m',
-            label: '6M',
-          },
-          {
-            id: '1y',
-            label: '1Y',
-          },
-          {
-            id: 'all',
-            label: 'All',
-          },
-        ].map(item => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() =>
-              setTimeRange(
-                item.id as TimeRange
-              )
-            }
-            className={`rounded-xl py-2.5 text-[9px] font-black uppercase tracking-wider transition-all ${
-              timeRange === item.id
-                ? 'bg-white text-stone-900 shadow-sm'
-                : 'text-stone-400'
-            }`}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-
-      <section className="rounded-[2.5rem] border border-stone-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-400">
-              Overview
+    <div className="space-y-8 pb-10">
+      <section className="border-b border-[var(--bp-line)] pb-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="bp-index">
+              04 / ANALYTICS
             </p>
 
-            <p className="mt-1 text-xs font-medium text-stone-400">
-              {rangeLabel}
+            <h1 className="bp-heading mt-2 text-3xl text-[var(--bp-blue)]">
+              Brewing Analytics
+            </h1>
+
+            <p className="bp-code mt-2 max-w-md text-[var(--bp-muted)]">
+              Patterns across your recorded coffees, recipes and results.
             </p>
           </div>
 
-          <span className="rounded-full bg-stone-50 px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-stone-500">
+          <button
+            type="button"
+            onClick={onBack}
+            className="bp-button h-10 min-h-0 px-3"
+          >
+            Back
+          </button>
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-3">
+          <p className="bp-index">
+            04.01 / RANGE
+          </p>
+        </div>
+
+        <div className="grid grid-cols-5 border border-[var(--bp-line)]">
+          {[
+            {
+              id: '30d',
+              label: '30D',
+            },
+            {
+              id: '3m',
+              label: '3M',
+            },
+            {
+              id: '6m',
+              label: '6M',
+            },
+            {
+              id: '1y',
+              label: '1Y',
+            },
+            {
+              id: 'all',
+              label: 'ALL',
+            },
+          ].map((item, index) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() =>
+                setTimeRange(
+                  item.id as TimeRange
+                )
+              }
+              className={`relative min-h-12 px-2 bp-label ${
+                index < 4
+                  ? 'border-r border-[var(--bp-line)]'
+                  : ''
+              } ${
+                timeRange === item.id
+                  ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
+                  : 'bg-[var(--bp-paper)] text-[var(--bp-muted)]'
+              }`}
+            >
+              {timeRange === item.id && (
+                <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
+              )}
+
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-3 flex items-end justify-between gap-4">
+          <div>
+            <p className="bp-index">
+              04.02 / OVERVIEW
+            </p>
+
+            <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+              {rangeLabel}
+            </h2>
+          </div>
+
+          <span className="bp-code text-[var(--bp-muted)]">
             {stats.totalBrews}{' '}
-            brews
+            {stats.totalBrews === 1
+              ? 'BREW'
+              : 'BREWS'}
           </span>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-x-5 gap-y-7">
-          <Metric
-            label="Total Brews"
-            value={stats.totalBrews}
-          />
+        <div className="grid grid-cols-2 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+          <div className="border-b border-r border-[var(--bp-line)] p-4">
+            <Metric
+              label="Total Brews"
+              value={stats.totalBrews}
+            />
+          </div>
 
-          <Metric
-            label="Coffees"
-            value={
-              stats.uniqueCoffees
-            }
-          />
+          <div className="border-b border-[var(--bp-line)] p-4">
+            <Metric
+              label="Coffees"
+              value={
+                stats.uniqueCoffees
+              }
+            />
+          </div>
 
-          <Metric
-            label="Avg Rating"
-            value={
-              stats.averageRating > 0
-                ? stats.averageRating.toFixed(
-                    1
-                  )
-                : '—'
-            }
-            sublabel="Recorded ratings"
-          />
+          <div className="border-r border-[var(--bp-line)] p-4">
+            <Metric
+              label="Avg Rating"
+              value={
+                stats.averageRating > 0
+                  ? stats.averageRating.toFixed(
+                      1
+                    )
+                  : '—'
+              }
+              sublabel="Recorded ratings"
+            />
+          </div>
 
-          <Metric
-            label="Coffee Used"
-            value={`${(
-              stats.totalDose /
-              1000
-            ).toFixed(2)} kg`}
-            sublabel="Dry coffee dose"
-          />
+          <div className="p-4">
+            <Metric
+              label="Coffee Used"
+              value={`${(
+                stats.totalDose /
+                1000
+              ).toFixed(2)} kg`}
+              sublabel="Dry coffee dose"
+            />
+          </div>
         </div>
       </section>
 
-      <section className="rounded-[2rem] border border-amber-100 bg-[#fdf8f3] p-6 shadow-sm">
-        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-800/50">
-          Typical Brew
-        </p>
-
-        <p className="mt-1 text-xs text-amber-950/60">
-          Median values across the selected
-          period.
-        </p>
-
-        <div className="mt-6 grid grid-cols-2 gap-x-5 gap-y-7">
-          <Metric
-            label="Dose"
-            value={
-              stats.medianDose > 0
-                ? `${formatNumber(
-                    stats.medianDose
-                  )}g`
-                : '—'
-            }
-          />
-
-          <Metric
-            label="Yield"
-            value={
-              stats.medianYield > 0
-                ? `${formatNumber(
-                    stats.medianYield
-                  )}g`
-                : '—'
-            }
-          />
-
-          <Metric
-            label="Ratio"
-            value={
-              stats.medianRatio > 0
-                ? `1:${stats.medianRatio.toFixed(
-                    1
-                  )}`
-                : '—'
-            }
-          />
-
-          <Metric
-            label="Temperature"
-            value={
-              stats.medianTemperature >
-              0
-                ? `${formatNumber(
-                    stats.medianTemperature
-                  )}°C`
-                : '—'
-            }
-          />
-
-          <Metric
-            label="Brew Time"
-            value={
-              stats.medianBrewTime > 0
-                ? `${formatNumber(
-                    stats.medianBrewTime
-                  )}s`
-                : '—'
-            }
-          />
-        </div>
-      </section>
-
-      <div className="space-y-4">
-        <div className="px-1">
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-stone-500">
-            Coffee Choices
+      <section>
+        <div className="mb-3">
+          <p className="bp-index">
+            04.03 / TYPICAL BREW
           </p>
 
-          <p className="mt-1 text-xs text-stone-400">
-            What appears most often in your
-            recorded brewing.
+          <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+            Median Recipe
+          </h2>
+
+          <p className="bp-code mt-1 text-[var(--bp-muted)]">
+            Median values across the selected period.
+          </p>
+        </div>
+
+        <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+          <div className="grid grid-cols-2 border-b border-[var(--bp-line)]">
+            <div className="border-r border-[var(--bp-line)] p-4">
+              <Metric
+                label="Dose"
+                value={
+                  stats.medianDose > 0
+                    ? `${formatNumber(
+                        stats.medianDose
+                      )}g`
+                    : '—'
+                }
+              />
+            </div>
+
+            <div className="p-4">
+              <Metric
+                label="Yield"
+                value={
+                  stats.medianYield > 0
+                    ? `${formatNumber(
+                        stats.medianYield
+                      )}g`
+                    : '—'
+                }
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3">
+            <div className="border-r border-[var(--bp-line)] p-4">
+              <Metric
+                label="Ratio"
+                value={
+                  stats.medianRatio > 0
+                    ? `1:${stats.medianRatio.toFixed(
+                        1
+                      )}`
+                    : '—'
+                }
+              />
+            </div>
+
+            <div className="border-r border-[var(--bp-line)] p-4">
+              <Metric
+                label="Temp"
+                value={
+                  stats.medianTemperature >
+                  0
+                    ? `${formatNumber(
+                        stats.medianTemperature
+                      )}°C`
+                    : '—'
+                }
+              />
+            </div>
+
+            <div className="p-4">
+              <Metric
+                label="Time"
+                value={
+                  stats.medianBrewTime > 0
+                    ? `${formatNumber(
+                        stats.medianBrewTime
+                      )}s`
+                    : '—'
+                }
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-4">
+          <p className="bp-index">
+            04.04 / COFFEE CHOICES
+          </p>
+
+          <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+            Recorded Patterns
+          </h2>
+
+          <p className="bp-code mt-1 text-[var(--bp-muted)]">
+            What appears most often in your brewing records.
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Leaderboard
+            index="04.04A"
             title="Origins"
             items={stats.origins}
             total={stats.totalBrews}
           />
 
           <Leaderboard
+            index="04.04B"
             title="Processes"
             items={stats.processes}
             total={stats.totalBrews}
           />
 
           <Leaderboard
+            index="04.04C"
             title="Roasters"
             items={stats.roasters}
             total={stats.totalBrews}
           />
 
           <Leaderboard
+            index="04.04D"
             title="Roast Levels"
             items={stats.roastLevels}
             total={stats.totalBrews}
           />
         </div>
-      </div>
+      </section>
 
-      <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-        <div>
-          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-            Method Performance
+      <section>
+        <div className="mb-3">
+          <p className="bp-index">
+            04.05 / METHOD PERFORMANCE
           </p>
 
-          <p className="mt-1 text-xs text-stone-400">
-            Ratings and typical recipe values
-            for each brew method.
+          <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+            Method Comparison
+          </h2>
+
+          <p className="bp-code mt-1 text-[var(--bp-muted)]">
+            Ratings and typical recipe values for each brew method.
           </p>
         </div>
 
-        <div className="mt-6 space-y-5">
-          {stats.methodStats.map(
-            item => (
-              <div
-                key={item.method}
-                className="border-b border-stone-100 pb-5 last:border-0 last:pb-0"
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-black text-stone-800">
-                      {item.method}
-                    </p>
+        <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+          {stats.methodStats.length ===
+          0 ? (
+            <p className="p-4 text-sm text-[var(--bp-muted)]">
+              No method data recorded in this period.
+            </p>
+          ) : (
+            stats.methodStats.map(
+              (item, index) => (
+                <div
+                  key={item.method}
+                  className={`${
+                    index <
+                    stats.methodStats
+                      .length -
+                      1
+                      ? 'border-b border-[var(--bp-line)]'
+                      : ''
+                  }`}
+                >
+                  <div className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-[var(--bp-line)] px-4 py-3">
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--bp-blue)]">
+                        {item.method}
+                      </p>
 
-                    <p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-stone-400">
-                      {item.count}{' '}
-                      {item.count === 1
-                        ? 'brew'
-                        : 'brews'}
-                    </p>
+                      <p className="bp-code mt-1 text-[var(--bp-muted)]">
+                        {item.count}{' '}
+                        {item.count === 1
+                          ? 'BREW'
+                          : 'BREWS'}
+                      </p>
+                    </div>
+
+                    <div className="text-right">
+                      <p className="bp-label text-[var(--bp-muted)]">
+                        Avg Rating
+                      </p>
+
+                      <p className="bp-measurement mt-1 text-xl font-semibold text-[var(--bp-orange)]">
+                        {item.avgRating >
+                        0
+                          ? item.avgRating.toFixed(
+                              1
+                            )
+                          : '—'}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="text-right">
-                    <p className="text-[8px] font-black uppercase tracking-wider text-stone-400">
-                      Avg Rating
-                    </p>
+                  <div className="grid grid-cols-4">
+                    <div className="border-r border-[var(--bp-line)] p-3">
+                      <Metric
+                        label="Dose"
+                        value={
+                          item.medianDose >
+                          0
+                            ? `${formatNumber(
+                                item.medianDose
+                              )}g`
+                            : '—'
+                        }
+                      />
+                    </div>
 
-                    <p className="mt-1 text-lg font-black text-amber-700">
-                      {item.avgRating >
-                      0
-                        ? item.avgRating.toFixed(
-                            1
-                          )
-                        : '—'}
-                    </p>
+                    <div className="border-r border-[var(--bp-line)] p-3">
+                      <Metric
+                        label="Ratio"
+                        value={
+                          item.medianRatio >
+                          0
+                            ? `1:${item.medianRatio.toFixed(
+                                1
+                              )}`
+                            : '—'
+                        }
+                      />
+                    </div>
+
+                    <div className="border-r border-[var(--bp-line)] p-3">
+                      <Metric
+                        label="Temp"
+                        value={
+                          item.medianTemp >
+                          0
+                            ? `${formatNumber(
+                                item.medianTemp
+                              )}°`
+                            : '—'
+                        }
+                      />
+                    </div>
+
+                    <div className="p-3">
+                      <Metric
+                        label="Time"
+                        value={
+                          item.medianTime >
+                          0
+                            ? `${formatNumber(
+                                item.medianTime
+                              )}s`
+                            : '—'
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
-
-                <div className="mt-4 grid grid-cols-4 gap-3">
-                  <Metric
-                    label="Dose"
-                    value={
-                      item.medianDose >
-                      0
-                        ? `${formatNumber(
-                            item.medianDose
-                          )}g`
-                        : '—'
-                    }
-                  />
-
-                  <Metric
-                    label="Ratio"
-                    value={
-                      item.medianRatio >
-                      0
-                        ? `1:${item.medianRatio.toFixed(
-                            1
-                          )}`
-                        : '—'
-                    }
-                  />
-
-                  <Metric
-                    label="Temp"
-                    value={
-                      item.medianTemp >
-                      0
-                        ? `${formatNumber(
-                            item.medianTemp
-                          )}°`
-                        : '—'
-                    }
-                  />
-
-                  <Metric
-                    label="Time"
-                    value={
-                      item.medianTime >
-                      0
-                        ? `${formatNumber(
-                            item.medianTime
-                          )}s`
-                        : '—'
-                    }
-                  />
-                </div>
-              </div>
+              )
             )
           )}
         </div>
@@ -977,17 +1069,22 @@ const AnalyticsView: React.FC<
 
       {stats.highestRatedMethods.length >
         0 && (
-        <section className="rounded-[2rem] border border-amber-100 bg-amber-50/40 p-6">
-          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-800">
-            Highest Rated Methods
-          </p>
+        <section>
+          <div className="mb-3">
+            <p className="bp-index">
+              04.06 / TOP METHODS
+            </p>
 
-          <p className="mt-1 text-xs text-stone-500">
-            Only methods with at least 3
-            recorded brews are included.
-          </p>
+            <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+              Highest Rated Methods
+            </h2>
 
-          <div className="mt-5 space-y-3">
+            <p className="bp-code mt-1 text-[var(--bp-muted)]">
+              Minimum three recorded brews per method.
+            </p>
+          </div>
+
+          <div className="border border-[var(--bp-line)]">
             {stats.highestRatedMethods
               .slice(0, 3)
               .map(
@@ -999,34 +1096,48 @@ const AnalyticsView: React.FC<
                     key={
                       item.method
                     }
-                    className="flex items-center justify-between rounded-2xl border border-amber-100 bg-white px-4 py-3"
+                    className={`grid grid-cols-[42px_1fr_auto] items-center gap-3 bg-[var(--bp-paper-light)] px-4 py-3 ${
+                      index <
+                      Math.min(
+                        stats
+                          .highestRatedMethods
+                          .length,
+                        3
+                      ) -
+                        1
+                        ? 'border-b border-[var(--bp-line)]'
+                        : ''
+                    }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-[10px] font-black text-amber-800/30">
-                        {index + 1}
-                      </span>
+                    <span className="bp-measurement text-sm font-semibold text-[var(--bp-orange)]">
+                      {String(
+                        index + 1
+                      ).padStart(
+                        2,
+                        '0'
+                      )}
+                    </span>
 
-                      <div>
-                        <p className="text-xs font-black text-stone-800">
-                          {
-                            item.method
-                          }
-                        </p>
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--bp-blue)]">
+                        {
+                          item.method
+                        }
+                      </p>
 
-                        <p className="mt-0.5 text-[8px] font-bold uppercase tracking-wider text-stone-400">
-                          {
-                            item.count
-                          }{' '}
-                          brews
-                        </p>
-                      </div>
+                      <p className="bp-code mt-1 text-[var(--bp-muted)]">
+                        {
+                          item.count
+                        }{' '}
+                        BREWS
+                      </p>
                     </div>
 
-                    <span className="text-sm font-black text-amber-800">
+                    <p className="bp-measurement text-xl font-semibold text-[var(--bp-blue)]">
                       {item.avgRating.toFixed(
                         1
                       )}
-                    </span>
+                    </p>
                   </div>
                 )
               )}
@@ -1036,16 +1147,22 @@ const AnalyticsView: React.FC<
 
       {stats.coffeeRatings.length >
         0 && (
-        <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-            Highest Rated Coffees
-          </p>
+        <section>
+          <div className="mb-3">
+            <p className="bp-index">
+              04.07 / TOP COFFEES
+            </p>
 
-          <p className="mt-1 text-xs text-stone-400">
-            Minimum 3 brews per coffee.
-          </p>
+            <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+              Highest Rated Coffees
+            </h2>
 
-          <div className="mt-5 space-y-4">
+            <p className="bp-code mt-1 text-[var(--bp-muted)]">
+              Minimum three recorded brews per coffee.
+            </p>
+          </div>
+
+          <div className="border border-[var(--bp-line)]">
             {stats.coffeeRatings
               .slice(0, 5)
               .map(
@@ -1058,40 +1175,54 @@ const AnalyticsView: React.FC<
                       item.coffee
                         ?.id
                     }
-                    className="flex items-center justify-between gap-4 border-b border-stone-50 pb-4 last:border-0 last:pb-0"
+                    className={`grid grid-cols-[42px_1fr_auto] items-center gap-3 bg-[var(--bp-paper-light)] px-4 py-3 ${
+                      index <
+                      Math.min(
+                        stats
+                          .coffeeRatings
+                          .length,
+                        5
+                      ) -
+                        1
+                        ? 'border-b border-[var(--bp-line)]'
+                        : ''
+                    }`}
                   >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <span className="text-[10px] font-black text-stone-200">
-                        {index + 1}
-                      </span>
+                    <span className="bp-code text-[var(--bp-muted)]">
+                      {String(
+                        index + 1
+                      ).padStart(
+                        2,
+                        '0'
+                      )}
+                    </span>
 
-                      <div className="min-w-0">
-                        <p className="truncate text-xs font-black text-stone-800">
-                          {
-                            item.coffee
-                              ?.name
-                          }
-                        </p>
+                    <div className="min-w-0">
+                      <p className="bp-coffee-name truncate text-xl text-[var(--bp-blue)]">
+                        {
+                          item.coffee
+                            ?.name
+                        }
+                      </p>
 
-                        <p className="mt-0.5 truncate text-[9px] font-medium text-stone-400">
-                          {
-                            item.coffee
-                              ?.roaster
-                          }{' '}
-                          ·{' '}
-                          {
-                            item.count
-                          }{' '}
-                          brews
-                        </p>
-                      </div>
+                      <p className="bp-code mt-1 truncate text-[var(--bp-muted)]">
+                        {
+                          item.coffee
+                            ?.roaster
+                        }{' '}
+                        /{' '}
+                        {
+                          item.count
+                        }{' '}
+                        BREWS
+                      </p>
                     </div>
 
-                    <span className="text-sm font-black text-amber-700">
+                    <p className="bp-measurement text-xl font-semibold text-[var(--bp-blue)]">
                       {item.avgRating.toFixed(
                         1
                       )}
-                    </span>
+                    </p>
                   </div>
                 )
               )}
@@ -1099,26 +1230,29 @@ const AnalyticsView: React.FC<
         </section>
       )}
 
-      <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between gap-4">
+      <section>
+        <div className="mb-3 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-              Sensory Profile
+            <p className="bp-index">
+              04.08 / SENSORY
             </p>
 
-            <p className="mt-1 text-xs text-stone-400">
-              Average sensory scores for
-              the selected period.
+            <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+              Sensory Profile
+            </h2>
+
+            <p className="bp-code mt-1 text-[var(--bp-muted)]">
+              Average scores for the selected period.
             </p>
           </div>
 
-          <span className="text-[8px] font-black uppercase tracking-wider text-stone-300">
+          <span className="bp-code text-[var(--bp-muted)]">
             {stats.totalBrews}{' '}
-            brews
+            BREWS
           </span>
         </div>
 
-        <div className="mt-6 space-y-4">
+        <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
           {[
             {
               label: 'Aroma',
@@ -1155,26 +1289,22 @@ const AnalyticsView: React.FC<
                 stats.sensory
                   .aftertaste,
             },
-          ].map(item => (
+          ].map((item, index) => (
             <div
               key={item.label}
-              className="space-y-2"
+              className={`grid grid-cols-[100px_1fr_42px] items-center gap-3 px-4 py-3 ${
+                index < 5
+                  ? 'border-b border-[var(--bp-line)]'
+                  : ''
+              }`}
             >
-              <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-wider">
-                <span className="text-stone-400">
-                  {item.label}
-                </span>
+              <span className="bp-label text-[var(--bp-muted)]">
+                {item.label}
+              </span>
 
-                <span className="text-stone-800">
-                  {item.value.toFixed(
-                    1
-                  )}
-                </span>
-              </div>
-
-              <div className="h-2 overflow-hidden rounded-full bg-stone-100">
+              <div className="h-[3px] bg-[var(--bp-line)]">
                 <div
-                  className="h-full rounded-full bg-amber-800"
+                  className="h-full bg-[var(--bp-orange)]"
                   style={{
                     width: `${Math.min(
                       100,
@@ -1188,6 +1318,12 @@ const AnalyticsView: React.FC<
                   }}
                 />
               </div>
+
+              <span className="bp-measurement text-right text-sm font-semibold text-[var(--bp-blue)]">
+                {item.value.toFixed(
+                  1
+                )}
+              </span>
             </div>
           ))}
         </div>
@@ -1195,40 +1331,53 @@ const AnalyticsView: React.FC<
 
       {stats.flavorGroups.length >
         0 && (
-        <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-            Recorded Flavour Groups
-          </p>
+        <section>
+          <div className="mb-3">
+            <p className="bp-index">
+              04.09 / FLAVOUR
+            </p>
 
-          <div className="mt-5 flex flex-wrap gap-2">
+            <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+              Recorded Flavour Groups
+            </h2>
+          </div>
+
+          <div className="flex flex-wrap border-l border-t border-[var(--bp-line)]">
             {stats.flavorGroups
               .slice(0, 8)
               .map(
                 ([name, count]) => (
-                  <span
+                  <div
                     key={name}
-                    className="rounded-full border border-stone-200 bg-stone-50 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-stone-600"
+                    className="border-b border-r border-[var(--bp-line)] bg-[var(--bp-paper-light)] px-3 py-2"
                   >
-                    {name} ·{' '}
-                    {count}
-                  </span>
+                    <span className="bp-code text-[var(--bp-blue)]">
+                      {name}
+                    </span>
+
+                    <span className="bp-measurement ml-2 text-sm font-semibold text-[var(--bp-orange)]">
+                      {count}
+                    </span>
+                  </div>
                 )
               )}
           </div>
         </section>
       )}
 
-      <section className="rounded-[2rem] border border-amber-100 bg-amber-50/40 p-6">
-        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-800">
-          Reading Your Data
-        </p>
+      <section className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+        <div className="border-b border-[var(--bp-line)] p-4">
+          <p className="bp-index">
+            04.10 / INTERPRETATION
+          </p>
 
-        <p className="mt-3 text-xs leading-relaxed text-stone-600">
-          These analytics describe patterns in
-          your recorded brews. A higher rating
-          beside a method, temperature, ratio or
-          other variable does not prove that the
-          variable caused the better result.
+          <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+            Reading Your Data
+          </h2>
+        </div>
+
+        <p className="p-4 text-sm leading-relaxed text-[var(--bp-muted)]">
+          These analytics describe patterns in your recorded brews. A higher rating beside a method, temperature, ratio or other variable does not prove that the variable caused the better result.
         </p>
       </section>
     </div>
