@@ -129,13 +129,13 @@ const ChangeValue: React.FC<{
 }> = ({ value }) => {
   const className =
     value > 0
-      ? 'text-emerald-600'
+      ? 'text-[var(--bp-success)]'
       : value < 0
-        ? 'text-rose-500'
-        : 'text-stone-400';
+        ? 'text-[var(--bp-danger)]'
+        : 'text-[var(--bp-muted)]';
 
   return (
-    <span className={className}>
+    <span className={`bp-mono ${className}`}>
       {value > 0 ? '+' : ''}
       {value}%
     </span>
@@ -153,16 +153,16 @@ const Metric: React.FC<{
 }) => {
   return (
     <div className="min-w-0">
-      <p className="text-[8px] font-black uppercase tracking-[0.18em] text-stone-400">
+      <p className="bp-label text-[var(--bp-muted)]">
         {label}
       </p>
 
-      <p className="mt-1 text-lg font-black text-stone-900">
+      <p className="bp-measurement mt-2 text-xl font-semibold text-[var(--bp-blue)]">
         {value}
       </p>
 
       {sublabel && (
-        <p className="mt-0.5 text-[9px] font-medium text-stone-400">
+        <p className="bp-code mt-1 text-[var(--bp-muted)]">
           {sublabel}
         </p>
       )}
@@ -182,22 +182,22 @@ const DetailShell: React.FC<{
   children,
 }) => {
   return (
-    <div className="fixed inset-0 z-[120] overflow-y-auto bg-stone-950/60 backdrop-blur-md">
+    <div className="fixed inset-0 z-[120] overflow-y-auto bg-[rgba(12,39,72,0.48)] backdrop-blur-sm">
       <div className="min-h-full p-0 sm:p-6">
-        <div className="mx-auto min-h-[100dvh] w-full max-w-2xl bg-[#fdfcfb] sm:min-h-0 sm:rounded-[3rem] sm:shadow-2xl">
+        <div className="mx-auto min-h-[100dvh] w-full max-w-2xl border-x border-[var(--bp-line)] bg-[var(--bp-paper)] sm:min-h-0">
           <div
-            className="sticky top-0 z-20 flex items-start justify-between gap-4 border-b border-stone-100 bg-white/95 px-6 pb-5 backdrop-blur-xl sm:rounded-t-[3rem]"
+            className="sticky top-0 z-20 flex items-start justify-between gap-4 border-b border-[var(--bp-line)] bg-[var(--bp-paper)] px-4 pb-4 sm:px-6"
             style={{
               paddingTop:
-                'calc(env(safe-area-inset-top) + 1.25rem)',
+                'calc(env(safe-area-inset-top) + 1rem)',
             }}
           >
             <div className="min-w-0">
-              <p className="text-[9px] font-black uppercase tracking-[0.25em] text-amber-800">
+              <p className="bp-index">
                 {eyebrow}
               </p>
 
-              <h2 className="mt-1 text-2xl font-black leading-tight text-stone-900 display-font">
+              <h2 className="bp-heading mt-1 text-2xl text-[var(--bp-blue)]">
                 {title}
               </h2>
             </div>
@@ -205,15 +205,15 @@ const DetailShell: React.FC<{
             <button
               type="button"
               onClick={onClose}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-stone-200 bg-stone-50 text-stone-500 transition-colors hover:text-stone-900"
+              className="bp-button h-10 min-h-0 px-3"
               aria-label="Close"
             >
-              ✕
+              Close
             </button>
           </div>
 
           <div
-            className="space-y-6 p-6"
+            className="space-y-6 px-4 py-6 sm:px-6"
             style={{
               paddingBottom:
                 'calc(env(safe-area-inset-bottom) + 2rem)',
@@ -704,36 +704,68 @@ const HomeDashboard: React.FC<HomeDashboardProps> = ({
   }, [dashboard.bestBrews]);
 
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="h-24 animate-pulse rounded-[2rem] bg-stone-100" />
-
-        <div className="grid grid-cols-2 gap-4">
-          {[1, 2, 3, 4].map(item => (
-            <div
-              key={item}
-              className="h-44 animate-pulse rounded-[2rem] bg-stone-100"
-            />
-          ))}
-        </div>
+  return (
+    <div className="space-y-6">
+      <div className="border-b border-[var(--bp-line)] pb-6">
+        <div className="h-3 w-28 animate-pulse bg-[var(--bp-paper-dark)]" />
+        <div className="mt-3 h-10 w-56 animate-pulse bg-[var(--bp-paper-dark)]" />
       </div>
-    );
-  }
+
+      <div className="grid grid-cols-2 border border-[var(--bp-line)]">
+        {[1, 2, 3, 4].map(item => (
+          <div
+            key={item}
+            className="h-32 animate-pulse border border-[var(--bp-line)] bg-[var(--bp-paper-light)]"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
   if (brewLogs.length === 0) {
-    return (
-      <section className="rounded-[3rem] border-2 border-dashed border-stone-200 bg-white px-8 py-14 text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-[2rem] bg-amber-50 text-amber-800">
-          <Icons.Coffee className="h-9 w-9" />
-        </div>
-
-        <p className="mb-3 text-[10px] font-black uppercase tracking-[0.25em] text-amber-800">
-          Your Dashboard
+  return (
+    <div className="space-y-8">
+      <section className="border-b border-[var(--bp-line)] pb-6">
+        <p className="bp-index">
+          01 / HOME
         </p>
 
-        <h3 className="text-2xl font-black text-stone-800 display-font">
-          Start building your brew history
-        </h3>
+        <div className="mt-2 flex items-end justify-between gap-4">
+          <div className="min-w-0">
+            <p className="bp-label text-[var(--bp-muted)]">
+              Welcome back
+            </p>
+
+            <h1 className="bp-coffee-name mt-2 break-words text-4xl text-[var(--bp-blue)]">
+              {profileName || 'Coffee Lover'}
+            </h1>
+          </div>
+
+          <span className="bp-code shrink-0 text-[var(--bp-muted)]">
+            V1.0
+          </span>
+        </div>
+      </section>
+
+      <section className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-6 text-left">
+        <div className="mb-6 flex items-center gap-3">
+  <div className="flex h-10 w-10 items-center justify-center border border-[var(--bp-line-strong)]">
+    <Icons.Coffee className="h-5 w-5 text-[var(--bp-blue)]" />
+  </div>
+
+  <p className="bp-label text-[var(--bp-orange)]">
+    Brew record
+  </p>
+</div>
+
+        <p className="bp-index">
+  01.01 / FIRST ENTRY
+</p>
+
+        <h2 className="bp-heading mt-2 text-2xl text-[var(--bp-blue)]">
+  Start building your brew history
+</h2>
 
         <p className="mx-auto mb-8 mt-3 max-w-sm text-sm leading-relaxed text-stone-400">
           Your favourites, best brews, trends and coffee
@@ -748,10 +780,10 @@ const HomeDashboard: React.FC<HomeDashboardProps> = ({
           <Icons.Plus className="h-4 w-4" />
           Log Your First Brew
         </button>
-      </section>
-    );
-  }
-
+           </section>
+    </div>
+  );
+}
   const recentCoffee =
     dashboard.recentBrew
       ? getCoffeeForLog(
@@ -761,453 +793,558 @@ const HomeDashboard: React.FC<HomeDashboardProps> = ({
       : null;
 
   return (
-    <>
-      <div className="space-y-8">
-        <section className="overflow-hidden rounded-[2.5rem] border border-stone-200 bg-white shadow-sm">
-          <div className="flex items-start justify-between gap-4 p-6">
-            <div>
-              <p className="text-[9px] font-black uppercase tracking-[0.22em] text-stone-400">
-                Your Coffee
-              </p>
+  <>
+    <div className="space-y-8">
+      <section className="border-b border-[var(--bp-line)] pb-6">
+        <p className="bp-index">
+          01 / HOME
+        </p>
 
-              <p className="mt-2 text-3xl font-black text-stone-900">
+        <div className="mt-2 flex items-end justify-between gap-4">
+          <div className="min-w-0">
+            <p className="bp-label text-[var(--bp-muted)]">
+              Welcome back
+            </p>
+
+            <h1 className="bp-coffee-name mt-2 break-words text-4xl text-[var(--bp-blue)]">
+              {profileName || 'Coffee Lover'}
+            </h1>
+          </div>
+
+          <span className="bp-code shrink-0 text-[var(--bp-muted)]">
+            V1.0
+          </span>
+        </div>
+      </section>
+
+      <section className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+        <div className="grid grid-cols-[1fr_auto] border-b border-[var(--bp-line)]">
+          <div className="p-5">
+            <p className="bp-label text-[var(--bp-muted)]">
+              Coffee reserve
+            </p>
+
+            <div className="mt-2 flex items-end gap-2">
+              <p className="bp-measurement text-4xl font-semibold text-[var(--bp-blue)]">
                 {Math.round(
                   dashboard.totalRemaining
                 )}
-                g
               </p>
 
-              <p className="mt-1 text-xs font-semibold text-stone-500">
-                {dashboard.activeCoffees.length}{' '}
-                active{' '}
-                {dashboard.activeCoffees.length ===
-                1
-                  ? 'coffee'
-                  : 'coffees'}
-                {' · '}
-                about{' '}
-                {dashboard.totalEstimatedBrews}{' '}
-                brews remaining
-              </p>
-            </div>
-
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-800">
-              <Icons.Coffee className="h-5 w-5" />
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={onLogBrew}
-            className="flex w-full items-center justify-center gap-2 border-t border-stone-100 bg-stone-900 px-6 py-5 text-[10px] font-black uppercase tracking-[0.22em] text-white transition-colors hover:bg-stone-800"
-          >
-            <Icons.Plus className="h-4 w-4" />
-            Log A Brew
-          </button>
-        </section>
-
-        {dashboard.recentBrew && (
-          <section>
-            <div className="mb-3 flex items-end justify-between gap-4">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.22em] text-stone-500">
-                Recent Brew
-              </h3>
-
-              <span className="text-[9px] font-bold text-stone-300">
-                {formatDate(
-                  dashboard.recentBrew.date
-                )}
+              <span className="bp-code pb-1 text-[var(--bp-muted)]">
+                G
               </span>
             </div>
 
-            <div className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
-              <button
-                type="button"
-                onClick={() =>
-                  onOpenBrew(
-                    dashboard.recentBrew as BrewLog
-                  )
-                }
-                className="w-full text-left"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="text-[9px] font-black uppercase tracking-[0.18em] text-amber-800">
-                      {
-                        dashboard.recentBrew
-                          .method
-                      }
-                    </p>
-
-                    <h4 className="mt-1 truncate text-xl font-black text-stone-900 display-font">
-                      {recentCoffee?.name ||
-                        'Unknown Coffee'}
-                    </h4>
-
-                    <p className="mt-1 text-xs font-semibold text-stone-400">
-                      {recentCoffee?.roaster ||
-                        'Roaster not recorded'}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-1 text-amber-500">
-                    <Icons.Star className="h-4 w-4 fill-current" />
-
-                    <span className="text-sm font-black">
-                      {
-                        dashboard.recentBrew
-                          .rating
-                      }
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mt-5 grid grid-cols-4 gap-2 border-t border-stone-100 pt-4">
-                  <Metric
-                    label="Dose"
-                    value={`${formatNumber(
-                      dashboard.recentBrew.dose
-                    )}g`}
-                  />
-
-                  <Metric
-                    label="Yield"
-                    value={`${formatNumber(
-                      dashboard.recentBrew.yield
-                    )}g`}
-                  />
-
-                  <Metric
-                    label="Ratio"
-                    value={
-                      getRatio(
-                        dashboard.recentBrew
-                      )
-                        ? `1:${getRatio(
-                            dashboard.recentBrew
-                          )?.toFixed(1)}`
-                        : '—'
-                    }
-                  />
-
-                  <Metric
-                    label="Time"
-                    value={
-                      dashboard.recentBrew
-                        .brewTime > 0
-                        ? `${dashboard.recentBrew.brewTime}s`
-                        : '—'
-                    }
-                  />
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  onBrewAgain(
-                    dashboard.recentBrew as BrewLog
-                  )
-                }
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-stone-50 py-3 text-[9px] font-black uppercase tracking-[0.18em] text-stone-600 transition-colors hover:bg-amber-50 hover:text-amber-800"
-              >
-                <Icons.Copy className="h-3.5 w-3.5" />
-                Brew Again
-              </button>
-            </div>
-          </section>
-        )}
-
-        <section>
-          <div className="mb-4 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-stone-500">
-                Your Brewing
-              </p>
-
-              <p className="mt-1 text-xs text-stone-400">
-                Based on your recorded brews
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={onOpenAnalytics}
-              className="text-[9px] font-black uppercase tracking-[0.16em] text-amber-800"
-            >
-              Full Analytics
-            </button>
+            <p className="bp-code mt-2 text-[var(--bp-muted)]">
+              {dashboard.activeCoffees.length}{' '}
+              active{' '}
+              {dashboard.activeCoffees.length === 1
+                ? 'coffee'
+                : 'coffees'}
+              {' / '}
+              approx.{' '}
+              {dashboard.totalEstimatedBrews}{' '}
+              brews remaining
+            </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              type="button"
-              onClick={() =>
-                setDetailView('favourite')
-              }
-              className="min-h-48 rounded-[2rem] border border-stone-200 bg-white p-5 text-left shadow-sm transition-all hover:border-amber-200 hover:shadow-md"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-amber-800">
-                  <Icons.Coffee className="h-4 w-4" />
-                </span>
-
-                <span className="text-[8px] font-black uppercase tracking-[0.18em] text-stone-300">
-                  Favourite
-                </span>
-              </div>
-
-              {dashboard.favouriteCoffee ? (
-                <>
-                  <h4 className="mt-6 line-clamp-2 text-lg font-black leading-tight text-stone-900 display-font">
-                    {
-                      dashboard.favouriteCoffee
-                        .coffee.name
-                    }
-                  </h4>
-
-                  <p className="mt-1 truncate text-[10px] font-bold uppercase tracking-wider text-stone-400">
-                    {
-                      dashboard.favouriteCoffee
-                        .coffee.roaster
-                    }
-                  </p>
-
-                  <div className="mt-5 flex items-center justify-between border-t border-stone-100 pt-4">
-                    <span className="text-xs font-black text-stone-700">
-                      {
-                        dashboard.favouriteCoffee
-                          .brewCount
-                      }{' '}
-                      brews
-                    </span>
-
-                    <span className="flex items-center gap-1 text-xs font-black text-amber-600">
-                      <Icons.Star className="h-3 w-3 fill-current" />
-                      {dashboard.favouriteCoffee.averageRating.toFixed(
-                        1
-                      )}
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <p className="mt-6 text-sm font-semibold text-stone-400">
-                  Keep brewing to establish your
-                  favourite coffee.
-                </p>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() =>
-                setDetailView('best')
-              }
-              className="min-h-48 rounded-[2rem] border border-amber-100 bg-[#fdf8f3] p-5 text-left shadow-sm transition-all hover:border-amber-300 hover:shadow-md"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-amber-800 shadow-sm">
-                  <Icons.Star className="h-4 w-4" />
-                </span>
-
-                <span className="text-[8px] font-black uppercase tracking-[0.18em] text-amber-800/40">
-                  Best Brews
-                </span>
-              </div>
-
-              <p className="mt-6 text-3xl font-black text-amber-950">
-                {dashboard.topFiveAverageRating.toFixed(
-                  1
-                )}
-              </p>
-
-              <p className="text-[9px] font-black uppercase tracking-[0.16em] text-amber-800/50">
-                Top 5 average
-              </p>
-
-              <div className="mt-5 border-t border-amber-100 pt-4">
-                <p className="text-[8px] font-black uppercase tracking-[0.16em] text-amber-800/40">
-                  Common method
-                </p>
-
-                <p className="mt-1 truncate text-xs font-black text-amber-950">
-                  {dashboard.topFiveMethod ||
-                    'Not enough data'}
-                </p>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() =>
-                setDetailView('trends')
-              }
-              className="col-span-2 rounded-[2rem] border border-stone-200 bg-white p-5 text-left shadow-sm transition-all hover:border-amber-200 hover:shadow-md"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[8px] font-black uppercase tracking-[0.2em] text-stone-400">
-                    Trends · Last 30 Days
-                  </p>
-
-                  <p className="mt-2 text-3xl font-black text-stone-900">
-                    {dashboard.monthlyBrews}
-                  </p>
-
-                  <p className="text-[9px] font-black uppercase tracking-[0.16em] text-stone-400">
-                    Brews
-                    {' · '}
-                    <ChangeValue
-                      value={
-                        dashboard.monthlyGrowth
-                      }
-                    />
-                  </p>
-                </div>
-
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-50 text-stone-500">
-                  <Icons.Book className="h-4 w-4" />
-                </span>
-              </div>
-
-              <div className="mt-5 grid grid-cols-3 gap-3 border-t border-stone-100 pt-4">
-                <div>
-                  <p className="text-[8px] font-black uppercase tracking-wider text-stone-400">
-                    Method
-                  </p>
-
-                  <p className="mt-1 truncate text-xs font-black text-stone-800">
-                    {dashboard.topMethod?.[0] ||
-                      '—'}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-[8px] font-black uppercase tracking-wider text-stone-400">
-                    Origin
-                  </p>
-
-                  <p className="mt-1 truncate text-xs font-black text-stone-800">
-                    {dashboard.topOrigin?.[0] ||
-                      '—'}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-[8px] font-black uppercase tracking-wider text-stone-400">
-                    Process
-                  </p>
-
-                  <p className="mt-1 truncate text-xs font-black text-stone-800">
-                    {dashboard.topProcess?.[0] ||
-                      '—'}
-                  </p>
-                </div>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() =>
-                setDetailView('usage')
-              }
-              className="col-span-2 rounded-[2rem] border border-stone-200 bg-white p-5 text-left shadow-sm transition-all hover:border-amber-200 hover:shadow-md"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[8px] font-black uppercase tracking-[0.2em] text-stone-400">
-                    Coffee Usage
-                  </p>
-
-                  <p className="mt-2 text-3xl font-black text-stone-900">
-                    {Math.round(
-                      dashboard.totalRemaining
-                    )}
-                    g
-                  </p>
-
-                  <p className="text-[9px] font-black uppercase tracking-[0.16em] text-stone-400">
-                    Available now
-                  </p>
-                </div>
-
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-amber-800">
-                  <Icons.Info className="h-4 w-4" />
-                </span>
-              </div>
-
-              <div className="mt-5 grid grid-cols-3 gap-3 border-t border-stone-100 pt-4">
-                <Metric
-                  label="Used 30D"
-                  value={`${Math.round(
-                    dashboard.coffeeUsed30Days
-                  )}g`}
-                />
-
-                <Metric
-                  label="Dose"
-                  value={`${formatNumber(
-                    dashboard.overallMedianDose
-                  )}g`}
-                />
-
-                <Metric
-                  label="Est. Brews"
-                  value={
-                    dashboard.totalEstimatedBrews
-                  }
-                />
-              </div>
-            </button>
+          <div className="flex min-w-[84px] items-center justify-center border-l border-[var(--bp-line)]">
+            <Icons.Coffee className="h-6 w-6 text-[var(--bp-blue)]" />
           </div>
-        </section>
+        </div>
 
-        <section className="rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm">
-          <div className="mb-5 flex items-center justify-between">
-            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500">
-              Last 30 Days
+        <button
+          type="button"
+          onClick={onLogBrew}
+          className="flex w-full items-center justify-between bg-[var(--bp-orange)] px-5 py-4 text-left text-[var(--bp-blue)]"
+        >
+          <div>
+            <p className="bp-label">
+              New entry
             </p>
 
-            <span className="text-[9px] font-bold text-stone-300">
-              {
-                dashboard.monthlyBrews
-              }{' '}
-              recorded brews
-            </span>
+            <p className="mt-1 text-sm font-semibold">
+              Log a brew
+            </p>
           </div>
 
-          <div className="grid grid-cols-4 gap-3">
-            <Metric
-              label="Brews"
-              value={dashboard.monthlyBrews}
-            />
+          <Icons.Plus className="h-5 w-5" />
+        </button>
+      </section>
 
-            <Metric
-              label="Coffees"
-              value={
-                dashboard.monthlyCoffeeCount
-              }
-            />
+        {dashboard.recentBrew && (
+  <section>
+    <div className="mb-3 flex items-end justify-between gap-4">
+      <div>
+        <p className="bp-index">
+          01.02 / RECENT BREW
+        </p>
 
+        <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+          Recent Brew
+        </h3>
+      </div>
+
+      <span className="bp-code text-[var(--bp-muted)]">
+        {formatDate(
+          dashboard.recentBrew.date
+        )}
+      </span>
+    </div>
+
+    <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+      <button
+        type="button"
+        onClick={() =>
+          onOpenBrew(
+            dashboard.recentBrew as BrewLog
+          )
+        }
+        className="w-full text-left"
+      >
+        <div className="grid grid-cols-[1fr_auto] border-b border-[var(--bp-line)]">
+          <div className="min-w-0 p-5">
+            <p className="bp-label text-[var(--bp-orange)]">
+              {dashboard.recentBrew.method}
+            </p>
+
+            <h4 className="bp-coffee-name mt-2 truncate text-2xl text-[var(--bp-blue)]">
+              {recentCoffee?.name ||
+                'Unknown Coffee'}
+            </h4>
+
+            <p className="bp-code mt-1 text-[var(--bp-muted)]">
+              {recentCoffee?.roaster ||
+                'Roaster not recorded'}
+            </p>
+          </div>
+
+          <div className="flex min-w-[82px] flex-col items-center justify-center border-l border-[var(--bp-line)] px-4">
+            <Icons.Star className="h-4 w-4 fill-current text-[var(--bp-orange)]" />
+
+            <span className="bp-measurement mt-1 text-lg font-semibold text-[var(--bp-blue)]">
+              {dashboard.recentBrew.rating}
+            </span>
+
+            <span className="bp-label mt-1 text-[var(--bp-muted)]">
+              Rating
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4">
+          <div className="border-b border-r border-[var(--bp-line)] p-4 sm:border-b-0">
             <Metric
-              label="Rating"
+              label="Dose"
+              value={`${formatNumber(
+                dashboard.recentBrew.dose
+              )}g`}
+            />
+          </div>
+
+          <div className="border-b border-[var(--bp-line)] p-4 sm:border-b-0 sm:border-r">
+            <Metric
+              label="Yield"
+              value={`${formatNumber(
+                dashboard.recentBrew.yield
+              )}g`}
+            />
+          </div>
+
+          <div className="border-r border-[var(--bp-line)] p-4">
+            <Metric
+              label="Ratio"
               value={
-                dashboard.monthlyAverageRating > 0
-                  ? dashboard.monthlyAverageRating.toFixed(
-                      1
-                    )
+                getRatio(
+                  dashboard.recentBrew
+                )
+                  ? `1:${getRatio(
+                      dashboard.recentBrew
+                    )?.toFixed(1)}`
                   : '—'
               }
             />
+          </div>
 
+          <div className="p-4">
             <Metric
-              label="Methods"
+              label="Time"
               value={
-                dashboard.monthlyMethodCount
+                dashboard.recentBrew
+                  .brewTime > 0
+                  ? `${dashboard.recentBrew.brewTime}s`
+                  : '—'
               }
             />
           </div>
-        </section>
+        </div>
+      </button>
+
+      <div className="grid grid-cols-2 border-t border-[var(--bp-line)]">
+        <button
+          type="button"
+          onClick={() =>
+            onOpenBrew(
+              dashboard.recentBrew as BrewLog
+            )
+          }
+          className="bp-label border-r border-[var(--bp-line)] px-4 py-4 text-[var(--bp-blue)]"
+        >
+          Open Brew
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            onBrewAgain(
+              dashboard.recentBrew as BrewLog
+            )
+          }
+          className="flex items-center justify-center gap-2 bg-[var(--bp-orange)] px-4 py-4 text-[var(--bp-blue)]"
+        >
+          <Icons.Copy className="h-3.5 w-3.5" />
+
+          <span className="bp-label">
+            Brew Again
+          </span>
+        </button>
+      </div>
+    </div>
+  </section>
+)}
+
+        <section>
+  <div className="mb-4 flex items-end justify-between gap-4">
+    <div>
+      <p className="bp-index">
+        01.03 / BREWING
+      </p>
+
+      <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+        Your Brewing
+      </h3>
+
+      <p className="bp-code mt-1 text-[var(--bp-muted)]">
+        Based on your recorded brews
+      </p>
+    </div>
+
+    <button
+      type="button"
+      onClick={onOpenAnalytics}
+      className="bp-label text-[var(--bp-orange)]"
+    >
+      Full Analytics
+    </button>
+  </div>
+
+  <div className="grid grid-cols-2 border border-[var(--bp-line)]">
+    <button
+      type="button"
+      onClick={() =>
+        setDetailView('favourite')
+      }
+      className="min-h-48 border-b border-r border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-5 text-left"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <span className="flex h-9 w-9 items-center justify-center border border-[var(--bp-line-strong)]">
+          <Icons.Coffee className="h-4 w-4 text-[var(--bp-blue)]" />
+        </span>
+
+        <span className="bp-label text-[var(--bp-muted)]">
+          Favourite
+        </span>
+      </div>
+
+      {dashboard.favouriteCoffee ? (
+        <>
+          <h4 className="bp-coffee-name mt-6 line-clamp-2 text-xl text-[var(--bp-blue)]">
+            {
+              dashboard.favouriteCoffee
+                .coffee.name
+            }
+          </h4>
+
+          <p className="bp-code mt-1 truncate text-[var(--bp-muted)]">
+            {
+              dashboard.favouriteCoffee
+                .coffee.roaster
+            }
+          </p>
+
+          <div className="mt-5 flex items-end justify-between border-t border-[var(--bp-line)] pt-4">
+            <div>
+              <p className="bp-label text-[var(--bp-muted)]">
+                Brews
+              </p>
+
+              <p className="bp-measurement mt-1 text-lg font-semibold text-[var(--bp-blue)]">
+                {
+                  dashboard.favouriteCoffee
+                    .brewCount
+                }
+              </p>
+            </div>
+
+            <div className="text-right">
+              <p className="bp-label text-[var(--bp-muted)]">
+                Rating
+              </p>
+
+              <div className="mt-1 flex items-center justify-end gap-1">
+                <Icons.Star className="h-3 w-3 fill-current text-[var(--bp-orange)]" />
+
+                <span className="bp-measurement text-lg font-semibold text-[var(--bp-blue)]">
+                  {dashboard.favouriteCoffee.averageRating.toFixed(
+                    1
+                  )}
+                </span>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <p className="bp-code mt-6 text-[var(--bp-muted)]">
+          Keep brewing to establish your favourite coffee.
+        </p>
+      )}
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        setDetailView('best')
+      }
+      className="min-h-48 border-b border-[var(--bp-line)] bg-[var(--bp-paper)] p-5 text-left"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <span className="flex h-9 w-9 items-center justify-center border border-[var(--bp-line-strong)]">
+          <Icons.Star className="h-4 w-4 text-[var(--bp-blue)]" />
+        </span>
+
+        <span className="bp-label text-[var(--bp-orange)]">
+          Best Brews
+        </span>
+      </div>
+
+      <p className="bp-measurement mt-6 text-4xl font-semibold text-[var(--bp-blue)]">
+        {dashboard.topFiveAverageRating.toFixed(
+          1
+        )}
+      </p>
+
+      <p className="bp-label mt-1 text-[var(--bp-muted)]">
+        Top 5 average
+      </p>
+
+      <div className="mt-5 border-t border-[var(--bp-line)] pt-4">
+        <p className="bp-label text-[var(--bp-muted)]">
+          Common method
+        </p>
+
+        <p className="bp-code mt-2 truncate text-[var(--bp-blue)]">
+          {dashboard.topFiveMethod ||
+            'Not enough data'}
+        </p>
+      </div>
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        setDetailView('trends')
+      }
+      className="col-span-2 border-b border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-5 text-left"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="bp-label text-[var(--bp-muted)]">
+            Trends / Last 30 days
+          </p>
+
+          <div className="mt-2 flex items-end gap-2">
+            <p className="bp-measurement text-4xl font-semibold text-[var(--bp-blue)]">
+              {dashboard.monthlyBrews}
+            </p>
+
+            <span className="bp-code pb-1 text-[var(--bp-muted)]">
+              BREWS
+            </span>
+          </div>
+
+          <p className="bp-code mt-1 text-[var(--bp-muted)]">
+            <ChangeValue
+              value={
+                dashboard.monthlyGrowth
+              }
+            />
+            {' / '}
+            vs previous 30 days
+          </p>
+        </div>
+
+        <span className="flex h-9 w-9 items-center justify-center border border-[var(--bp-line-strong)]">
+          <Icons.Book className="h-4 w-4 text-[var(--bp-blue)]" />
+        </span>
+      </div>
+
+      <div className="mt-5 grid grid-cols-3 border-t border-[var(--bp-line)]">
+        <div className="border-r border-[var(--bp-line)] py-4 pr-3">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Method
+          </p>
+
+          <p className="bp-code mt-2 truncate text-[var(--bp-blue)]">
+            {dashboard.topMethod?.[0] ||
+              '—'}
+          </p>
+        </div>
+
+        <div className="border-r border-[var(--bp-line)] px-3 py-4">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Origin
+          </p>
+
+          <p className="bp-code mt-2 truncate text-[var(--bp-blue)]">
+            {dashboard.topOrigin?.[0] ||
+              '—'}
+          </p>
+        </div>
+
+        <div className="py-4 pl-3">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Process
+          </p>
+
+          <p className="bp-code mt-2 truncate text-[var(--bp-blue)]">
+            {dashboard.topProcess?.[0] ||
+              '—'}
+          </p>
+        </div>
+      </div>
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        setDetailView('usage')
+      }
+      className="col-span-2 bg-[var(--bp-paper)] p-5 text-left"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="bp-label text-[var(--bp-muted)]">
+            Coffee Usage
+          </p>
+
+          <div className="mt-2 flex items-end gap-2">
+            <p className="bp-measurement text-4xl font-semibold text-[var(--bp-blue)]">
+              {Math.round(
+                dashboard.totalRemaining
+              )}
+            </p>
+
+            <span className="bp-code pb-1 text-[var(--bp-muted)]">
+              G AVAILABLE
+            </span>
+          </div>
+        </div>
+
+        <span className="flex h-9 w-9 items-center justify-center border border-[var(--bp-line-strong)]">
+          <Icons.Info className="h-4 w-4 text-[var(--bp-blue)]" />
+        </span>
+      </div>
+
+      <div className="mt-5 grid grid-cols-3 border-t border-[var(--bp-line)]">
+        <div className="border-r border-[var(--bp-line)] py-4 pr-3">
+          <Metric
+            label="Used 30D"
+            value={`${Math.round(
+              dashboard.coffeeUsed30Days
+            )}g`}
+          />
+        </div>
+
+        <div className="border-r border-[var(--bp-line)] px-3 py-4">
+          <Metric
+            label="Dose"
+            value={`${formatNumber(
+              dashboard.overallMedianDose
+            )}g`}
+          />
+        </div>
+
+        <div className="py-4 pl-3">
+          <Metric
+            label="Est. Brews"
+            value={
+              dashboard.totalEstimatedBrews
+            }
+          />
+        </div>
+      </div>
+    </button>
+  </div>
+</section>
+
+        <section>
+  <div className="mb-4 flex items-end justify-between gap-4">
+    <div>
+      <p className="bp-index">
+        01.04 / LAST 30 DAYS
+      </p>
+
+      <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+        Activity Summary
+      </h3>
+    </div>
+
+    <span className="bp-code text-[var(--bp-muted)]">
+      {dashboard.monthlyBrews} RECORDED BREWS
+    </span>
+  </div>
+
+  <div className="grid grid-cols-2 border border-[var(--bp-line)] sm:grid-cols-4">
+    <div className="border-b border-r border-[var(--bp-line)] p-4 sm:border-b-0">
+      <Metric
+        label="Brews"
+        value={dashboard.monthlyBrews}
+      />
+    </div>
+
+    <div className="border-b border-[var(--bp-line)] p-4 sm:border-b-0 sm:border-r">
+      <Metric
+        label="Coffees"
+        value={
+          dashboard.monthlyCoffeeCount
+        }
+      />
+    </div>
+
+    <div className="border-r border-[var(--bp-line)] p-4">
+      <Metric
+        label="Rating"
+        value={
+          dashboard.monthlyAverageRating > 0
+            ? dashboard.monthlyAverageRating.toFixed(
+                1
+              )
+            : '—'
+        }
+      />
+    </div>
+
+    <div className="p-4">
+      <Metric
+        label="Methods"
+        value={
+          dashboard.monthlyMethodCount
+        }
+      />
+    </div>
+  </div>
+</section>
       </div>
 
       {detailView === 'favourite' &&

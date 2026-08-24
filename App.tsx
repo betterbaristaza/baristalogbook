@@ -1167,42 +1167,29 @@ const App: React.FC = () => {
     </button>
   </div>
 )}
-        {activeTab === 'home' && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
-            <div className="space-y-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-400">
-                Welcome back,
-              </p>
-
-              <h2 className="text-3xl sm:text-4xl font-bold text-stone-800 display-font leading-tight break-words">
-                {profile?.name ||
-                  'Coffee Lover'}
-              </h2>
-            </div>
-
-            <HomeDashboard
-              coffees={coffees}
-              brewLogs={brewLogs}
-              profileName={profile?.name}
-              isLoading={
-                coffeesLoading ||
-                brewLogsLoading
-              }
-              onLogBrew={
-                handleDashboardLogBrew
-              }
-              onOpenBrew={
-                openExistingBrew
-              }
-              onBrewAgain={
-                brewAgainFromLog
-              }
-              onOpenAnalytics={() =>
-                setActiveTab('analytics')
-              }
-            />
-          </div>
-        )}
+{activeTab === 'home' && (
+  <HomeDashboard
+    coffees={coffees}
+    brewLogs={brewLogs}
+    profileName={profile?.name}
+    isLoading={
+      coffeesLoading ||
+      brewLogsLoading
+    }
+    onLogBrew={
+      handleDashboardLogBrew
+    }
+    onOpenBrew={
+      openExistingBrew
+    }
+    onBrewAgain={
+      brewAgainFromLog
+    }
+    onOpenAnalytics={() =>
+      setActiveTab('analytics')
+    }
+  />
+)}
 
         {activeTab === 'analytics' && (
           <AnalyticsView
