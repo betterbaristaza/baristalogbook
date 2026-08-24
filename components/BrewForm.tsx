@@ -1,136 +1,356 @@
-
 import React, {
   useEffect,
   useRef,
   useState,
 } from 'react';
-import { BrewMethod, CoffeeBean, BrewLog } from '../types';
+
+import {
+  BrewMethod,
+  CoffeeBean,
+  BrewLog,
+} from '../types';
 
 const INITIAL_EQUIPMENT_DB = {
-  GRINDERS: ['Niche Zero', 'Fellow Ode Gen 2', 'Comandante C40', 'Baratza Encore', '1Zpresso J-Max', 'Timemore C2', 'Mahlkönig EK43', 'Lagom P64', 'Eureka Mignon'],
-  ESPRESSO_MACHINES: ['La Marzocco Linea Mini', 'Breville Dual Boiler', 'Rocket Apartamento', 'Lelit Bianca', 'Gaggia Classic Pro', 'Flair 58', 'Decent DE1', 'Rancilio Silvia', 'Sage Barista Express'],
-  POUR_OVER_BRANDS: ['Hario', 'Kalita', 'Chemex', 'Fellow', 'Origami', 'Orea', 'Cafec', 'Hario Switch', 'Clever'],
+  GRINDERS: [
+    'Niche Zero',
+    'Fellow Ode Gen 2',
+    'Comandante C40',
+    'Baratza Encore',
+    '1Zpresso J-Max',
+    'Timemore C2',
+    'Mahlkönig EK43',
+    'Lagom P64',
+    'Eureka Mignon',
+  ],
+
+  ESPRESSO_MACHINES: [
+    'La Marzocco Linea Mini',
+    'Breville Dual Boiler',
+    'Rocket Apartamento',
+    'Lelit Bianca',
+    'Gaggia Classic Pro',
+    'Flair 58',
+    'Decent DE1',
+    'Rancilio Silvia',
+    'Sage Barista Express',
+  ],
+
+  POUR_OVER_BRANDS: [
+    'Hario',
+    'Kalita',
+    'Chemex',
+    'Fellow',
+    'Origami',
+    'Orea',
+    'Cafec',
+    'Hario Switch',
+    'Clever',
+  ],
+
   POUR_OVER_MODELS: {
-    'Hario': ['V60-01', 'V60-02', 'V60-03', 'Mugen'],
-    'Kalita': ['Wave 155', 'Wave 185', '102 Dripper'],
-    'Fellow': ['Stagg [X]', 'Stagg [XF]'],
-    'Orea': ['V3', 'V3 MK2'],
-    'Origami': ['Dripper S', 'Dripper M'],
-    'Cafec': ['Flower Dripper', 'Deep 27'],
-    'Chemex': ['Classic 3-Cup', 'Classic 6-Cup', 'Glass Handle 8-Cup'],
-    'Hario Switch': ['Size 02', 'Size 03'],
-    'Clever': ['Small', 'Large']
+    Hario: [
+      'V60-01',
+      'V60-02',
+      'V60-03',
+      'Mugen',
+    ],
+    Kalita: [
+      'Wave 155',
+      'Wave 185',
+      '102 Dripper',
+    ],
+    Fellow: [
+      'Stagg [X]',
+      'Stagg [XF]',
+    ],
+    Orea: [
+      'V3',
+      'V3 MK2',
+    ],
+    Origami: [
+      'Dripper S',
+      'Dripper M',
+    ],
+    Cafec: [
+      'Flower Dripper',
+      'Deep 27',
+    ],
+    Chemex: [
+      'Classic 3-Cup',
+      'Classic 6-Cup',
+      'Glass Handle 8-Cup',
+    ],
+    'Hario Switch': [
+      'Size 02',
+      'Size 03',
+    ],
+    Clever: [
+      'Small',
+      'Large',
+    ],
   } as Record<string, string[]>,
+
   FILTER_PAPERS: [
-    'Hario V60 Tabbed (Japan)', 'Hario V60 Untabbed', 'Cafec Abaca', 'Cafec T-90 (Medium)', 
-    'Cafec T-92 (Light)', 'Sibarist Fast', 'Kalita White Wave', 'Kalita Brown Wave', 
-    'Chemex Bonded', 'Fellow Stagg [X] Paper', 'Origami Cup Filter', 'Melitta #2', 'Melitta #4', 'Abaca+ Shallow'
+    'Hario V60 Tabbed (Japan)',
+    'Hario V60 Untabbed',
+    'Cafec Abaca',
+    'Cafec T-90 (Medium)',
+    'Cafec T-92 (Light)',
+    'Sibarist Fast',
+    'Kalita White Wave',
+    'Kalita Brown Wave',
+    'Chemex Bonded',
+    'Fellow Stagg [X] Paper',
+    'Origami Cup Filter',
+    'Melitta #2',
+    'Melitta #4',
+    'Abaca+ Shallow',
   ],
+
   AEROPRESS_STYLES: [
-    'Standard (Upright)', 'Inverted', 'Bypass (Dilution)', 'Espresso-style', 
-    'Cold Drip setup', 'Hoffmann Style', 'Adler Method', 'WAC Winner Style'
+    'Standard (Upright)',
+    'Inverted',
+    'Bypass (Dilution)',
+    'Espresso-style',
+    'Cold Drip setup',
+    'Hoffmann Style',
+    'Adler Method',
+    'WAC Winner Style',
   ],
+
   AEROPRESS_CAPS: [
-    'Standard Plastic Cap', 'Fellow Prismo', 'AeroPress Flow Control Cap', 
-    'Joepresso', 'PuckPuck Attachment', 'Metal Mesh Filter', '2uul / 3rd Party'
+    'Standard Plastic Cap',
+    'Fellow Prismo',
+    'AeroPress Flow Control Cap',
+    'Joepresso',
+    'PuckPuck Attachment',
+    'Metal Mesh Filter',
+    '2uul / 3rd Party',
   ],
-  COLD_BREW_SYSTEMS: ['Toddy System', 'Hario Mizudashi', 'OXO Good Grips', 'Bruer Cold Drip', 'KitchenAid Cold Brew', 'Filtron'],
-  FRENCH_PRESS_BRANDS: ['Bodum', 'Espro', 'Fellow Clara', 'Hario', 'Yama'],
-  AGITATION_METHODS: ['None', 'Gentle Stir', 'Aggressive Stir', 'Swirl', 'Break Crust', 'Double Stir'],
-  DISTRIBUTION_TOOLS: ['None', 'WDT (Needle Tool)', 'OCD Spinning Tool', 'Palm Distributor', 'WDT + OCD'],
-  BASKETS: ['Stock', 'VST 18g', 'VST 20g', 'IMS Precision', 'Pullman 876'],
-  MOKA_POT_BRANDS: ['Bialetti', 'Alessi', 'E&B Lab', 'Giannini', 'Cuisinox', 'Pezzetti'],
+
+  COLD_BREW_SYSTEMS: [
+    'Toddy System',
+    'Hario Mizudashi',
+    'OXO Good Grips',
+    'Bruer Cold Drip',
+    'KitchenAid Cold Brew',
+    'Filtron',
+  ],
+
+  FRENCH_PRESS_BRANDS: [
+    'Bodum',
+    'Espro',
+    'Fellow Clara',
+    'Hario',
+    'Yama',
+  ],
+
+  AGITATION_METHODS: [
+    'None',
+    'Gentle Stir',
+    'Aggressive Stir',
+    'Swirl',
+    'Break Crust',
+    'Double Stir',
+  ],
+
+  DISTRIBUTION_TOOLS: [
+    'None',
+    'WDT (Needle Tool)',
+    'OCD Spinning Tool',
+    'Palm Distributor',
+    'WDT + OCD',
+  ],
+
+  BASKETS: [
+    'Stock',
+    'VST 18g',
+    'VST 20g',
+    'IMS Precision',
+    'Pullman 876',
+  ],
+
+  MOKA_POT_BRANDS: [
+    'Bialetti',
+    'Alessi',
+    'E&B Lab',
+    'Giannini',
+    'Cuisinox',
+    'Pezzetti',
+  ],
+
   MOKA_POT_MODELS: {
-    'Bialetti': ['Moka Express (3-cup)', 'Moka Express (6-cup)', 'Brikka (2-cup)', 'Venus (4-cup)', 'Kitty', 'Musa'],
-    'Alessi': ['9090 (6-cup)', 'Moka (3-cup)', 'Pulcina (3-cup)'],
-    'E&B Lab': ['Moka Pot (Competition Filter)'],
-    'Giannini': ['Giannina (1/3-cup)', 'Giannina (3/6-cup)'],
-    'Cuisinox': ['Libertà', 'Roma'],
-    'Pezzetti': ['Italexpress', 'Bellexpress']
+    Bialetti: [
+      'Moka Express (3-cup)',
+      'Moka Express (6-cup)',
+      'Brikka (2-cup)',
+      'Venus (4-cup)',
+      'Kitty',
+      'Musa',
+    ],
+    Alessi: [
+      '9090 (6-cup)',
+      'Moka (3-cup)',
+      'Pulcina (3-cup)',
+    ],
+    'E&B Lab': [
+      'Moka Pot (Competition Filter)',
+    ],
+    Giannini: [
+      'Giannina (1/3-cup)',
+      'Giannina (3/6-cup)',
+    ],
+    Cuisinox: [
+      'Libertà',
+      'Roma',
+    ],
+    Pezzetti: [
+      'Italexpress',
+      'Bellexpress',
+    ],
   } as Record<string, string[]>,
-  WATER_START_TEMPS: ['Room Temp (20°C)', 'Warm (60°C)', 'Hot / Preheated (95°C)'],
-  FLAME_SETTINGS: ['Low', 'Medium-Low', 'Medium', 'Medium-High'],
+
+  WATER_START_TEMPS: [
+    'Room Temp (20°C)',
+    'Warm (60°C)',
+    'Hot / Preheated (95°C)',
+  ],
+
+  FLAME_SETTINGS: [
+    'Low',
+    'Medium-Low',
+    'Medium',
+    'Medium-High',
+  ],
+
   FLAVOR_GROUPS: [
-    { name: 'Floral', icon: '🌸', color: 'bg-rose-50 text-rose-700 border-rose-100', activeColor: 'bg-rose-100' },
-    { name: 'Fruity', icon: '🍒', color: 'bg-red-50 text-red-700 border-red-100', activeColor: 'bg-red-100' },
-    { name: 'Nutty/Sweet', icon: '🥜', color: 'bg-amber-50 text-amber-700 border-amber-100', activeColor: 'bg-amber-100' },
-    { name: 'Chocolatey', icon: '🍫', color: 'bg-stone-50 text-stone-700 border-stone-100', activeColor: 'bg-stone-200' },
-    { name: 'Earthy', icon: '🌿', color: 'bg-emerald-50 text-emerald-700 border-emerald-100', activeColor: 'bg-emerald-100' }
-  ]
+    'Floral',
+    'Fruity',
+    'Nutty/Sweet',
+    'Chocolatey',
+    'Earthy',
+  ],
 };
 
 const SENSORY_ATTRIBUTES = [
-  { id: 'aroma', label: 'Aroma', icon: '👃', color: 'text-rose-500', barColor: 'bg-rose-500' },
-  { id: 'acidity', label: 'Acidity', icon: '🍋', color: 'text-orange-500', barColor: 'bg-orange-500' },
-  { id: 'sweetness', label: 'Sweetness', icon: '🍬', color: 'text-yellow-500', barColor: 'bg-yellow-500' },
-  { id: 'bitterness', label: 'Bitterness', icon: '🌿', color: 'text-green-600', barColor: 'bg-green-600' },
-  { id: 'body', label: 'Body', icon: '☕', color: 'text-amber-700', barColor: 'bg-amber-700' },
-  { id: 'aftertaste', label: 'Aftertaste', icon: '⏳', color: 'text-indigo-500', barColor: 'bg-indigo-500' }
+  {
+    id: 'aroma',
+    label: 'Aroma',
+  },
+  {
+    id: 'acidity',
+    label: 'Acidity',
+  },
+  {
+    id: 'sweetness',
+    label: 'Sweetness',
+  },
+  {
+    id: 'bitterness',
+    label: 'Bitterness',
+  },
+  {
+    id: 'body',
+    label: 'Body',
+  },
+  {
+    id: 'aftertaste',
+    label: 'Aftertaste',
+  },
 ];
 
 interface DynamicSelectProps {
   label: string;
   value: string;
   options: string[];
-  onSelect: (val: string) => void;
-  onAdd: (newVal: string) => void;
+  onSelect: (value: string) => void;
+  onAdd: (value: string) => void;
   className?: string;
-  labelSize?: 'xs' | '10px' | '9px';
-  labelColor?: string;
   placeholder?: string;
 }
 
-const DynamicSelect: React.FC<DynamicSelectProps> = ({ 
-  label, value, options, onSelect, onAdd, className, labelSize = '9px', labelColor = 'text-stone-500', placeholder 
+const DynamicSelect: React.FC<
+  DynamicSelectProps
+> = ({
+  label,
+  value,
+  options,
+  onSelect,
+  onAdd,
+  className = '',
+  placeholder,
 }) => {
-  const [isAdding, setIsAdding] = useState(false);
-  const [newValue, setNewValue] = useState('');
-  
+  const [isAdding, setIsAdding] =
+    useState(false);
 
-  const labelClasses = `block font-bold uppercase mb-1 ${labelColor} ${labelSize === '10px' ? 'text-[10px]' : labelSize === 'xs' ? 'text-xs' : 'text-[9px]'}`;
+  const [newValue, setNewValue] =
+    useState('');
+
+  const commitNewValue = () => {
+    const cleaned = newValue.trim();
+
+    if (!cleaned) {
+      return;
+    }
+
+    onAdd(cleaned);
+    setNewValue('');
+    setIsAdding(false);
+  };
 
   if (isAdding) {
     return (
       <div className={className}>
-        <label className={labelClasses}>{label}</label>
-        <div className="flex gap-2 animate-in fade-in slide-in-from-left-2 duration-300">
+        <label className="bp-label text-[var(--bp-muted)]">
+          {label}
+        </label>
+
+        <div className="mt-2 grid grid-cols-[1fr_auto_auto]">
           <input
             type="text"
             autoFocus
             value={newValue}
-            onChange={(e) => setNewValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                if (newValue.trim()) {
-                  onAdd(newValue.trim());
-                  setIsAdding(false);
-                  setNewValue('');
-                }
+            onChange={event =>
+              setNewValue(
+                event.target.value
+              )
+            }
+            onKeyDown={event => {
+              if (
+                event.key === 'Enter'
+              ) {
+                event.preventDefault();
+                commitNewValue();
               }
             }}
-            className="flex-1 bg-white border border-amber-300 rounded-xl p-3 text-xs font-bold focus:ring-2 focus:ring-amber-500 outline-none"
-            placeholder={placeholder || `Add ${label}...`}
+            className="bp-input rounded-r-none"
+            placeholder={
+              placeholder ||
+              `Add ${label}`
+            }
           />
+
+          <button
+            type="button"
+            onClick={
+              commitNewValue
+            }
+            className="border border-l-0 border-[var(--bp-line-strong)] bg-[var(--bp-orange)] px-4 text-[var(--bp-blue)]"
+          >
+            <span className="bp-label">
+              Add
+            </span>
+          </button>
+
           <button
             type="button"
             onClick={() => {
-              if (newValue.trim()) {
-                onAdd(newValue.trim());
-                setIsAdding(false);
-                setNewValue('');
-              }
+              setIsAdding(false);
+              setNewValue('');
             }}
-            className="px-3 bg-amber-800 text-white rounded-xl text-[10px] font-black uppercase tracking-tighter shadow-md"
+            className="border border-l-0 border-[var(--bp-line-strong)] px-3 text-[var(--bp-muted)]"
           >
-            Add
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsAdding(false)}
-            className="px-3 bg-stone-100 text-stone-400 rounded-xl text-xs font-bold"
-          >
-            ✕
+            ×
           </button>
         </div>
       </div>
@@ -139,44 +359,58 @@ const DynamicSelect: React.FC<DynamicSelectProps> = ({
 
   return (
     <div className={className}>
-      <label className={labelClasses}>{label}</label>
-      <div className="relative">
-        <select
-          value={value}
-          onChange={(e) => {
-            if (e.target.value === 'ADD_NEW') {
-              setIsAdding(true);
-            } else {
-              onSelect(e.target.value);
-            }
-          }}
-          className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs font-bold appearance-none focus:border-amber-300 transition-colors cursor-pointer"
-        >
-          {options.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-          <option value="ADD_NEW" className="text-amber-700 font-black">+ Other / Add New...</option>
-        </select>
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-stone-300">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-      </div>
+      <label className="bp-label text-[var(--bp-muted)]">
+        {label}
+      </label>
+
+      <select
+        value={value}
+        onChange={event => {
+          if (
+            event.target.value ===
+            'ADD_NEW'
+          ) {
+            setIsAdding(true);
+            return;
+          }
+
+          onSelect(
+            event.target.value
+          );
+        }}
+        className="bp-input mt-2"
+      >
+        {options.map(option => (
+          <option
+            key={option}
+            value={option}
+          >
+            {option}
+          </option>
+        ))}
+
+        <option value="ADD_NEW">
+          + Other / Add New
+        </option>
+      </select>
     </div>
   );
 };
 
 interface BrewFormProps {
   coffee: CoffeeBean;
-  onSave: (log: Partial<BrewLog>) => void;
+  onSave: (
+    log: Partial<BrewLog>
+  ) => void | Promise<void>;
   onCancel: () => void;
   initialData?: BrewLog;
   title?: string;
   isBrewAgain?: boolean;
 }
 
-const BrewForm: React.FC<BrewFormProps> = ({
+const BrewForm: React.FC<
+  BrewFormProps
+> = ({
   coffee,
   onSave,
   onCancel,
@@ -184,740 +418,1905 @@ const BrewForm: React.FC<BrewFormProps> = ({
   title,
   isBrewAgain = false,
 }) => {
-  const [method, setMethod] = useState<BrewMethod>(initialData?.method || BrewMethod.ESPRESSO);
-  const [baristaName, setBaristaName] = useState(initialData?.baristaName || '');
-  const [db, setDb] = useState(INITIAL_EQUIPMENT_DB);
-  const [isSaving, setIsSaving] = useState(false);
-  
-  // Shared
-  const [dose, setDose] = useState<number | ''>(initialData?.dose ?? 18);
-  const [yieldVal, setYieldVal] = useState<number | ''>(initialData?.yield ?? 36);
-  const [time, setTime] = useState<number | ''>(initialData?.brewTime ?? 30);
-  const [temp, setTemp] = useState<number | ''>(initialData?.waterTemp ?? 93);
-  const [grinder, setGrinder] = useState(initialData?.grinder || db.GRINDERS[0]);
-  const [setting, setSetting] = useState(initialData?.grindSetting || '');
-  const [rating, setRating] = useState(
-  isBrewAgain ? 4 : (initialData?.rating ?? 4)
-);
-  const [notes, setNotes] = useState(
-  isBrewAgain
-    ? ''
-    : (initialData?.tastingNotes?.join(', ') || '')
-);
-  const [processNotes, setProcessNotes] = useState(initialData?.processNotes || '');
-  const [brewImage, setBrewImage] = useState(
-  isBrewAgain ? undefined : initialData?.brewImage
-);
+  const [method, setMethod] =
+    useState<BrewMethod>(
+      initialData?.method ||
+        BrewMethod.ESPRESSO
+    );
 
-  const [brewImageFile, setBrewImageFile] =
-    useState<File>();
+  const [
+    baristaName,
+    setBaristaName,
+  ] = useState(
+    initialData?.baristaName || ''
+  );
+
+  const [site, setSite] = useState(
+    initialData?.site || ''
+  );
+
+  const [
+    waterType,
+    setWaterType,
+  ] = useState(
+    initialData?.waterType || ''
+  );
+
+  const [db, setDb] =
+    useState(INITIAL_EQUIPMENT_DB);
+
+  const [isSaving, setIsSaving] =
+    useState(false);
+
+  const [dose, setDose] =
+    useState<number | ''>(
+      initialData?.dose ?? 18
+    );
+
+  const [
+    yieldVal,
+    setYieldVal,
+  ] = useState<number | ''>(
+    initialData?.yield ?? 36
+  );
+
+  const [time, setTime] =
+    useState<number | ''>(
+      initialData?.brewTime ?? 30
+    );
+
+  const [temp, setTemp] =
+    useState<number | ''>(
+      initialData?.waterTemp ?? 93
+    );
+
+  const [grinder, setGrinder] =
+    useState(
+      initialData?.grinder ||
+        db.GRINDERS[0]
+    );
+
+  const [setting, setSetting] =
+    useState(
+      initialData?.grindSetting ||
+        ''
+    );
+
+  const [rating, setRating] =
+    useState(
+      isBrewAgain
+        ? 4
+        : initialData?.rating ?? 4
+    );
+
+  const [notes, setNotes] =
+    useState(
+      isBrewAgain
+        ? ''
+        : initialData?.tastingNotes?.join(
+            ', '
+          ) || ''
+    );
+
+  const [
+    processNotes,
+    setProcessNotes,
+  ] = useState(
+    initialData?.processNotes || ''
+  );
+
+  const [
+    brewImage,
+    setBrewImage,
+  ] = useState(
+    isBrewAgain
+      ? undefined
+      : initialData?.brewImage
+  );
+
+  const [
+    brewImageFile,
+    setBrewImageFile,
+  ] = useState<File>();
 
   const brewImageInputRef =
     useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     return () => {
-      if (brewImage?.startsWith('blob:')) {
-        URL.revokeObjectURL(brewImage);
+      if (
+        brewImage?.startsWith(
+          'blob:'
+        )
+      ) {
+        URL.revokeObjectURL(
+          brewImage
+        );
       }
     };
   }, []);
 
-  // Espresso specific
-  const [machineBrand, setMachineBrand] = useState(initialData?.machine || db.ESPRESSO_MACHINES[0]);
-  const [basketType, setBasketType] = useState(initialData?.basketType || db.BASKETS[0]);
-  const [distTool, setDistTool] = useState(initialData?.distributionTool || db.DISTRIBUTION_TOOLS[0]);
-  const [puckScreen, setPuckScreen] = useState(initialData?.puckScreen || false);
-  const [pressure, setPressure] = useState(initialData?.pressure ?? 9);
+  const [
+    machineBrand,
+    setMachineBrand,
+  ] = useState(
+    initialData?.machine ||
+      db.ESPRESSO_MACHINES[0]
+  );
 
-  // Cold Brew specific
-  const [cbSystem, setCbSystem] = useState(initialData?.coldBrewSystem || db.COLD_BREW_SYSTEMS[0]);
-  const [steepTimeCB, setSteepTimeCB] = useState(initialData?.steepTime ?? 16);
-  const [bloomTime, setBloomTime] = useState(initialData?.bloomTime ?? 0); 
-  const [coldBrewType, setColdBrewType] = useState<'Concentrate' | 'Ready to Drink'>(initialData?.coldBrewType || 'Ready to Drink');
+  const [
+    basketType,
+    setBasketType,
+  ] = useState(
+    initialData?.basketType ||
+      db.BASKETS[0]
+  );
 
-  // Pour Over specific
-  const [brewerBrand, setBrewerBrand] = useState(initialData?.brewerBrand || db.POUR_OVER_BRANDS[0]);
-  const [brewerModel, setBrewerModel] = useState(initialData?.brewer || '');
-  const [filterType, setFilterType] = useState(initialData?.filterType || db.FILTER_PAPERS[0]);
-  const [pulsesCount, setPulsesCount] = useState(initialData?.pourStructure ? parseInt(initialData.pourStructure) : 3);
-  const [pourVolumes, setPourVolumes] = useState(initialData?.pourVolumes || '');
+  const [distTool, setDistTool] =
+    useState(
+      initialData?.distributionTool ||
+        db.DISTRIBUTION_TOOLS[0]
+    );
 
-  // AeroPress specific
-  const [aeroMethod, setAeroMethod] = useState(initialData?.aeroMethod || db.AEROPRESS_STYLES[0]);
-  const [filterCap, setFilterCap] = useState(initialData?.filterCapUsed || db.AEROPRESS_CAPS[0]);
-  const [steepTimeAP, setSteepTimeAP] = useState(initialData?.steepTime ?? 120);
-  const [plungeTime, setPlungeTime] = useState(initialData?.plungeTime ?? 30);
-  const [aeroPourVolumes, setAeroPourVolumes] = useState(initialData?.aeroPourVolumes || '');
+  const [
+    puckScreen,
+    setPuckScreen,
+  ] = useState(
+    initialData?.puckScreen ||
+      false
+  );
 
-  // French Press specific
-  const [fpBrand, setFpBrand] = useState(initialData?.brewerBrand || db.FRENCH_PRESS_BRANDS[0]);
-  const [fpImmersionTime, setFpImmersionTime] = useState(initialData?.steepTime ?? 240); 
-  const [fpPlungeWait, setFpPlungeWait] = useState(initialData?.timeBeforePlunge ?? 30);
-  const [fpAgitation, setFpAgitation] = useState(initialData?.agitation || db.AGITATION_METHODS[0]);
-  const [fpAgitationDuration, setFpAgitationDuration] = useState(initialData?.agitationDuration ?? 0);
+  const [pressure, setPressure] =
+    useState(
+      initialData?.pressure ?? 9
+    );
 
-  // Moka Pot specific
-  const [mokaBrand, setMokaBrand] = useState(initialData?.brewerBrand || db.MOKA_POT_BRANDS[0]);
-  const [mokaModel, setMokaModel] = useState(initialData?.mokaPotModel || '');
-  const [waterStartTemp, setWaterStartTemp] = useState(initialData?.waterStartTemp || db.WATER_START_TEMPS[0]);
-  const [isAeropressFilterUsed, setIsAeropressFilterUsed] = useState(initialData?.isAeropressFilterUsed || false);
-  const [flameControl, setFlameControl] = useState(initialData?.flameControl || db.FLAME_SETTINGS[0]);
+  const [cbSystem, setCbSystem] =
+    useState(
+      initialData?.coldBrewSystem ||
+        db.COLD_BREW_SYSTEMS[0]
+    );
 
-  // Sensory Analysis
-  const [sensory, setSensory] = useState({
-  aroma: isBrewAgain ? 3 : (initialData?.aroma ?? 3),
-  acidity: isBrewAgain ? 3 : (initialData?.acidity ?? 3),
-  sweetness: isBrewAgain ? 3 : (initialData?.sweetness ?? 3),
-  bitterness: isBrewAgain ? 3 : (initialData?.bitterness ?? 3),
-  body: isBrewAgain ? 3 : (initialData?.body ?? 3),
-  aftertaste: isBrewAgain ? 3 : (initialData?.aftertaste ?? 3),
-});
+  const [
+    steepTimeCB,
+    setSteepTimeCB,
+  ] = useState(
+    initialData?.steepTime ?? 16
+  );
 
-const [selectedFlavorGroups, setSelectedFlavorGroups] = useState<string[]>(
-  isBrewAgain ? [] : (initialData?.flavorGroups || [])
-);
+  const [
+    bloomTime,
+    setBloomTime,
+  ] = useState(
+    initialData?.bloomTime ?? 0
+  );
 
-  // List Update Helpers
-  const addToList = (key: keyof typeof db, value: string) => {
-    setDb(prev => ({ ...prev, [key]: [...(prev[key] as string[]), value] }));
-  };
+  const [
+    coldBrewType,
+    setColdBrewType,
+  ] = useState<
+    'Concentrate' | 'Ready to Drink'
+  >(
+    initialData?.coldBrewType ||
+      'Ready to Drink'
+  );
 
-  const addToNestedList = (key: 'POUR_OVER_MODELS' | 'MOKA_POT_MODELS', brand: string, value: string) => {
-    setDb(prev => ({
-      ...prev,
-      [key]: {
-        ...prev[key],
-        [brand]: [...(prev[key][brand] || []), value]
-      }
+  const [
+    brewerBrand,
+    setBrewerBrand,
+  ] = useState(
+    initialData?.brewerBrand ||
+      db.POUR_OVER_BRANDS[0]
+  );
+
+  const [
+    brewerModel,
+    setBrewerModel,
+  ] = useState(
+    initialData?.brewer || ''
+  );
+
+  const [
+    filterType,
+    setFilterType,
+  ] = useState(
+    initialData?.filterType ||
+      db.FILTER_PAPERS[0]
+  );
+
+  const [
+    pulsesCount,
+    setPulsesCount,
+  ] = useState(
+    initialData?.pourStructure
+      ? parseInt(
+          initialData.pourStructure
+        )
+      : 3
+  );
+
+  const [
+    pourVolumes,
+    setPourVolumes,
+  ] = useState(
+    initialData?.pourVolumes ||
+      ''
+  );
+
+  const [
+    aeroMethod,
+    setAeroMethod,
+  ] = useState(
+    initialData?.aeroMethod ||
+      db.AEROPRESS_STYLES[0]
+  );
+
+  const [
+    filterCap,
+    setFilterCap,
+  ] = useState(
+    initialData?.filterCapUsed ||
+      db.AEROPRESS_CAPS[0]
+  );
+
+  const [
+    steepTimeAP,
+    setSteepTimeAP,
+  ] = useState(
+    initialData?.steepTime ??
+      120
+  );
+
+  const [
+    plungeTime,
+    setPlungeTime,
+  ] = useState(
+    initialData?.plungeTime ??
+      30
+  );
+
+  const [
+    aeroPourVolumes,
+    setAeroPourVolumes,
+  ] = useState(
+    initialData?.aeroPourVolumes ||
+      ''
+  );
+
+  const [fpBrand, setFpBrand] =
+    useState(
+      initialData?.brewerBrand ||
+        db.FRENCH_PRESS_BRANDS[0]
+    );
+
+  const [
+    fpImmersionTime,
+    setFpImmersionTime,
+  ] = useState(
+    initialData?.steepTime ??
+      240
+  );
+
+  const [
+    fpPlungeWait,
+    setFpPlungeWait,
+  ] = useState(
+    initialData?.timeBeforePlunge ??
+      30
+  );
+
+  const [
+    fpAgitation,
+    setFpAgitation,
+  ] = useState(
+    initialData?.agitation ||
+      db.AGITATION_METHODS[0]
+  );
+
+  const [
+    fpAgitationDuration,
+    setFpAgitationDuration,
+  ] = useState(
+    initialData?.agitationDuration ??
+      0
+  );
+
+  const [
+    mokaBrand,
+    setMokaBrand,
+  ] = useState(
+    initialData?.brewerBrand ||
+      db.MOKA_POT_BRANDS[0]
+  );
+
+  const [
+    mokaModel,
+    setMokaModel,
+  ] = useState(
+    initialData?.mokaPotModel ||
+      ''
+  );
+
+  const [
+    waterStartTemp,
+    setWaterStartTemp,
+  ] = useState(
+    initialData?.waterStartTemp ||
+      db.WATER_START_TEMPS[0]
+  );
+
+  const [
+    isAeropressFilterUsed,
+    setIsAeropressFilterUsed,
+  ] = useState(
+    initialData
+      ?.isAeropressFilterUsed ||
+      false
+  );
+
+  const [
+    flameControl,
+    setFlameControl,
+  ] = useState(
+    initialData?.flameControl ||
+      db.FLAME_SETTINGS[0]
+  );
+
+  const [sensory, setSensory] =
+    useState({
+      aroma: isBrewAgain
+        ? 3
+        : initialData?.aroma ?? 3,
+
+      acidity: isBrewAgain
+        ? 3
+        : initialData?.acidity ?? 3,
+
+      sweetness: isBrewAgain
+        ? 3
+        : initialData?.sweetness ??
+          3,
+
+      bitterness: isBrewAgain
+        ? 3
+        : initialData?.bitterness ??
+          3,
+
+      body: isBrewAgain
+        ? 3
+        : initialData?.body ?? 3,
+
+      aftertaste: isBrewAgain
+        ? 3
+        : initialData?.aftertaste ??
+          3,
+    });
+
+  const [
+    selectedFlavorGroups,
+    setSelectedFlavorGroups,
+  ] = useState<string[]>(
+    isBrewAgain
+      ? []
+      : initialData?.flavorGroups ||
+          []
+  );
+
+  const addToList = (
+    key: keyof typeof db,
+    value: string
+  ) => {
+    setDb(previous => ({
+      ...previous,
+      [key]: [
+        ...(previous[
+          key
+        ] as string[]),
+        value,
+      ],
     }));
   };
 
-  const handleSensoryChange = (attr: string, value: number) => {
-    setSensory(prev => ({ ...prev, [attr]: value }));
+  const addToNestedList = (
+    key:
+      | 'POUR_OVER_MODELS'
+      | 'MOKA_POT_MODELS',
+    brand: string,
+    value: string
+  ) => {
+    setDb(previous => ({
+      ...previous,
+      [key]: {
+        ...previous[key],
+        [brand]: [
+          ...(previous[key][
+            brand
+          ] || []),
+          value,
+        ],
+      },
+    }));
   };
 
-  const toggleFlavorGroup = (group: string) => {
-    setSelectedFlavorGroups(prev => 
-      prev.includes(group) ? prev.filter(g => g !== group) : [...prev, group]
+  const handleSensoryChange = (
+    attribute: string,
+    value: number
+  ) => {
+    setSensory(previous => ({
+      ...previous,
+      [attribute]: value,
+    }));
+  };
+
+  const toggleFlavorGroup = (
+    group: string
+  ) => {
+    setSelectedFlavorGroups(
+      previous =>
+        previous.includes(group)
+          ? previous.filter(
+              item =>
+                item !== group
+            )
+          : [...previous, group]
     );
   };
 
   const handleBrewImageUpload = (
-    e: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = e.target.files?.[0];
+    const file =
+      event.target.files?.[0];
 
     if (!file) {
       return;
     }
 
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file.');
-      e.target.value = '';
+    if (
+      !file.type.startsWith(
+        'image/'
+      )
+    ) {
+      alert(
+        'Please select an image file.'
+      );
+
+      event.target.value = '';
       return;
     }
 
-    if (file.size > 15 * 1024 * 1024) {
-      alert('Please select an image smaller than 15 MB.');
-      e.target.value = '';
+    if (
+      file.size >
+      15 * 1024 * 1024
+    ) {
+      alert(
+        'Please select an image smaller than 15 MB.'
+      );
+
+      event.target.value = '';
       return;
     }
 
-    if (brewImage?.startsWith('blob:')) {
-      URL.revokeObjectURL(brewImage);
+    if (
+      brewImage?.startsWith(
+        'blob:'
+      )
+    ) {
+      URL.revokeObjectURL(
+        brewImage
+      );
     }
 
-    setBrewImage(URL.createObjectURL(file));
+    setBrewImage(
+      URL.createObjectURL(file)
+    );
+
     setBrewImageFile(file);
-    e.target.value = '';
+
+    event.target.value = '';
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (
+    event: React.FormEvent
+  ) => {
+    event.preventDefault();
 
-  if (isSaving) {
-    return;
-  }
+    if (isSaving) {
+      return;
+    }
 
-  setIsSaving(true);
+    setIsSaving(true);
 
-  try {
-    await onSave({
-      coffeeId: coffee.id,
-      baristaName,
-      brewImage,
-      brewImagePath: isBrewAgain
-  ? undefined
-  : initialData?.brewImagePath,
-      brewImageFile,
-      date: new Date().toISOString(),
-      method,
-      grinder,
-      grindSetting: setting,
-      dose: dose === '' ? 0 : dose,
-      yield: yieldVal === '' ? 0 : yieldVal,
-      brewTime:
-        method === BrewMethod.COLD_BREW
-          ? steepTimeCB
-          : method === BrewMethod.FRENCH_PRESS
-            ? fpImmersionTime
-            : time === '' ? 0 : time,
-      waterTemp: temp === '' ? 0 : temp,
-      rating,
-      tastingNotes: notes
-        .split(',')
-        .map(n => n.trim())
-        .filter(n => n !== ''),
-      processNotes,
+    try {
+      await onSave({
+        coffeeId: coffee.id,
+        baristaName,
+        site,
+        waterType,
 
-      ...sensory,
-      flavorGroups: selectedFlavorGroups,
+        brewImage,
 
-      // Espresso
-      machine:
-        method === BrewMethod.ESPRESSO
-          ? machineBrand
-          : undefined,
-      basketType:
-        method === BrewMethod.ESPRESSO
-          ? basketType
-          : undefined,
-      distributionTool:
-        method === BrewMethod.ESPRESSO
-          ? distTool
-          : undefined,
-      puckScreen:
-        method === BrewMethod.ESPRESSO
-          ? puckScreen
-          : undefined,
-      pressure:
-        method === BrewMethod.ESPRESSO
-          ? pressure
-          : undefined,
+        brewImagePath:
+          isBrewAgain
+            ? undefined
+            : initialData
+                ?.brewImagePath,
 
-      // Cold Brew
-      coldBrewSystem:
-        method === BrewMethod.COLD_BREW
-          ? cbSystem
-          : undefined,
-      coldBrewType:
-        method === BrewMethod.COLD_BREW
-          ? coldBrewType
-          : undefined,
-      steepTime:
-        method === BrewMethod.COLD_BREW
-          ? steepTimeCB
-          : method === BrewMethod.AEROPRESS
-            ? steepTimeAP
-            : method === BrewMethod.FRENCH_PRESS
+        brewImageFile,
+
+        date: new Date().toISOString(),
+
+        method,
+        grinder,
+        grindSetting: setting,
+
+        dose:
+          dose === ''
+            ? 0
+            : dose,
+
+        yield:
+          yieldVal === ''
+            ? 0
+            : yieldVal,
+
+        brewTime:
+          method ===
+          BrewMethod.COLD_BREW
+            ? steepTimeCB
+            : method ===
+                BrewMethod.FRENCH_PRESS
               ? fpImmersionTime
-              : undefined,
-      bloomTime:
-        method === BrewMethod.COLD_BREW ||
-        method === BrewMethod.POUR_OVER
-          ? bloomTime
-          : undefined,
+              : time === ''
+                ? 0
+                : time,
 
-      // Pour Over / French Press shared brand property
-      brewerBrand:
-        method === BrewMethod.POUR_OVER
-          ? brewerBrand
-          : method === BrewMethod.FRENCH_PRESS
-            ? fpBrand
-            : method === BrewMethod.MOKA_POT
-              ? mokaBrand
+        waterTemp:
+          temp === ''
+            ? 0
+            : temp,
+
+        rating,
+
+        tastingNotes: notes
+          .split(',')
+          .map(note =>
+            note.trim()
+          )
+          .filter(
+            note => note !== ''
+          ),
+
+        processNotes,
+
+        ...sensory,
+
+        flavorGroups:
+          selectedFlavorGroups,
+
+        machine:
+          method ===
+          BrewMethod.ESPRESSO
+            ? machineBrand
+            : undefined,
+
+        basketType:
+          method ===
+          BrewMethod.ESPRESSO
+            ? basketType
+            : undefined,
+
+        distributionTool:
+          method ===
+          BrewMethod.ESPRESSO
+            ? distTool
+            : undefined,
+
+        puckScreen:
+          method ===
+          BrewMethod.ESPRESSO
+            ? puckScreen
+            : undefined,
+
+        pressure:
+          method ===
+          BrewMethod.ESPRESSO
+            ? pressure
+            : undefined,
+
+        coldBrewSystem:
+          method ===
+          BrewMethod.COLD_BREW
+            ? cbSystem
+            : undefined,
+
+        coldBrewType:
+          method ===
+          BrewMethod.COLD_BREW
+            ? coldBrewType
+            : undefined,
+
+        steepTime:
+          method ===
+          BrewMethod.COLD_BREW
+            ? steepTimeCB
+            : method ===
+                BrewMethod.AEROPRESS
+              ? steepTimeAP
+              : method ===
+                  BrewMethod.FRENCH_PRESS
+                ? fpImmersionTime
+                : undefined,
+
+        bloomTime:
+          method ===
+            BrewMethod.COLD_BREW ||
+          method ===
+            BrewMethod.POUR_OVER
+            ? bloomTime
+            : undefined,
+
+        brewerBrand:
+          method ===
+          BrewMethod.POUR_OVER
+            ? brewerBrand
+            : method ===
+                BrewMethod.FRENCH_PRESS
+              ? fpBrand
+              : method ===
+                  BrewMethod.MOKA_POT
+                ? mokaBrand
+                : undefined,
+
+        brewer:
+          method ===
+          BrewMethod.POUR_OVER
+            ? brewerModel
+            : method ===
+                BrewMethod.MOKA_POT
+              ? mokaModel
               : undefined,
-      brewer:
-        method === BrewMethod.POUR_OVER
-          ? brewerModel
-          : method === BrewMethod.MOKA_POT
+
+        filterType:
+          method ===
+          BrewMethod.POUR_OVER
+            ? filterType
+            : undefined,
+
+        pourStructure:
+          method ===
+          BrewMethod.POUR_OVER
+            ? `${pulsesCount} pours`
+            : undefined,
+
+        pourVolumes:
+          method ===
+          BrewMethod.POUR_OVER
+            ? pourVolumes
+            : undefined,
+
+        aeroMethod:
+          method ===
+          BrewMethod.AEROPRESS
+            ? aeroMethod
+            : undefined,
+
+        filterCapUsed:
+          method ===
+          BrewMethod.AEROPRESS
+            ? filterCap
+            : undefined,
+
+        plungeTime:
+          method ===
+          BrewMethod.AEROPRESS
+            ? plungeTime
+            : undefined,
+
+        aeroPourVolumes:
+          method ===
+          BrewMethod.AEROPRESS
+            ? aeroPourVolumes
+            : undefined,
+
+        timeBeforePlunge:
+          method ===
+          BrewMethod.FRENCH_PRESS
+            ? fpPlungeWait
+            : undefined,
+
+        agitation:
+          method ===
+          BrewMethod.FRENCH_PRESS
+            ? fpAgitation
+            : undefined,
+
+        agitationDuration:
+          method ===
+          BrewMethod.FRENCH_PRESS
+            ? fpAgitationDuration
+            : undefined,
+
+        mokaPotModel:
+          method ===
+          BrewMethod.MOKA_POT
             ? mokaModel
             : undefined,
-      filterType:
-        method === BrewMethod.POUR_OVER
-          ? filterType
-          : undefined,
-      pourStructure:
-        method === BrewMethod.POUR_OVER
-          ? `${pulsesCount} pours`
-          : undefined,
-      pourVolumes:
-        method === BrewMethod.POUR_OVER
-          ? pourVolumes
-          : undefined,
 
-      // AeroPress
-      aeroMethod:
-        method === BrewMethod.AEROPRESS
-          ? aeroMethod
-          : undefined,
-      filterCapUsed:
-        method === BrewMethod.AEROPRESS
-          ? filterCap
-          : undefined,
-      plungeTime:
-        method === BrewMethod.AEROPRESS
-          ? plungeTime
-          : undefined,
-      aeroPourVolumes:
-        method === BrewMethod.AEROPRESS
-          ? aeroPourVolumes
-          : undefined,
+        waterStartTemp:
+          method ===
+          BrewMethod.MOKA_POT
+            ? waterStartTemp
+            : undefined,
 
-      // French Press specifics
-      timeBeforePlunge:
-        method === BrewMethod.FRENCH_PRESS
-          ? fpPlungeWait
-          : undefined,
-      agitation:
-        method === BrewMethod.FRENCH_PRESS
-          ? fpAgitation
-          : undefined,
-      agitationDuration:
-        method === BrewMethod.FRENCH_PRESS
-          ? fpAgitationDuration
-          : undefined,
+        isAeropressFilterUsed:
+          method ===
+          BrewMethod.MOKA_POT
+            ? isAeropressFilterUsed
+            : undefined,
 
-      // Moka Pot specifics
-      mokaPotModel:
-        method === BrewMethod.MOKA_POT
-          ? mokaModel
-          : undefined,
-      waterStartTemp:
-        method === BrewMethod.MOKA_POT
-          ? waterStartTemp
-          : undefined,
-      isAeropressFilterUsed:
-        method === BrewMethod.MOKA_POT
-          ? isAeropressFilterUsed
-          : undefined,
-      flameControl:
-        method === BrewMethod.MOKA_POT
-          ? flameControl
-          : undefined,
-    });
-  } finally {
-    setIsSaving(false);
-  }
-};
+        flameControl:
+          method ===
+          BrewMethod.MOKA_POT
+            ? flameControl
+            : undefined,
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const ratio =
-  dose !== '' &&
-  yieldVal !== '' &&
-  dose > 0
-    ? `1:${(yieldVal / dose).toFixed(1)}`
-    : '—';
+    dose !== '' &&
+    yieldVal !== '' &&
+    dose > 0
+      ? `1:${(
+          yieldVal / dose
+        ).toFixed(1)}`
+      : '—';
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-5 bg-white px-4 pt-5 pb-0 rounded-none border-0 w-full h-[100dvh] overflow-y-auto max-w-xl mx-auto [&_input]:text-base [&_select]:text-base [&_textarea]:text-base sm:h-auto sm:max-h-[92vh] sm:p-8 sm:rounded-[3rem] sm:border sm:border-stone-100 sm:shadow-2xl sm:[&_input]:text-sm sm:[&_select]:text-xs sm:[&_textarea]:text-sm animate-in zoom-in-95 duration-300 custom-scrollbar"
+      className="h-[100dvh] w-full overflow-y-auto bg-[var(--bp-paper)] px-4 pb-28 sm:h-auto sm:max-h-[92vh] sm:max-w-2xl sm:border sm:border-[var(--bp-line)] sm:px-6 sm:pb-24 custom-scrollbar [&_input]:text-base [&_select]:text-base [&_textarea]:text-base sm:[&_input]:text-sm sm:[&_select]:text-sm sm:[&_textarea]:text-sm"
+      style={{
+        paddingTop:
+          'calc(env(safe-area-inset-top) + 1rem)',
+      }}
     >
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h2 className="text-3xl font-black display-font text-stone-800">{title || (initialData ? 'Edit Brew' : 'Log Brew')}</h2>
-          <p className="text-xs font-bold text-amber-800 uppercase tracking-widest mt-1">{coffee.name}</p>
-        </div>
-        <button type="button" onClick={onCancel} className="p-3 bg-stone-50 rounded-full text-stone-400 hover:text-stone-800 transition-colors">✕</button>
-      </div>
+      <header className="sticky top-0 z-20 -mx-4 mb-8 border-b border-[var(--bp-line)] bg-[var(--bp-paper)] px-4 pb-4 sm:-mx-6 sm:px-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="bp-index">
+              05 / BREW RECORD
+            </p>
 
-      <div className="grid grid-cols-3 gap-1 bg-stone-100 p-1.5 rounded-2xl sm:flex sm:overflow-x-auto sm:no-scrollbar">
-        {Object.values(BrewMethod).map(m => (
-          <button 
-            key={m} 
+            <h2 className="bp-heading mt-1 text-2xl text-[var(--bp-blue)]">
+              {title ||
+                (
+                  initialData
+                    ? 'Edit Brew'
+                    : 'Log Brew'
+                )}
+            </h2>
+
+            <p className="bp-label mt-3 text-[var(--bp-orange)]">
+              {coffee.roaster}
+            </p>
+
+            <p className="bp-coffee-name mt-1 truncate text-2xl text-[var(--bp-blue)]">
+              {coffee.name}
+            </p>
+          </div>
+
+          <button
             type="button"
-            onClick={() => setMethod(m)}
-            className={`min-w-0 py-2.5 px-1 text-[8px] font-black uppercase tracking-tighter rounded-xl whitespace-nowrap transition-all sm:flex-none sm:px-3 sm:text-[9px] ${method === m ? 'bg-white text-amber-800 shadow-sm' : 'text-stone-400 hover:text-stone-600'}`}
+            onClick={onCancel}
+            className="bp-button h-10 min-h-0 px-3"
           >
-            {m === BrewMethod.POUR_OVER ? 'Filter' : m}
+            Close
           </button>
-        ))}
-      </div>
+        </div>
+      </header>
 
-      <div className="space-y-5">
-        <div className="grid grid-cols-2 gap-4">
-          <DynamicSelect
-            label="Grinder"
-            value={grinder}
-            options={db.GRINDERS}
-            onSelect={setGrinder}
-            onAdd={(val) => { addToList('GRINDERS', val); setGrinder(val); }}
-            labelSize="10px"
-            labelColor="text-stone-400"
+      <div className="space-y-10">
+        <section>
+          <div className="mb-4">
+            <p className="bp-index">
+              05.01 / METHOD
+            </p>
+
+            <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+              Brew Method
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-2 border border-[var(--bp-line)] sm:grid-cols-3">
+            {Object.values(
+              BrewMethod
+            ).map(currentMethod => (
+              <button
+                key={currentMethod}
+                type="button"
+                onClick={() =>
+                  setMethod(
+                    currentMethod
+                  )
+                }
+                className={`relative min-h-14 border border-[var(--bp-line)] px-2 py-3 text-center ${
+                  method === currentMethod
+                    ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
+                    : 'text-[var(--bp-muted)]'
+                }`}
+              >
+                {method ===
+                  currentMethod && (
+                  <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
+                )}
+
+                <span className="bp-label">
+                  {currentMethod ===
+                  BrewMethod.POUR_OVER
+                    ? 'Filter'
+                    : currentMethod}
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <div className="mb-4">
+            <p className="bp-index">
+              05.02 / CONTEXT
+            </p>
+
+            <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+              Brew Context
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 border border-[var(--bp-line)] sm:grid-cols-2">
+            <div className="border-b border-[var(--bp-line)] p-4 sm:border-r">
+              <label className="bp-label text-[var(--bp-muted)]">
+                Barista
+              </label>
+
+              <input
+                type="text"
+                value={baristaName}
+                onChange={event =>
+                  setBaristaName(
+                    event.target.value
+                  )
+                }
+                className="bp-input mt-2"
+                placeholder="Name"
+              />
+            </div>
+
+            <div className="border-b border-[var(--bp-line)] p-4">
+              <label className="bp-label text-[var(--bp-muted)]">
+                Site
+              </label>
+
+              <input
+                type="text"
+                value={site}
+                onChange={event =>
+                  setSite(
+                    event.target.value
+                  )
+                }
+                className="bp-input mt-2"
+                placeholder="Home, café or location"
+              />
+            </div>
+
+            <div className="border-b border-[var(--bp-line)] p-4 sm:border-b-0 sm:border-r">
+              <DynamicSelect
+                label="Grinder"
+                value={grinder}
+                options={db.GRINDERS}
+                onSelect={setGrinder}
+                onAdd={value => {
+                  addToList(
+                    'GRINDERS',
+                    value
+                  );
+
+                  setGrinder(value);
+                }}
+              />
+            </div>
+
+            <div className="p-4">
+              <label className="bp-label text-[var(--bp-muted)]">
+                Grind Setting
+              </label>
+
+              <input
+                type="text"
+                value={setting}
+                onChange={event =>
+                  setSetting(
+                    event.target.value
+                  )
+                }
+                className="bp-input mt-2"
+                placeholder="18 clicks, 4.5..."
+              />
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div className="mb-4">
+            <p className="bp-index">
+              05.03 / EQUIPMENT
+            </p>
+
+            <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+              {method} Setup
+            </h3>
+          </div>
+
+          <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-4">
+            {method ===
+              BrewMethod.ESPRESSO && (
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <DynamicSelect
+                    label="Machine"
+                    value={
+                      machineBrand
+                    }
+                    options={
+                      db.ESPRESSO_MACHINES
+                    }
+                    onSelect={
+                      setMachineBrand
+                    }
+                    onAdd={value => {
+                      addToList(
+                        'ESPRESSO_MACHINES',
+                        value
+                      );
+
+                      setMachineBrand(
+                        value
+                      );
+                    }}
+                  />
+
+                  <DynamicSelect
+                    label="Basket"
+                    value={
+                      basketType
+                    }
+                    options={
+                      db.BASKETS
+                    }
+                    onSelect={
+                      setBasketType
+                    }
+                    onAdd={value => {
+                      addToList(
+                        'BASKETS',
+                        value
+                      );
+
+                      setBasketType(
+                        value
+                      );
+                    }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <DynamicSelect
+                    label="Distribution"
+                    value={distTool}
+                    options={
+                      db.DISTRIBUTION_TOOLS
+                    }
+                    onSelect={
+                      setDistTool
+                    }
+                    onAdd={value => {
+                      addToList(
+                        'DISTRIBUTION_TOOLS',
+                        value
+                      );
+
+                      setDistTool(
+                        value
+                      );
+                    }}
+                  />
+
+                  <div>
+                    <label className="bp-label text-[var(--bp-muted)]">
+                      Pressure
+                    </label>
+
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={pressure}
+                      onChange={event =>
+                        setPressure(
+                          Number(
+                            event
+                              .target
+                              .value
+                          )
+                        )
+                      }
+                      className="bp-input mt-2"
+                    />
+                  </div>
+                </div>
+
+                <label className="flex min-h-12 cursor-pointer items-center justify-between border border-[var(--bp-line)] px-4">
+                  <span className="bp-label text-[var(--bp-blue)]">
+                    Puck Screen
+                  </span>
+
+                  <input
+                    type="checkbox"
+                    checked={
+                      puckScreen
+                    }
+                    onChange={event =>
+                      setPuckScreen(
+                        event.target
+                          .checked
+                      )
+                    }
+                    className="h-4 w-4"
+                  />
+                </label>
+              </div>
+            )}
+
+            {method ===
+              BrewMethod.POUR_OVER && (
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <DynamicSelect
+                    label="Brewer"
+                    value={
+                      brewerBrand
+                    }
+                    options={
+                      db.POUR_OVER_BRANDS
+                    }
+                    onSelect={
+                      setBrewerBrand
+                    }
+                    onAdd={value => {
+                      addToList(
+                        'POUR_OVER_BRANDS',
+                        value
+                      );
+
+                      setBrewerBrand(
+                        value
+                      );
+                    }}
+                  />
+
+                  <DynamicSelect
+                    label="Model"
+                    value={
+                      brewerModel
+                    }
+                    options={
+                      db
+                        .POUR_OVER_MODELS[
+                        brewerBrand
+                      ] || []
+                    }
+                    onSelect={
+                      setBrewerModel
+                    }
+                    onAdd={value => {
+                      addToNestedList(
+                        'POUR_OVER_MODELS',
+                        brewerBrand,
+                        value
+                      );
+
+                      setBrewerModel(
+                        value
+                      );
+                    }}
+                  />
+                </div>
+
+                <DynamicSelect
+                  label="Filter Paper"
+                  value={filterType}
+                  options={
+                    db.FILTER_PAPERS
+                  }
+                  onSelect={
+                    setFilterType
+                  }
+                  onAdd={value => {
+                    addToList(
+                      'FILTER_PAPERS',
+                      value
+                    );
+
+                    setFilterType(
+                      value
+                    );
+                  }}
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="bp-label text-[var(--bp-muted)]">
+                      Bloom (s)
+                    </label>
+
+                    <input
+                      type="number"
+                      value={bloomTime}
+                      onChange={event =>
+                        setBloomTime(
+                          Number(
+                            event
+                              .target
+                              .value
+                          )
+                        )
+                      }
+                      className="bp-input mt-2"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="bp-label text-[var(--bp-muted)]">
+                      Pour Count
+                    </label>
+
+                    <input
+                      type="number"
+                      value={
+                        pulsesCount
+                      }
+                      onChange={event =>
+                        setPulsesCount(
+                          Number(
+                            event
+                              .target
+                              .value
+                          )
+                        )
+                      }
+                      className="bp-input mt-2"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="bp-label text-[var(--bp-muted)]">
+                    Pour Volumes
+                  </label>
+
+                  <input
+                    type="text"
+                    value={
+                      pourVolumes
+                    }
+                    onChange={event =>
+                      setPourVolumes(
+                        event.target
+                          .value
+                      )
+                    }
+                    className="bp-input mt-2"
+                    placeholder="50, 70, 70, 60"
+                  />
+                </div>
+              </div>
+            )}
+
+            {method ===
+              BrewMethod.AEROPRESS && (
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <DynamicSelect
+                    label="Brew Style"
+                    value={
+                      aeroMethod
+                    }
+                    options={
+                      db.AEROPRESS_STYLES
+                    }
+                    onSelect={
+                      setAeroMethod
+                    }
+                    onAdd={value => {
+                      addToList(
+                        'AEROPRESS_STYLES',
+                        value
+                      );
+
+                      setAeroMethod(
+                        value
+                      );
+                    }}
+                  />
+
+                  <DynamicSelect
+                    label="Filter Cap"
+                    value={
+                      filterCap
+                    }
+                    options={
+                      db.AEROPRESS_CAPS
+                    }
+                    onSelect={
+                      setFilterCap
+                    }
+                    onAdd={value => {
+                      addToList(
+                        'AEROPRESS_CAPS',
+                        value
+                      );
+
+                      setFilterCap(
+                        value
+                      );
+                    }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="bp-label text-[var(--bp-muted)]">
+                      Steep Time (s)
+                    </label>
+
+                    <input
+                      type="number"
+                      value={
+                        steepTimeAP
+                      }
+                      onChange={event =>
+                        setSteepTimeAP(
+                          Number(
+                            event
+                              .target
+                              .value
+                          )
+                        )
+                      }
+                      className="bp-input mt-2"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="bp-label text-[var(--bp-muted)]">
+                      Plunge Time (s)
+                    </label>
+
+                    <input
+                      type="number"
+                      value={
+                        plungeTime
+                      }
+                      onChange={event =>
+                        setPlungeTime(
+                          Number(
+                            event
+                              .target
+                              .value
+                          )
+                        )
+                      }
+                      className="bp-input mt-2"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="bp-label text-[var(--bp-muted)]">
+                    Pour Volumes
+                  </label>
+
+                  <input
+                    type="text"
+                    value={
+                      aeroPourVolumes
+                    }
+                    onChange={event =>
+                      setAeroPourVolumes(
+                        event.target
+                          .value
+                      )
+                    }
+                    className="bp-input mt-2"
+                    placeholder="50 bloom, 200 fill"
+                  />
+                </div>
+              </div>
+            )}
+
+            {method ===
+              BrewMethod.FRENCH_PRESS && (
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <DynamicSelect
+                    label="Vessel Brand"
+                    value={fpBrand}
+                    options={
+                      db.FRENCH_PRESS_BRANDS
+                    }
+                    onSelect={
+                      setFpBrand
+                    }
+                    onAdd={value => {
+                      addToList(
+                        'FRENCH_PRESS_BRANDS',
+                        value
+                      );
+
+                      setFpBrand(
+                        value
+                      );
+                    }}
+                  />
+
+                  <div>
+                    <label className="bp-label text-[var(--bp-muted)]">
+                      Immersion (s)
+                    </label>
+
+                    <input
+                      type="number"
+                      value={
+                        fpImmersionTime
+                      }
+                      onChange={event =>
+                        setFpImmersionTime(
+                          Number(
+                            event
+                              .target
+                              .value
+                          )
+                        )
+                      }
+                      className="bp-input mt-2"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="bp-label text-[var(--bp-muted)]">
+                      Plunge Wait (s)
+                    </label>
+
+                    <input
+                      type="number"
+                      value={
+                        fpPlungeWait
+                      }
+                      onChange={event =>
+                        setFpPlungeWait(
+                          Number(
+                            event
+                              .target
+                              .value
+                          )
+                        )
+                      }
+                      className="bp-input mt-2"
+                    />
+                  </div>
+
+                  <DynamicSelect
+                    label="Agitation"
+                    value={
+                      fpAgitation
+                    }
+                    options={
+                      db.AGITATION_METHODS
+                    }
+                    onSelect={
+                      setFpAgitation
+                    }
+                    onAdd={value => {
+                      addToList(
+                        'AGITATION_METHODS',
+                        value
+                      );
+
+                      setFpAgitation(
+                        value
+                      );
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className="bp-label text-[var(--bp-muted)]">
+                    Agitation Duration (s)
+                  </label>
+
+                  <input
+                    type="number"
+                    value={
+                      fpAgitationDuration
+                    }
+                    onChange={event =>
+                      setFpAgitationDuration(
+                        Number(
+                          event.target
+                            .value
+                        )
+                      )
+                    }
+                    className="bp-input mt-2"
+                  />
+                </div>
+              </div>
+            )}
+
+            {method ===
+              BrewMethod.MOKA_POT && (
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <DynamicSelect
+                    label="Pot Brand"
+                    value={
+                      mokaBrand
+                    }
+                    options={
+                      db.MOKA_POT_BRANDS
+                    }
+                    onSelect={
+                      setMokaBrand
+                    }
+                    onAdd={value => {
+                      addToList(
+                        'MOKA_POT_BRANDS',
+                        value
+                      );
+
+                      setMokaBrand(
+                        value
+                      );
+                    }}
+                  />
+
+                  <DynamicSelect
+                    label="Model / Size"
+                    value={
+                      mokaModel
+                    }
+                    options={
+                      db
+                        .MOKA_POT_MODELS[
+                        mokaBrand
+                      ] || []
+                    }
+                    onSelect={
+                      setMokaModel
+                    }
+                    onAdd={value => {
+                      addToNestedList(
+                        'MOKA_POT_MODELS',
+                        mokaBrand,
+                        value
+                      );
+
+                      setMokaModel(
+                        value
+                      );
+                    }}
+                  />
+                </div>
+
+                <DynamicSelect
+                  label="Water Start Temp"
+                  value={
+                    waterStartTemp
+                  }
+                  options={
+                    db.WATER_START_TEMPS
+                  }
+                  onSelect={
+                    setWaterStartTemp
+                  }
+                  onAdd={value => {
+                    addToList(
+                      'WATER_START_TEMPS',
+                      value
+                    );
+
+                    setWaterStartTemp(
+                      value
+                    );
+                  }}
+                />
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <DynamicSelect
+                    label="Flame / Heat"
+                    value={
+                      flameControl
+                    }
+                    options={
+                      db.FLAME_SETTINGS
+                    }
+                    onSelect={
+                      setFlameControl
+                    }
+                    onAdd={value => {
+                      addToList(
+                        'FLAME_SETTINGS',
+                        value
+                      );
+
+                      setFlameControl(
+                        value
+                      );
+                    }}
+                  />
+
+                  <label className="flex min-h-12 cursor-pointer items-center justify-between border border-[var(--bp-line)] px-4">
+                    <span className="bp-label text-[var(--bp-blue)]">
+                      AeroPress Filter
+                    </span>
+
+                    <input
+                      type="checkbox"
+                      checked={
+                        isAeropressFilterUsed
+                      }
+                      onChange={event =>
+                        setIsAeropressFilterUsed(
+                          event.target
+                            .checked
+                        )
+                      }
+                      className="h-4 w-4"
+                    />
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {method ===
+              BrewMethod.COLD_BREW && (
+              <div className="space-y-5">
+                <DynamicSelect
+                  label="System"
+                  value={cbSystem}
+                  options={
+                    db.COLD_BREW_SYSTEMS
+                  }
+                  onSelect={
+                    setCbSystem
+                  }
+                  onAdd={value => {
+                    addToList(
+                      'COLD_BREW_SYSTEMS',
+                      value
+                    );
+
+                    setCbSystem(
+                      value
+                    );
+                  }}
+                />
+
+                <div className="grid grid-cols-2 border border-[var(--bp-line)]">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setColdBrewType(
+                        'Ready to Drink'
+                      )
+                    }
+                    className={`relative min-h-14 border-r border-[var(--bp-line)] ${
+                      coldBrewType ===
+                      'Ready to Drink'
+                        ? 'bg-[var(--bp-paper)]'
+                        : ''
+                    }`}
+                  >
+                    {coldBrewType ===
+                      'Ready to Drink' && (
+                      <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
+                    )}
+
+                    <span className="bp-label">
+                      Ready to Drink
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setColdBrewType(
+                        'Concentrate'
+                      )
+                    }
+                    className={`relative min-h-14 ${
+                      coldBrewType ===
+                      'Concentrate'
+                        ? 'bg-[var(--bp-paper)]'
+                        : ''
+                    }`}
+                  >
+                    {coldBrewType ===
+                      'Concentrate' && (
+                      <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
+                    )}
+
+                    <span className="bp-label">
+                      Concentrate
+                    </span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section>
+          <div className="mb-4">
+            <p className="bp-index">
+              05.04 / BREW PARAMETERS
+            </p>
+
+            <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+              Recipe
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-2 border border-[var(--bp-line)] sm:grid-cols-4">
+            <div className="border-b border-r border-[var(--bp-line)] p-4 sm:border-b-0">
+              <label className="bp-label text-[var(--bp-muted)]">
+                Dose
+              </label>
+
+              <input
+                type="number"
+                step="0.1"
+                value={dose}
+                onChange={event =>
+                  setDose(
+                    event.target
+                      .value === ''
+                      ? ''
+                      : Number(
+                          event.target
+                            .value
+                        )
+                  )
+                }
+                className="bp-input mt-2"
+              />
+            </div>
+
+            <div className="border-b border-[var(--bp-line)] p-4 sm:border-b-0 sm:border-r">
+              <label className="bp-label text-[var(--bp-muted)]">
+                Yield
+              </label>
+
+              <input
+                type="number"
+                step="0.1"
+                value={yieldVal}
+                onChange={event =>
+                  setYieldVal(
+                    event.target
+                      .value === ''
+                      ? ''
+                      : Number(
+                          event.target
+                            .value
+                        )
+                  )
+                }
+                className="bp-input mt-2"
+              />
+            </div>
+
+            <div className="border-r border-[var(--bp-line)] p-4">
+              <p className="bp-label text-[var(--bp-muted)]">
+                Ratio
+              </p>
+
+              <p className="bp-measurement mt-4 text-xl font-semibold text-[var(--bp-blue)]">
+                {ratio}
+              </p>
+            </div>
+
+            <div className="p-4">
+              <label className="bp-label text-[var(--bp-muted)]">
+                {method ===
+                BrewMethod.COLD_BREW
+                  ? 'Steep Hrs'
+                  : 'Time Sec'}
+              </label>
+
+              <input
+                type="number"
+                value={
+                  method ===
+                  BrewMethod.COLD_BREW
+                    ? steepTimeCB
+                    : method ===
+                        BrewMethod.FRENCH_PRESS
+                      ? fpImmersionTime
+                      : time
+                }
+                onChange={event => {
+                  const value =
+                    event.target.value;
+
+                  if (
+                    method ===
+                    BrewMethod.COLD_BREW
+                  ) {
+                    setSteepTimeCB(
+                      value === ''
+                        ? 0
+                        : Number(
+                            value
+                          )
+                    );
+
+                    return;
+                  }
+
+                  if (
+                    method ===
+                    BrewMethod.FRENCH_PRESS
+                  ) {
+                    setFpImmersionTime(
+                      value === ''
+                        ? 0
+                        : Number(
+                            value
+                          )
+                    );
+
+                    return;
+                  }
+
+                  setTime(
+                    value === ''
+                      ? ''
+                      : Number(value)
+                  );
+                }}
+                className="bp-input mt-2"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 border border-[var(--bp-line)] sm:grid-cols-2">
+            <div className="border-b border-[var(--bp-line)] p-4 sm:border-b-0 sm:border-r">
+              <label className="bp-label text-[var(--bp-muted)]">
+                Water Temperature
+              </label>
+
+              <input
+                type="number"
+                value={temp}
+                onChange={event =>
+                  setTemp(
+                    event.target
+                      .value === ''
+                      ? ''
+                      : Number(
+                          event.target
+                            .value
+                        )
+                  )
+                }
+                className="bp-input mt-2"
+              />
+            </div>
+
+            <div className="p-4">
+              <label className="bp-label text-[var(--bp-muted)]">
+                Water Type
+              </label>
+
+              <input
+                type="text"
+                value={waterType}
+                onChange={event =>
+                  setWaterType(
+                    event.target.value
+                  )
+                }
+                className="bp-input mt-2"
+                placeholder="Filtered, TWW, custom recipe..."
+              />
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div className="mb-4">
+            <p className="bp-index">
+              05.05 / PROCESS
+            </p>
+
+            <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+              Method Notes
+            </h3>
+          </div>
+
+          <textarea
+            value={processNotes}
+            onChange={event =>
+              setProcessNotes(
+                event.target.value
+              )
+            }
+            className="bp-input min-h-36 resize-y"
+            placeholder="Describe the brew technique, pours, agitation, flow changes or other useful steps."
           />
-          <div>
-            <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1.5">Grind Setting</label>
-            <input type="text" value={setting} onChange={e => setSetting(e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-amber-300 transition-colors" placeholder="e.g. 18 clicks" />
-          </div>
-        </div>
+        </section>
 
-        <div className="p-6 bg-amber-50/20 rounded-[2rem] border border-amber-100/50 space-y-4 animate-in fade-in duration-500">
-          <h4 className="text-[10px] font-black text-amber-800 uppercase tracking-widest flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-amber-800 rounded-full"></span> {method} Toolkit
-          </h4>
+        <section>
+          <div className="mb-4 flex items-end justify-between gap-4">
+            <div>
+              <p className="bp-index">
+                05.06 / REFERENCE IMAGE
+              </p>
 
-          {method === BrewMethod.ESPRESSO && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <DynamicSelect
-                  label="Machine"
-                  value={machineBrand}
-                  options={db.ESPRESSO_MACHINES}
-                  onSelect={setMachineBrand}
-                  onAdd={(val) => { addToList('ESPRESSO_MACHINES', val); setMachineBrand(val); }}
-                />
-                <DynamicSelect
-                  label="Basket"
-                  value={basketType}
-                  options={db.BASKETS}
-                  onSelect={setBasketType}
-                  onAdd={(val) => { addToList('BASKETS', val); setBasketType(val); }}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <DynamicSelect
-                  label="Distribution"
-                  value={distTool}
-                  options={db.DISTRIBUTION_TOOLS}
-                  onSelect={setDistTool}
-                  onAdd={(val) => { addToList('DISTRIBUTION_TOOLS', val); setDistTool(val); }}
-                />
-                <div className="flex flex-col justify-end pb-3">
-                  <label className="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" checked={puckScreen} onChange={e => setPuckScreen(e.target.checked)} className="w-4 h-4 text-amber-800 border-stone-300 rounded focus:ring-amber-500" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-stone-500 group-hover:text-amber-800 transition-colors">Puck Screen?</span>
-                  </label>
-                </div>
-              </div>
+              <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+                Brew Photo
+              </h3>
             </div>
-          )}
 
-          {method === BrewMethod.POUR_OVER && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <DynamicSelect
-                  label="Brewer"
-                  value={brewerBrand}
-                  options={db.POUR_OVER_BRANDS}
-                  onSelect={setBrewerBrand}
-                  onAdd={(val) => { addToList('POUR_OVER_BRANDS', val); setBrewerBrand(val); }}
-                />
-                <DynamicSelect
-                  label="Model"
-                  value={brewerModel}
-                  options={db.POUR_OVER_MODELS[brewerBrand] || []}
-                  onSelect={setBrewerModel}
-                  onAdd={(val) => { addToNestedList('POUR_OVER_MODELS', brewerBrand, val); setBrewerModel(val); }}
-                />
-              </div>
-              <DynamicSelect
-                label="Filter Paper"
-                value={filterType}
-                options={db.FILTER_PAPERS}
-                onSelect={setFilterType}
-                onAdd={(val) => { addToList('FILTER_PAPERS', val); setFilterType(val); }}
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[9px] font-bold text-stone-500 uppercase mb-1">Bloom (s)</label>
-                  <input type="number" value={bloomTime} onChange={e => setBloomTime(Number(e.target.value))} className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs font-bold" />
-                </div>
-                <div>
-                  <label className="block text-[9px] font-bold text-stone-500 uppercase mb-1">Pours (Count)</label>
-                  <input type="number" value={pulsesCount} onChange={e => setPulsesCount(Number(e.target.value))} className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs font-bold" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-[9px] font-bold text-stone-500 uppercase mb-1">Volumes (g sequence)</label>
-                <input type="text" value={pourVolumes} onChange={e => setPourVolumes(e.target.value)} className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs font-bold" placeholder="e.g. 50, 70, 70, 60" />
-              </div>
-            </div>
-          )}
-
-          {method === BrewMethod.AEROPRESS && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <DynamicSelect
-                  label="Brew Style"
-                  value={aeroMethod}
-                  options={db.AEROPRESS_STYLES}
-                  onSelect={setAeroMethod}
-                  onAdd={(val) => { addToList('AEROPRESS_STYLES', val); setAeroMethod(val); }}
-                />
-                <DynamicSelect
-                  label="Filter Cap"
-                  value={filterCap}
-                  options={db.AEROPRESS_CAPS}
-                  onSelect={setFilterCap}
-                  onAdd={(val) => { addToList('AEROPRESS_CAPS', val); setFilterCap(val); }}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[9px] font-bold text-stone-500 uppercase mb-1">Steep Time (s)</label>
-                  <input type="number" value={steepTimeAP} onChange={e => setSteepTimeAP(Number(e.target.value))} className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs font-bold" />
-                </div>
-                <div>
-                  <label className="block text-[9px] font-bold text-stone-500 uppercase mb-1">Plunge Time (s)</label>
-                  <input type="number" value={plungeTime} onChange={e => setPlungeTime(Number(e.target.value))} className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs font-bold" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-[9px] font-bold text-stone-500 uppercase mb-1">Volumes (g sequence)</label>
-                <input type="text" value={aeroPourVolumes} onChange={e => setAeroPourVolumes(e.target.value)} className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs font-bold" placeholder="e.g. 50 (bloom), 200 (fill)" />
-              </div>
-            </div>
-          )}
-
-          {method === BrewMethod.FRENCH_PRESS && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <DynamicSelect
-                  label="Vessel Brand"
-                  value={fpBrand}
-                  options={db.FRENCH_PRESS_BRANDS}
-                  onSelect={setFpBrand}
-                  onAdd={(val) => { addToList('FRENCH_PRESS_BRANDS', val); setFpBrand(val); }}
-                />
-                <div>
-                  <label className="block text-[9px] font-bold text-stone-500 uppercase mb-1">Immersion (s)</label>
-                  <input type="number" value={fpImmersionTime} onChange={e => setFpImmersionTime(Number(e.target.value))} className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs font-bold" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[9px] font-bold text-stone-500 uppercase mb-1">Plunge Wait (s)</label>
-                  <input type="number" value={fpPlungeWait} onChange={e => setFpPlungeWait(Number(e.target.value))} className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs font-bold" placeholder="Time after break crust" />
-                </div>
-                <DynamicSelect
-                  label="Agitation Type"
-                  value={fpAgitation}
-                  options={db.AGITATION_METHODS}
-                  onSelect={setFpAgitation}
-                  onAdd={(val) => { addToList('AGITATION_METHODS', val); setFpAgitation(val); }}
-                />
-              </div>
-              <div>
-                <label className="block text-[9px] font-bold text-stone-500 uppercase mb-1">Agitation Duration (s)</label>
-                <input type="number" value={fpAgitationDuration} onChange={e => setFpAgitationDuration(Number(e.target.value))} className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs font-bold" />
-              </div>
-            </div>
-          )}
-
-          {method === BrewMethod.MOKA_POT && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <DynamicSelect
-                  label="Pot Brand"
-                  value={mokaBrand}
-                  options={db.MOKA_POT_BRANDS}
-                  onSelect={setMokaBrand}
-                  onAdd={(val) => { addToList('MOKA_POT_BRANDS', val); setMokaBrand(val); }}
-                />
-                <DynamicSelect
-                  label="Model / Size"
-                  value={mokaModel}
-                  options={db.MOKA_POT_MODELS[mokaBrand] || []}
-                  onSelect={setMokaModel}
-                  onAdd={(val) => { addToNestedList('MOKA_POT_MODELS', mokaBrand, val); setMokaModel(val); }}
-                />
-              </div>
-              <DynamicSelect
-                label="Water Start Temp"
-                value={waterStartTemp}
-                options={db.WATER_START_TEMPS}
-                onSelect={setWaterStartTemp}
-                onAdd={(val) => { addToList('WATER_START_TEMPS', val); setWaterStartTemp(val); }}
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <DynamicSelect
-                  label="Flame / Heat"
-                  value={flameControl}
-                  options={db.FLAME_SETTINGS}
-                  onSelect={setFlameControl}
-                  onAdd={(val) => { addToList('FLAME_SETTINGS', val); setFlameControl(val); }}
-                />
-                <div className="flex flex-col justify-end pb-3">
-                  <label className="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" checked={isAeropressFilterUsed} onChange={e => setIsAeropressFilterUsed(e.target.checked)} className="w-4 h-4 text-amber-800 border-stone-300 rounded focus:ring-amber-500" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-stone-500 group-hover:text-amber-800 transition-colors">Paper Filter Hack?</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {method === BrewMethod.COLD_BREW && (
-            <div className="space-y-4">
-              <DynamicSelect
-                label="System"
-                value={cbSystem}
-                options={db.COLD_BREW_SYSTEMS}
-                onSelect={setCbSystem}
-                onAdd={(val) => { addToList('COLD_BREW_SYSTEMS', val); setCbSystem(val); }}
-              />
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" checked={coldBrewType === 'Ready to Drink'} onChange={() => setColdBrewType('Ready to Drink')} className="w-4 h-4 text-amber-800" />
-                  <span className="text-[10px] font-black uppercase text-stone-500">RTD</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" checked={coldBrewType === 'Concentrate'} onChange={() => setColdBrewType('Concentrate')} className="w-4 h-4 text-amber-800" />
-                  <span className="text-[10px] font-black uppercase text-stone-500">Concentrate</span>
-                </label>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-3 gap-3 p-6 bg-stone-50 rounded-[2rem] border border-stone-100">
-          <div>
-            <label className="block text-[9px] font-black text-stone-400 uppercase tracking-widest mb-1.5 text-center">Dose (g)</label>
-            <input
-  type="number"
-  step="0.1"
-  value={dose}
-  onChange={e =>
-    setDose(
-      e.target.value === ''
-        ? ''
-        : Number(e.target.value)
-    )
-  }
-  className="w-full bg-white border border-stone-200 rounded-xl p-3 text-center text-sm font-black outline-none focus:border-amber-300 transition-colors"
-/>
-          </div>
-          <div>
-            <label className="block text-[9px] font-black text-stone-400 uppercase tracking-widest mb-1.5 text-center">Yield (g)</label>
-            <input
-  type="number"
-  step="1"
-  value={yieldVal}
-  onChange={e =>
-    setYieldVal(
-      e.target.value === ''
-        ? ''
-        : Number(e.target.value)
-    )
-  }
-  className="w-full bg-white border border-stone-200 rounded-xl p-3 text-center text-sm font-black outline-none focus:border-amber-300 transition-colors"
-/>
-          </div>
-          <div>
-            <label className="block text-[9px] font-black text-stone-400 uppercase tracking-widest mb-1.5 text-center">Ratio</label>
-            <div className="w-full bg-amber-100/50 border border-amber-200 rounded-xl p-3 text-center text-sm font-black text-amber-900">{ratio}</div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1.5">Water Temp (°C)</label>
-            <input
-  type="number"
-  value={temp}
-  onChange={e =>
-    setTemp(
-      e.target.value === ''
-        ? ''
-        : Number(e.target.value)
-    )
-  }
-  className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-amber-300 transition-colors"
-/>
-          </div>
-          <div>
-            <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1.5">
-              {method === BrewMethod.COLD_BREW ? 'Steep (Hrs)' : 'Total Time (s)'}
-            </label>
-            <input
-  type="number"
-  value={
-    method === BrewMethod.COLD_BREW
-      ? steepTimeCB
-      : method === BrewMethod.FRENCH_PRESS
-        ? fpImmersionTime
-        : time
-  }
-  onChange={e => {
-    const value = e.target.value;
-
-    if (method === BrewMethod.COLD_BREW) {
-      setSteepTimeCB(value === '' ? 0 : Number(value));
-    } else if (method === BrewMethod.FRENCH_PRESS) {
-      setFpImmersionTime(value === '' ? 0 : Number(value));
-    } else {
-      setTime(value === '' ? '' : Number(value));
-    }
-  }}
-  className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-amber-300 transition-colors"
-/>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1.5">Method Notes / Process Steps</label>
-          <textarea value={processNotes} onChange={e => setProcessNotes(e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm h-32 font-medium outline-none focus:border-amber-300 transition-colors" placeholder="Describe your technique..."></textarea>
-        </div>
-
-        <section className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="text-[10px] font-black uppercase tracking-widest text-stone-500">
-              Brew Photo
-            </label>
-
-            <span className="text-[9px] font-bold uppercase tracking-widest text-stone-300">
+            <span className="bp-label text-[var(--bp-muted)]">
               Optional
             </span>
           </div>
 
           <button
             type="button"
-            onClick={() => brewImageInputRef.current?.click()}
-            className="w-full min-h-28 bg-stone-50 border-2 border-dashed border-stone-200 rounded-2xl overflow-hidden relative flex items-center justify-center hover:border-amber-300 transition-colors group sm:min-h-44 sm:rounded-3xl"
+            onClick={() =>
+              brewImageInputRef.current?.click()
+            }
+            className="group relative flex min-h-36 w-full items-center justify-center overflow-hidden border border-[var(--bp-line)] bg-[var(--bp-paper-light)]"
           >
             {brewImage ? (
               <>
                 <img
                   src={brewImage}
                   alt="Brew preview"
-                  className="w-full h-40 object-cover sm:h-56"
+                  className="h-56 w-full object-cover"
                 />
 
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                  <span className="text-white text-xs font-black uppercase tracking-widest">
-                    Change Photo
+                <div className="absolute inset-0 flex items-center justify-center bg-[rgba(12,39,72,0.55)] opacity-0 transition-opacity group-hover:opacity-100">
+                  <span className="bp-label text-white">
+                    Change image
                   </span>
                 </div>
               </>
             ) : (
-              <div className="py-6 text-center sm:py-10">
-                <svg
-                  className="w-9 h-9 mx-auto mb-3 text-stone-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                  />
-
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-
-                <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">
+              <div className="p-8 text-center">
+                <p className="bp-label text-[var(--bp-blue)]">
                   Add Brew Photo
                 </p>
 
-                <p className="text-[9px] text-stone-300 mt-1">
+                <p className="bp-code mt-2 text-[var(--bp-muted)]">
                   Take a photo or choose one from your device
                 </p>
               </div>
@@ -930,96 +2329,245 @@ const [selectedFlavorGroups, setSelectedFlavorGroups] = useState<string[]>(
             accept="image/*"
             capture="environment"
             className="hidden"
-            onChange={handleBrewImageUpload}
+            onChange={
+              handleBrewImageUpload
+            }
           />
         </section>
 
-        {/* Sensory Analysis Section - Light Refined Aesthetic */}
-        <div className="p-4 bg-stone-50 rounded-[2rem] border border-stone-100 space-y-5 sm:p-7 sm:rounded-[3rem] sm:space-y-8 animate-in fade-in slide-in-from-bottom-2">
-          <div className="flex items-center justify-between">
-            <h4 className="text-[10px] font-black text-stone-800 uppercase tracking-[0.2em] flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-amber-800 rounded-full"></span> Sensory Profile
-            </h4>
-            <span className="text-[8px] font-bold text-stone-300 uppercase tracking-widest">Calibration Scale</span>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-4 sm:gap-6">
-            {SENSORY_ATTRIBUTES.map(attr => (
-              <div key={attr.id} className="flex flex-col gap-2 group sm:gap-2.5">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-bold text-stone-500 uppercase tracking-widest flex items-center gap-2 group-hover:text-stone-800 transition-colors">
-                    <span className="text-sm grayscale-[0.5] group-hover:grayscale-0 transition-all">{attr.icon}</span> {attr.label}
-                  </span>
-                  <span className={`text-[10px] font-black ${attr.color}`}>
-                    {sensory[attr.id as keyof typeof sensory]}/5
-                  </span>
-                </div>
-                <div className="flex gap-1.5">
-                  {[1, 2, 3, 4, 5].map(v => (
-                    <button 
-                      key={v}
-                      type="button"
-                      onClick={() => handleSensoryChange(attr.id, v)}
-                      className={`flex-1 h-2.5 rounded-full transition-all duration-300 ${sensory[attr.id as keyof typeof sensory] >= v ? attr.barColor : 'bg-stone-200'}`}
-                      aria-label={`Set ${attr.label} to ${v}`}
-                    ></button>
-                  ))}
-                </div>
-              </div>
-            ))}
+        <section>
+          <div className="mb-4">
+            <p className="bp-index">
+              05.07 / SENSORY
+            </p>
+
+            <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+              Sensory Profile
+            </h3>
+
+            <p className="bp-code mt-1 text-[var(--bp-muted)]">
+              Calibration scale / 1 to 5
+            </p>
           </div>
 
-          <div className="pt-8 border-t border-stone-200">
-            <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-4 text-center">Primary Flavor Categories</label>
-            <div className="flex flex-wrap justify-center gap-2.5">
-              {db.FLAVOR_GROUPS.map(group => (
+          <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+            {SENSORY_ATTRIBUTES.map(
+              (attribute, index) => {
+                const value =
+                  sensory[
+                    attribute.id as keyof typeof sensory
+                  ];
+
+                return (
+                  <div
+                    key={
+                      attribute.id
+                    }
+                    className={`p-4 ${
+                      index <
+                      SENSORY_ATTRIBUTES.length -
+                        1
+                        ? 'border-b border-[var(--bp-line)]'
+                        : ''
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="bp-label text-[var(--bp-blue)]">
+                        {
+                          attribute.label
+                        }
+                      </span>
+
+                      <span className="bp-measurement font-semibold text-[var(--bp-blue)]">
+                        {value}/5
+                      </span>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-5 border border-[var(--bp-line)]">
+                      {[
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                      ].map(
+                        score => (
+                          <button
+                            key={
+                              score
+                            }
+                            type="button"
+                            onClick={() =>
+                              handleSensoryChange(
+                                attribute.id,
+                                score
+                              )
+                            }
+                            className={`relative h-9 ${
+                              score <
+                              5
+                                ? 'border-r border-[var(--bp-line)]'
+                                : ''
+                            }`}
+                            aria-label={`Set ${attribute.label} to ${score}`}
+                          >
+                            {value >=
+                              score && (
+                              <span className="absolute inset-x-0 bottom-0 h-[3px] bg-[var(--bp-orange)]" />
+                            )}
+
+                            <span className="bp-code">
+                              {score}
+                            </span>
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                );
+              }
+            )}
+          </div>
+        </section>
+
+        <section>
+          <div className="mb-4">
+            <p className="bp-index">
+              05.08 / FLAVOUR
+            </p>
+
+            <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+              Flavour Groups
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-2 border border-[var(--bp-line)] sm:grid-cols-3">
+            {db.FLAVOR_GROUPS.map(
+              group => (
                 <button
-                  key={group.name}
+                  key={group}
                   type="button"
-                  onClick={() => toggleFlavorGroup(group.name)}
-                  className={`px-4 py-3 rounded-2xl border-2 text-[10px] font-black uppercase tracking-widest flex items-center gap-2.5 transition-all duration-300 ${
-                    selectedFlavorGroups.includes(group.name) 
-                    ? `${group.color} scale-105 shadow-xl shadow-amber-900/5` 
-                    : 'bg-white border-stone-100 text-stone-400 hover:border-stone-200 hover:text-stone-600'
+                  onClick={() =>
+                    toggleFlavorGroup(
+                      group
+                    )
+                  }
+                  className={`relative min-h-14 border border-[var(--bp-line)] px-3 ${
+                    selectedFlavorGroups.includes(
+                      group
+                    )
+                      ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
+                      : 'text-[var(--bp-muted)]'
                   }`}
                 >
-                  <span className="text-sm">{group.icon}</span> {group.name}
+                  {selectedFlavorGroups.includes(
+                    group
+                  ) && (
+                    <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
+                  )}
+
+                  <span className="bp-label">
+                    {group}
+                  </span>
                 </button>
-              ))}
-            </div>
+              )
+            )}
           </div>
-        </div>
+        </section>
 
-        <div>
-          <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1.5">Specific Taste Notes (Comma separated)</label>
-          <textarea value={notes} onChange={e => setNotes(e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm h-20 font-medium outline-none focus:border-amber-300 transition-colors" placeholder="Cherry, Caramel, Bright..."></textarea>
-        </div>
-
-        <div className="flex items-center justify-between border-t border-stone-100 pt-6">
-          <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Overall Recipe Rating</label>
-          <div className="flex gap-2">
-            {[1,2,3,4,5].map(star => (
-              <button key={star} type="button" onClick={() => setRating(star)} className={`transition-all ${rating >= star ? 'text-amber-500 scale-110' : 'text-stone-200 hover:text-stone-300'}`}>
-                <svg className="w-9 h-9 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-              </button>
-            ))}
+        <section>
+          <div className="mb-4">
+            <p className="bp-index">
+              05.09 / TASTING NOTES
+            </p>
           </div>
-        </div>
+
+          <textarea
+            value={notes}
+            onChange={event =>
+              setNotes(
+                event.target.value
+              )
+            }
+            className="bp-input min-h-28 resize-y"
+            placeholder="Cherry, caramel, citrus..."
+          />
+
+          <p className="bp-code mt-2 text-[var(--bp-muted)]">
+            Separate specific tasting notes with commas.
+          </p>
+        </section>
+
+        <section>
+          <div className="mb-4">
+            <p className="bp-index">
+              05.10 / OVERALL RATING
+            </p>
+
+            <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+              Recipe Rating
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-5 border border-[var(--bp-line)]">
+            {[1, 2, 3, 4, 5].map(
+              score => (
+                <button
+                  key={score}
+                  type="button"
+                  onClick={() =>
+                    setRating(score)
+                  }
+                  className={`relative min-h-16 ${
+                    score < 5
+                      ? 'border-r border-[var(--bp-line)]'
+                      : ''
+                  }`}
+                >
+                  {rating >=
+                    score && (
+                    <span className="absolute inset-x-0 top-0 h-[3px] bg-[var(--bp-orange)]" />
+                  )}
+
+                  <span className="bp-measurement text-xl font-semibold text-[var(--bp-blue)]">
+                    {score}
+                  </span>
+                </button>
+              )
+            )}
+          </div>
+        </section>
       </div>
 
-      <div className="flex gap-4 pt-4 sticky bottom-0 bg-white/95 backdrop-blur-sm py-4 border-t border-stone-100 mt-2 z-10">
-        <button type="button" onClick={onCancel} className="flex-1 py-4 bg-stone-100 text-stone-500 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:bg-stone-200 transition-all">Discard</button>
-        <button
-  type="submit"
-  disabled={isSaving}
-  className="flex-1 rounded-2xl bg-stone-900 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl transition-all hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
+      <div
+  className="-mx-4 mt-10 grid grid-cols-2 border-t border-[var(--bp-line-strong)] bg-[var(--bp-paper)] sm:-mx-6"
+  style={{
+    paddingBottom:
+      'env(safe-area-inset-bottom)',
+  }}
 >
-  {isSaving
-    ? 'Saving...'
-    : initialData
-      ? 'Update Brew'
-      : 'Log Brew'}
-</button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="bp-label min-h-14 border-r border-[var(--bp-line)] px-4 text-[var(--bp-blue)]"
+        >
+          Discard
+        </button>
+
+        <button
+          type="submit"
+          disabled={isSaving}
+          className="min-h-14 bg-[var(--bp-orange)] px-4 text-[var(--bp-blue)] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className="bp-label">
+            {isSaving
+              ? 'Saving...'
+              : initialData &&
+                  !isBrewAgain
+                ? 'Update Brew'
+                : 'Log Brew'}
+          </span>
+        </button>
       </div>
     </form>
   );

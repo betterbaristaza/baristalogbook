@@ -47,6 +47,615 @@ const FLAVOR_GROUP_STYLING: Record<string, string> = {
     'bg-emerald-50 text-emerald-700 border-emerald-100',
 };
 
+
+interface BrewDetailCellProps {
+  label: string;
+  value: React.ReactNode;
+}
+
+const BrewDetailCell: React.FC<BrewDetailCellProps> = ({
+  label,
+  value,
+}) => (
+  <div className="bg-[var(--bp-paper-light)] p-4">
+    <p className="bp-label text-[var(--bp-muted)]">
+      {label}
+    </p>
+
+    <div className="bp-code mt-2 break-words text-[var(--bp-blue)]">
+      {value}
+    </div>
+  </div>
+);
+
+interface BrewDetailViewProps {
+  log: BrewLog;
+  coffee?: CoffeeBean;
+  onBack: () => void;
+  onEdit: () => void;
+  onBrewAgain: () => void;
+  onDelete: () => void;
+}
+
+const BrewDetailView: React.FC<BrewDetailViewProps> = ({
+  log,
+  coffee,
+  onBack,
+  onEdit,
+  onBrewAgain,
+  onDelete,
+}) => {
+  const ratio =
+    log.dose > 0 && log.yield > 0
+      ? `1:${(log.yield / log.dose).toFixed(1)}`
+      : '—';
+
+  const displayDate = new Date(log.date).toLocaleString();
+
+  const sensoryValues = [
+    ['Aroma', log.aroma],
+    ['Acidity', log.acidity],
+    ['Sweetness', log.sweetness],
+    ['Bitterness', log.bitterness],
+    ['Body', log.body],
+    ['Aftertaste', log.aftertaste],
+  ] as const;
+
+  return (
+    <div className="space-y-8">
+      <section className="border-b border-[var(--bp-line)] pb-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="bp-index">
+              06 / BREW DETAIL
+            </p>
+
+            <p className="bp-label mt-3 text-[var(--bp-orange)]">
+              {log.method}
+            </p>
+
+            <h1 className="bp-coffee-name mt-2 break-words text-4xl text-[var(--bp-blue)]">
+              {coffee?.name || 'Unknown Coffee'}
+            </h1>
+
+            <p className="bp-code mt-2 text-[var(--bp-muted)]">
+              {coffee?.roaster || 'Roaster not recorded'}
+            </p>
+
+            <p className="bp-code mt-1 text-[var(--bp-muted)]">
+              {displayDate}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onBack}
+            className="bp-button h-10 min-h-0 px-3"
+          >
+            Back
+          </button>
+        </div>
+      </section>
+
+      {log.brewImage && (
+        <section className="overflow-hidden border border-[var(--bp-line)] bg-[var(--bp-paper-dark)]">
+          <img
+            src={log.brewImage}
+            alt={`${coffee?.name || 'Coffee'} brew`}
+            className="max-h-[420px] w-full object-cover"
+          />
+        </section>
+      )}
+
+      <section>
+        <div className="mb-3">
+          <p className="bp-index">
+            06.01 / RECIPE
+          </p>
+
+          <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+            Brew Parameters
+          </h2>
+        </div>
+
+        <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center border-b border-[var(--bp-line)]">
+            <div className="p-5 text-center">
+              <p className="bp-label text-[var(--bp-muted)]">
+                Dose
+              </p>
+
+              <p className="bp-measurement mt-2 text-3xl font-semibold text-[var(--bp-blue)]">
+                {log.dose}
+                <span className="ml-1 text-sm">
+                  G
+                </span>
+              </p>
+            </div>
+
+            <div className="px-2 text-xl text-[var(--bp-orange)]">
+              →
+            </div>
+
+            <div className="border-l border-[var(--bp-line)] p-5 text-center">
+              <p className="bp-label text-[var(--bp-muted)]">
+                Yield
+              </p>
+
+              <p className="bp-measurement mt-2 text-3xl font-semibold text-[var(--bp-blue)]">
+                {log.yield}
+                <span className="ml-1 text-sm">
+                  G
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3">
+            <div className="border-r border-[var(--bp-line)] p-4">
+              <p className="bp-label text-[var(--bp-muted)]">
+                Ratio
+              </p>
+
+              <p className="bp-measurement mt-2 text-xl font-semibold text-[var(--bp-blue)]">
+                {ratio}
+              </p>
+            </div>
+
+            <div className="border-r border-[var(--bp-line)] p-4">
+              <p className="bp-label text-[var(--bp-muted)]">
+                Time
+              </p>
+
+              <p className="bp-measurement mt-2 text-xl font-semibold text-[var(--bp-blue)]">
+                {log.brewTime > 0
+                  ? `${log.brewTime}${
+                      log.method === BrewMethod.COLD_BREW
+                        ? ' HR'
+                        : ' S'
+                    }`
+                  : '—'}
+              </p>
+            </div>
+
+            <div className="p-4">
+              <p className="bp-label text-[var(--bp-muted)]">
+                Temperature
+              </p>
+
+              <p className="bp-measurement mt-2 text-xl font-semibold text-[var(--bp-blue)]">
+                {log.waterTemp
+                  ? `${log.waterTemp}°C`
+                  : '—'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-3">
+          <p className="bp-index">
+            06.02 / CONTEXT
+          </p>
+
+          <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+            Brew Context
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-2 gap-px border border-[var(--bp-line)] bg-[var(--bp-line)]">
+          <BrewDetailCell
+            label="Grinder"
+            value={log.grinder || '—'}
+          />
+
+          <BrewDetailCell
+            label="Grind Setting"
+            value={log.grindSetting || '—'}
+          />
+
+          <BrewDetailCell
+            label="Barista"
+            value={log.baristaName || '—'}
+          />
+
+          <BrewDetailCell
+            label="Site"
+            value={log.site || '—'}
+          />
+
+          <div className="col-span-2">
+            <BrewDetailCell
+              label="Water"
+              value={log.waterType || 'Not recorded'}
+            />
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-3">
+          <p className="bp-index">
+            06.03 / EQUIPMENT
+          </p>
+
+          <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+            {log.method} Setup
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-2 gap-px border border-[var(--bp-line)] bg-[var(--bp-line)]">
+          {log.method === BrewMethod.ESPRESSO && (
+            <>
+              <BrewDetailCell
+                label="Machine"
+                value={
+                  log.machine ||
+                  log.machineBrand ||
+                  '—'
+                }
+              />
+
+              <BrewDetailCell
+                label="Basket"
+                value={log.basketType || '—'}
+              />
+
+              <BrewDetailCell
+                label="Distribution"
+                value={log.distributionTool || '—'}
+              />
+
+              <BrewDetailCell
+                label="Pressure"
+                value={
+                  log.pressure !== undefined
+                    ? `${log.pressure} BAR`
+                    : '—'
+                }
+              />
+
+              <BrewDetailCell
+                label="Puck Screen"
+                value={log.puckScreen ? 'YES' : 'NO'}
+              />
+
+              <BrewDetailCell
+                label="Shot Result"
+                value={log.shotResult || '—'}
+              />
+            </>
+          )}
+
+          {log.method === BrewMethod.POUR_OVER && (
+            <>
+              <BrewDetailCell
+                label="Brewer"
+                value={
+                  [log.brewerBrand, log.brewer]
+                    .filter(Boolean)
+                    .join(' ') || '—'
+                }
+              />
+
+              <BrewDetailCell
+                label="Filter Paper"
+                value={log.filterType || '—'}
+              />
+
+              <BrewDetailCell
+                label="Bloom"
+                value={
+                  log.bloomTime !== undefined
+                    ? `${log.bloomTime} S`
+                    : '—'
+                }
+              />
+
+              <BrewDetailCell
+                label="Pour Structure"
+                value={log.pourStructure || '—'}
+              />
+
+              <div className="col-span-2">
+                <BrewDetailCell
+                  label="Pour Volumes"
+                  value={log.pourVolumes || '—'}
+                />
+              </div>
+            </>
+          )}
+
+          {log.method === BrewMethod.AEROPRESS && (
+            <>
+              <BrewDetailCell
+                label="AeroPress Model"
+                value={log.aeroPressModel || '—'}
+              />
+
+              <BrewDetailCell
+                label="Style"
+                value={log.aeroMethod || '—'}
+              />
+
+              <BrewDetailCell
+                label="Filter Cap"
+                value={log.filterCapUsed || '—'}
+              />
+
+              <BrewDetailCell
+                label="Steep"
+                value={
+                  log.steepTime !== undefined
+                    ? `${log.steepTime} S`
+                    : '—'
+                }
+              />
+
+              <BrewDetailCell
+                label="Plunge"
+                value={
+                  log.plungeTime !== undefined
+                    ? `${log.plungeTime} S`
+                    : '—'
+                }
+              />
+
+              <BrewDetailCell
+                label="Volumes"
+                value={log.aeroPourVolumes || '—'}
+              />
+            </>
+          )}
+
+          {log.method === BrewMethod.FRENCH_PRESS && (
+            <>
+              <BrewDetailCell
+                label="Vessel"
+                value={log.brewerBrand || '—'}
+              />
+
+              <BrewDetailCell
+                label="Immersion"
+                value={
+                  log.steepTime !== undefined
+                    ? `${log.steepTime} S`
+                    : '—'
+                }
+              />
+
+              <BrewDetailCell
+                label="Plunge Wait"
+                value={
+                  log.timeBeforePlunge !== undefined
+                    ? `${log.timeBeforePlunge} S`
+                    : '—'
+                }
+              />
+
+              <BrewDetailCell
+                label="Agitation"
+                value={log.agitation || '—'}
+              />
+
+              <div className="col-span-2">
+                <BrewDetailCell
+                  label="Agitation Duration"
+                  value={
+                    log.agitationDuration !== undefined
+                      ? `${log.agitationDuration} S`
+                      : '—'
+                  }
+                />
+              </div>
+            </>
+          )}
+
+          {log.method === BrewMethod.MOKA_POT && (
+            <>
+              <BrewDetailCell
+                label="Pot"
+                value={
+                  [log.brewerBrand, log.mokaPotModel]
+                    .filter(Boolean)
+                    .join(' ') || '—'
+                }
+              />
+
+              <BrewDetailCell
+                label="Water Start"
+                value={log.waterStartTemp || '—'}
+              />
+
+              <BrewDetailCell
+                label="Heat"
+                value={log.flameControl || '—'}
+              />
+
+              <BrewDetailCell
+                label="AeroPress Filter"
+                value={
+                  log.isAeropressFilterUsed
+                    ? 'YES'
+                    : 'NO'
+                }
+              />
+            </>
+          )}
+
+          {log.method === BrewMethod.COLD_BREW && (
+            <>
+              <BrewDetailCell
+                label="System"
+                value={log.coldBrewSystem || '—'}
+              />
+
+              <BrewDetailCell
+                label="Type"
+                value={log.coldBrewType || '—'}
+              />
+
+              <div className="col-span-2">
+                <BrewDetailCell
+                  label="Steep Time"
+                  value={
+                    log.steepTime !== undefined
+                      ? `${log.steepTime} HR`
+                      : '—'
+                  }
+                />
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-3">
+          <p className="bp-index">
+            06.04 / SENSORY
+          </p>
+
+          <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+            Sensory Profile
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-2 gap-px border border-[var(--bp-line)] bg-[var(--bp-line)] sm:grid-cols-3">
+          {sensoryValues.map(([label, value]) => (
+            <BrewDetailCell
+              key={label}
+              label={label}
+              value={`${value}/5`}
+            />
+          ))}
+        </div>
+      </section>
+
+      {log.flavorGroups &&
+        log.flavorGroups.length > 0 && (
+          <section>
+            <div className="mb-3">
+              <p className="bp-index">
+                06.05 / FLAVOUR GROUPS
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {log.flavorGroups.map(group => (
+                <span
+                  key={group}
+                  className="border border-[var(--bp-line)] px-3 py-2 bp-code text-[var(--bp-blue)]"
+                >
+                  {group}
+                </span>
+              ))}
+            </div>
+          </section>
+        )}
+
+      <section>
+        <div className="mb-3">
+          <p className="bp-index">
+            06.06 / TASTE
+          </p>
+
+          <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+            Notes
+          </h2>
+        </div>
+
+        <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+          <div className="border-b border-[var(--bp-line)] p-4">
+            <p className="bp-label text-[var(--bp-muted)]">
+              Tasting Notes
+            </p>
+
+            <p className="mt-2 text-sm leading-relaxed text-[var(--bp-blue)]">
+              {log.tastingNotes &&
+              log.tastingNotes.length > 0
+                ? log.tastingNotes.join(' / ')
+                : 'Not recorded'}
+            </p>
+          </div>
+
+          <div className="p-4">
+            <p className="bp-label text-[var(--bp-muted)]">
+              Process Notes
+            </p>
+
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[var(--bp-blue)]">
+              {log.processNotes || 'Not recorded'}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-3">
+          <p className="bp-index">
+            06.07 / RESULT
+          </p>
+        </div>
+
+        <div className="grid grid-cols-[1fr_auto] border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+          <div className="p-5">
+            <p className="bp-label text-[var(--bp-muted)]">
+              Overall Rating
+            </p>
+
+            <p className="bp-measurement mt-2 text-4xl font-semibold text-[var(--bp-blue)]">
+              {log.rating}/5
+            </p>
+          </div>
+
+          <div className="flex min-w-[90px] items-center justify-center border-l border-[var(--bp-line)]">
+            <Icons.Star className="h-7 w-7 fill-current text-[var(--bp-orange)]" />
+          </div>
+        </div>
+      </section>
+
+      <div className="grid grid-cols-2 border border-[var(--bp-line)] sm:grid-cols-4">
+        <button
+          type="button"
+          onClick={onEdit}
+          className="bp-label min-h-14 border-b border-r border-[var(--bp-line)] px-3 text-[var(--bp-blue)] sm:border-b-0"
+        >
+          Edit
+        </button>
+
+        <button
+          type="button"
+          onClick={onBrewAgain}
+          className="bp-label min-h-14 border-b border-[var(--bp-line)] px-3 text-[var(--bp-blue)] sm:border-b-0 sm:border-r"
+        >
+          Brew Again
+        </button>
+
+        <button
+          type="button"
+          onClick={onDelete}
+          className="bp-label min-h-14 border-r border-[var(--bp-line)] px-3 text-[var(--bp-danger)]"
+        >
+          Delete
+        </button>
+
+        <button
+          type="button"
+          onClick={onBack}
+          className="min-h-14 bg-[var(--bp-orange)] px-3 text-[var(--bp-blue)]"
+        >
+          <span className="bp-label">
+            Done
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+
 const App: React.FC = () => {
   const {
     user,
@@ -89,7 +698,7 @@ const App: React.FC = () => {
   ] = useState(false);
 
   const [viewingCoffee, setViewingCoffee] =
-  useState<CoffeeBean | null>(null);
+    useState<CoffeeBean | null>(null);
 
   const [onboardingStep, setOnboardingStep] =
     useState<
@@ -135,6 +744,9 @@ const App: React.FC = () => {
     useState<CoffeeBean | null>(null);
 
   const [editingLog, setEditingLog] =
+    useState<BrewLog | null>(null);
+
+  const [viewingBrew, setViewingBrew] =
     useState<BrewLog | null>(null);
 
   const [prefillLog, setPrefillLog] =
@@ -422,6 +1034,12 @@ const App: React.FC = () => {
           coffee => coffee.id !== id
         )
       );
+
+      setViewingCoffee(previous =>
+        previous?.id === id
+          ? null
+          : previous
+      );
     } catch (error) {
       console.error(
         'Error deleting coffee:',
@@ -626,6 +1244,13 @@ const App: React.FC = () => {
       setBrewLogs(previous =>
         previous.filter(log => log.id !== id)
       );
+
+      setViewingBrew(previous =>
+        previous?.id === id
+          ? null
+          : previous
+      );
+
     } catch (error) {
       console.error(
         'Error deleting brew log:',
@@ -924,6 +1549,8 @@ const App: React.FC = () => {
       setShowBrewFlow(false);
       setEditingCoffee(null);
       setEditingLog(null);
+      setViewingBrew(null);
+      setViewingCoffee(null);
       setPrefillLog(null);
       setSelectedCoffee(null);
       setBrewFlowStep('select');
@@ -940,6 +1567,8 @@ const App: React.FC = () => {
   };
 
   const startBrewCapture = () => {
+    setViewingBrew(null);
+    setViewingCoffee(null);
     setEditingLog(null);
     setPrefillLog(null);
     setSelectedCoffee(null);
@@ -960,6 +1589,13 @@ const App: React.FC = () => {
   const openExistingBrew = (
     log: BrewLog
   ) => {
+    setViewingCoffee(null);
+    setViewingBrew(log);
+  };
+
+  const editExistingBrew = (
+    log: BrewLog
+  ) => {
     const coffee = coffees.find(
       current =>
         current.id === log.coffeeId
@@ -970,6 +1606,7 @@ const App: React.FC = () => {
       return;
     }
 
+    setViewingBrew(null);
     setEditingLog(log);
     setPrefillLog(null);
     setSelectedCoffee(coffee);
@@ -990,11 +1627,20 @@ const App: React.FC = () => {
       return;
     }
 
+    setViewingBrew(null);
     setPrefillLog(log);
     setEditingLog(null);
     setSelectedCoffee(coffee);
     setShowBrewFlow(true);
     setBrewFlowStep('brew');
+  };
+
+  const goToTab = (
+    tab: typeof activeTab
+  ) => {
+    setViewingBrew(null);
+    setViewingCoffee(null);
+    setActiveTab(tab);
   };
 
   if (loading) {
@@ -1051,7 +1697,7 @@ const App: React.FC = () => {
   <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
     <button
       type="button"
-      onClick={() => setActiveTab('home')}
+      onClick={() => goToTab('home')}
       className="flex items-center gap-3"
       aria-label="Go to Home"
     >
@@ -1076,7 +1722,7 @@ const App: React.FC = () => {
       <button
         type="button"
         onClick={() =>
-          setActiveTab('profile')
+          goToTab('profile')
         }
         className="bp-label min-h-10 border border-[var(--bp-blue)] px-4 text-[var(--bp-blue)]"
       >
@@ -1087,7 +1733,30 @@ const App: React.FC = () => {
 </header>
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
-        {activeTab === 'profile' && (
+        {viewingBrew && (
+          <BrewDetailView
+            log={viewingBrew}
+            coffee={coffees.find(
+              coffee =>
+                coffee.id === viewingBrew.coffeeId
+            )}
+            onBack={() =>
+              setViewingBrew(null)
+            }
+            onEdit={() =>
+              editExistingBrew(viewingBrew)
+            }
+            onBrewAgain={() =>
+              brewAgainFromLog(viewingBrew)
+            }
+            onDelete={() =>
+              void handleDeleteLog(viewingBrew.id)
+            }
+          />
+        )}
+
+
+        {activeTab === 'profile' && !viewingBrew && (
   <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
     <div className="border-b border-[var(--bp-line)] pb-6">
       <p className="bp-index">
@@ -1170,7 +1839,7 @@ const App: React.FC = () => {
     </button>
   </div>
 )}
-{activeTab === 'home' && (
+{activeTab === 'home' && !viewingBrew && (
   <HomeDashboard
     coffees={coffees}
     brewLogs={brewLogs}
@@ -1189,22 +1858,22 @@ const App: React.FC = () => {
       brewAgainFromLog
     }
     onOpenAnalytics={() =>
-      setActiveTab('analytics')
+      goToTab('analytics')
     }
   />
 )}
 
-        {activeTab === 'analytics' && (
+        {activeTab === 'analytics' && !viewingBrew && (
           <AnalyticsView
             brewLogs={brewLogs}
             coffees={coffees}
             onBack={() =>
-              setActiveTab('home')
+              goToTab('home')
             }
           />
         )}
 
-        {activeTab === 'journal' && (
+        {activeTab === 'journal' && !viewingBrew && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-3xl font-bold text-stone-800 display-font">
@@ -1421,7 +2090,7 @@ const App: React.FC = () => {
                 {coffees.length === 0 ? (
                   <button
                     onClick={() =>
-                      setActiveTab(
+                      goToTab(
                         'library'
                       )
                     }
@@ -1550,7 +2219,7 @@ const App: React.FC = () => {
                               <button
                                 onClick={event => {
                                   event.stopPropagation();
-                                  openExistingBrew(
+                                  editExistingBrew(
                                     log
                                   );
                                 }}
@@ -1712,7 +2381,7 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {viewingCoffee && (
+        {!viewingBrew && viewingCoffee && (
   <section className="space-y-8">
     <div className="border-b border-[var(--bp-line)] pb-6">
       <div className="flex items-start justify-between gap-4">
@@ -2124,7 +2793,7 @@ const App: React.FC = () => {
   </section>
 )}
 
-        {activeTab === 'library' && (
+        {activeTab === 'library' && !viewingCoffee && !viewingBrew && (
   <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
     <section className="border-b border-[var(--bp-line)] pb-6">
       <p className="bp-index">
@@ -2330,11 +2999,11 @@ const App: React.FC = () => {
     )}
   </div>
 )}
-        {activeTab === 'grind' && (
+        {activeTab === 'grind' && !viewingBrew && (
           <GrindReference />
         )}
 
-        {activeTab === 'community' && (
+        {activeTab === 'community' && !viewingBrew && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 py-12 text-center">
             <div className="w-20 h-20 bg-amber-100 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-amber-800">
               <Icons.Users className="w-8 h-8" />
@@ -2358,142 +3027,210 @@ const App: React.FC = () => {
       </main>
 
       {showBrewFlow && (
-        <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md flex items-center justify-center z-[70] p-6 overflow-y-auto">
-          {brewFlowStep ===
-            'select' && (
-            <div className="bg-white rounded-[3rem] w-full max-w-md p-10 shadow-2xl animate-in zoom-in-95 duration-300">
-              <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h3 className="text-2xl font-black text-stone-800 display-font">
-                    Select Roast
-                  </h3>
+  <div className="fixed inset-0 z-[70] overflow-y-auto bg-[rgba(12,39,72,0.48)] backdrop-blur-sm">
+    <div className="min-h-full p-0 sm:p-6">
+      <div className="mx-auto flex min-h-[100dvh] w-full max-w-2xl items-start justify-center sm:min-h-0">
+        {brewFlowStep === 'select' && (
+          <section className="w-full border-x border-[var(--bp-line)] bg-[var(--bp-paper)] sm:border">
+            <div
+              className="sticky top-0 z-20 border-b border-[var(--bp-line)] bg-[var(--bp-paper)] px-4 pb-4 sm:px-6"
+              style={{
+                paddingTop:
+                  'calc(env(safe-area-inset-top) + 1rem)',
+              }}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="bp-index">
+                    05 / BREW CAPTURE
+                  </p>
 
-                  <p className="text-xs text-stone-400 font-medium">
-                    Which bean are we
-                    calibrating today?
+                  <h2 className="bp-heading mt-1 text-2xl text-[var(--bp-blue)]">
+                    Select Coffee
+                  </h2>
+
+                  <p className="bp-code mt-2 text-[var(--bp-muted)]">
+                    Choose the coffee record for this brew.
                   </p>
                 </div>
 
                 <button
+                  type="button"
                   onClick={() => {
-                    setShowBrewFlow(
-                      false
-                    );
+                    setShowBrewFlow(false);
                     setEditingLog(null);
                     setPrefillLog(null);
-                    setSelectedCoffee(
-                      null
-                    );
+                    setSelectedCoffee(null);
                   }}
-                  className="p-2 bg-stone-50 rounded-full text-stone-400 hover:text-stone-800 transition-colors"
+                  className="bp-button h-10 min-h-0 px-3"
                 >
-                  ✕
+                  Close
                 </button>
               </div>
-
-              <div className="space-y-4 max-h-96 overflow-y-auto mb-8 pr-2 custom-scrollbar">
-                {coffees.map(coffee => (
-                  <button
-                    key={coffee.id}
-                    onClick={() => {
-                      setSelectedCoffee(
-                        coffee
-                      );
-                      setBrewFlowStep(
-                        'brew'
-                      );
-                    }}
-                    className="w-full text-left p-5 rounded-[1.5rem] border border-stone-100 hover:border-amber-400 hover:bg-amber-50/50 transition-all flex justify-between items-center group"
-                  >
-                    <div>
-                      <p className="font-black text-stone-800 group-hover:text-amber-900">
-                        {coffee.name}
-                      </p>
-
-                      <p className="text-[10px] text-stone-400 font-black uppercase tracking-widest">
-                        {coffee.roaster}
-                      </p>
-                    </div>
-
-                    <div className="text-right">
-                      <span className="text-[10px] font-black text-amber-800 bg-amber-100 px-2 py-1 rounded-md">
-                        {
-                          coffee.remainingWeight
-                        }
-                        g
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={() =>
-                  setBrewFlowStep(
-                    'new-bean'
-                  )
-                }
-                className="w-full py-5 border-2 border-dashed border-stone-200 text-stone-400 rounded-3xl font-black uppercase text-[10px] tracking-[0.2em] hover:border-amber-400 hover:text-amber-800 hover:bg-amber-50/30 transition-all"
-              >
-                + Register New Bean
-              </button>
             </div>
-          )}
 
-          {brewFlowStep ===
-            'new-bean' && (
-            <CoffeeBeanForm
-              onSave={handleSaveBean}
-              onCancel={() =>
-                setBrewFlowStep(
-                  'select'
-                )
+            <div className="space-y-6 px-4 py-6 sm:px-6">
+              <section>
+                <div className="mb-4 flex items-end justify-between gap-4">
+                  <div>
+                    <p className="bp-index">
+                      05.01 / COFFEE RECORDS
+                    </p>
+
+                    <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+                      Available Coffees
+                    </h3>
+                  </div>
+
+                  <span className="bp-code text-[var(--bp-muted)]">
+                    {
+                      coffees.filter(
+                        coffee => coffee.remainingWeight > 0
+                      ).length
+                    }{' '}
+                    ACTIVE
+                  </span>
+                </div>
+
+                <div className="border border-[var(--bp-line)]">
+                  {coffees
+                    .filter(
+                      coffee => coffee.remainingWeight > 0
+                    )
+                    .map((coffee, index, activeCoffees) => (
+                      <button
+                        key={coffee.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCoffee(coffee);
+                          setBrewFlowStep('brew');
+                        }}
+                        className={`grid w-full grid-cols-[1fr_auto] bg-[var(--bp-paper-light)] text-left ${
+                          index < activeCoffees.length - 1
+                            ? 'border-b border-[var(--bp-line)]'
+                            : ''
+                        }`}
+                      >
+                        <div className="min-w-0 p-4">
+                          <p className="bp-label text-[var(--bp-orange)]">
+                            {coffee.roaster ||
+                              'Roaster not recorded'}
+                          </p>
+
+                          <h4 className="bp-coffee-name mt-2 truncate text-2xl text-[var(--bp-blue)]">
+                            {coffee.name}
+                          </h4>
+
+                          <p className="bp-code mt-2 truncate text-[var(--bp-muted)]">
+                            {coffee.origin || 'Origin not recorded'}
+                            {coffee.process
+                              ? ` / ${coffee.process}`
+                              : ''}
+                          </p>
+                        </div>
+
+                        <div className="flex min-w-[96px] flex-col items-end justify-center border-l border-[var(--bp-line)] px-4">
+                          <p className="bp-measurement text-xl font-semibold text-[var(--bp-blue)]">
+                            {coffee.remainingWeight}
+                            g
+                          </p>
+
+                          <p className="bp-label mt-1 text-[var(--bp-muted)]">
+                            Remaining
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                </div>
+
+                {coffees.filter(
+                  coffee => coffee.remainingWeight > 0
+                ).length === 0 && (
+                  <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-5">
+                    <p className="bp-label text-[var(--bp-muted)]">
+                      No active coffees
+                    </p>
+
+                    <p className="mt-2 text-sm leading-relaxed text-[var(--bp-muted)]">
+                      Add a new coffee record before logging a brew.
+                    </p>
+                  </div>
+                )}
+              </section>
+
+              <section>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setBrewFlowStep('new-bean')
+                  }
+                  className="flex w-full items-center justify-between border border-[var(--bp-line)] bg-[var(--bp-orange)] px-5 py-4 text-[var(--bp-blue)]"
+                >
+                  <div className="text-left">
+                    <p className="bp-label">
+                      New record
+                    </p>
+
+                    <p className="mt-1 text-sm font-semibold">
+                      Add Coffee
+                    </p>
+                  </div>
+
+                  <Icons.Plus className="h-5 w-5" />
+                </button>
+              </section>
+            </div>
+          </section>
+        )}
+
+        {brewFlowStep === 'new-bean' && (
+          <CoffeeBeanForm
+            onSave={handleSaveBean}
+            onCancel={() =>
+              setBrewFlowStep('select')
+            }
+          />
+        )}
+
+        {brewFlowStep === 'brew' &&
+          selectedCoffee && (
+            <BrewForm
+              coffee={selectedCoffee}
+              initialData={
+                editingLog ||
+                prefillLog ||
+                undefined
               }
+              isBrewAgain={Boolean(
+                prefillLog
+              )}
+              title={
+                editingLog
+                  ? 'Update Entry'
+                  : prefillLog
+                    ? 'Brew Again'
+                    : 'Log Brew'
+              }
+              onSave={handleSaveBrew}
+              onCancel={() => {
+                if (
+                  onboardingStep === 'brew'
+                ) {
+                  void completeOnboarding();
+                  return;
+                }
+
+                setShowBrewFlow(false);
+                setEditingLog(null);
+                setPrefillLog(null);
+                setSelectedCoffee(null);
+              }}
             />
           )}
-
-          {brewFlowStep === 'brew' &&
-            selectedCoffee && (
-              <BrewForm
-                coffee={selectedCoffee}
-                initialData={
-                  editingLog ||
-                  prefillLog ||
-                  undefined
-                }
-                isBrewAgain={Boolean(
-                  prefillLog
-                )}
-                title={
-                  editingLog
-                    ? 'Update Entry'
-                    : prefillLog
-                      ? 'Brew Again'
-                      : 'Log Brew'
-                }
-                onSave={handleSaveBrew}
-                onCancel={() => {
-                  if (
-                    onboardingStep ===
-                    'brew'
-                  ) {
-                    void completeOnboarding();
-                    return;
-                  }
-
-                  setShowBrewFlow(
-                    false
-                  );
-                  setEditingLog(null);
-                  setPrefillLog(null);
-                  setSelectedCoffee(
-                    null
-                  );
-                }}
-              />
-            )}
-        </div>
-      )}
+      </div>
+    </div>
+  </div>
+)}
 
       {showBeanForm && (
         <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md flex items-center justify-center z-[70] p-6 overflow-y-auto">
@@ -2728,7 +3465,7 @@ const App: React.FC = () => {
     <button
       type="button"
       onClick={() =>
-        setActiveTab('home')
+        goToTab('home')
       }
       className={`relative flex flex-col items-center justify-center gap-1.5 border-r border-[var(--bp-line)] ${
         activeTab === 'home' ||
@@ -2755,7 +3492,7 @@ const App: React.FC = () => {
     <button
       type="button"
       onClick={() =>
-        setActiveTab('library')
+        goToTab('library')
       }
       className={`relative flex flex-col items-center justify-center gap-1.5 border-r border-[var(--bp-line)] ${
         activeTab === 'library'
@@ -2797,7 +3534,7 @@ const App: React.FC = () => {
     <button
       type="button"
       onClick={() =>
-        setActiveTab('journal')
+        goToTab('journal')
       }
       className={`relative flex flex-col items-center justify-center gap-1.5 border-l border-[var(--bp-line)] ${
         activeTab === 'journal'
@@ -2822,7 +3559,7 @@ const App: React.FC = () => {
     <button
       type="button"
       onClick={() =>
-        setActiveTab('profile')
+        goToTab('profile')
       }
       className={`relative flex flex-col items-center justify-center gap-1.5 border-l border-[var(--bp-line)] ${
         activeTab === 'profile'
