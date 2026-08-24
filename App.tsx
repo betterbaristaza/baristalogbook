@@ -22,6 +22,11 @@ import AnalyticsView from './components/AnalyticsView';
 import AuthScreen from './components/AuthScreen';
 import OnboardingWelcome from './components/OnboardingWelcome';
 import HomeDashboard from './components/HomeDashboard';
+import {
+  BrewprintIcon,
+  BrewprintMark,
+  BrewprintWordmark,
+} from './components/BrewprintBrand';
 
 import { useAuth } from './context/AuthContext';
 
@@ -100,6 +105,7 @@ const App: React.FC = () => {
     | 'grind'
     | 'community'
     | 'analytics'
+    | 'profile'
   >('home');
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -1025,62 +1031,142 @@ const App: React.FC = () => {
 
   return (
     <div
-      className="min-h-screen flex flex-col bg-[#fdfcfb]"
-      style={{
-        paddingBottom:
-          'calc(env(safe-area-inset-bottom) + 8rem)',
-      }}
-    >
+  className="bp-page min-h-screen flex flex-col"
+  style={{
+    paddingBottom:
+      'calc(env(safe-area-inset-bottom) + 88px)',
+  }}
+>
+   
       <header
-        className="bg-white border-b border-stone-100 sticky top-0 z-30 px-6 pb-4 flex justify-between items-center shadow-sm"
-        style={{
-          paddingTop:
-            'calc(env(safe-area-inset-top) + 1rem)',
-        }}
-      >
-        <h1 className="text-2xl font-bold display-font text-stone-800">
-          Barista{' '}
-          <span className="text-amber-800">
-            Logbook
-          </span>
-        </h1>
+  className="sticky top-0 z-40 border-b border-[var(--bp-line)] bg-[var(--bp-paper)]"
+  style={{
+    paddingTop:
+      'env(safe-area-inset-top)',
+  }}
+>
+  <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
+    <button
+      type="button"
+      onClick={() => setActiveTab('home')}
+      className="flex items-center gap-3"
+      aria-label="Go to Home"
+    >
+      <BrewprintMark className="h-8 w-8" />
 
-        <div className="flex items-center gap-3">
-          {profile && (
-            <div className="text-right hidden sm:block">
-              <p className="text-[9px] font-black uppercase text-stone-400 tracking-widest">
-                {profile.role}
-              </p>
+      <BrewprintWordmark className="h-[15px] w-auto" />
+    </button>
 
-              <p className="text-xs font-bold text-stone-800">
-                {profile.name}
-              </p>
-            </div>
-          )}
+    <div className="hidden items-center gap-4 sm:flex">
+      {profile && (
+        <div className="border-r border-[var(--bp-line)] pr-4 text-right">
+          <p className="bp-label text-[var(--bp-muted)]">
+            {profile.role}
+          </p>
 
-          <button
-            onClick={() =>
-              setShowProfileModal(true)
-            }
-            className="w-10 h-10 rounded-2xl bg-stone-50 border border-stone-200 flex items-center justify-center text-stone-400 hover:text-amber-800 hover:border-amber-200 transition-all shadow-sm active:scale-95"
-            title="Edit Profile"
-          >
-            <Icons.User className="w-5 h-5" />
-          </button>
-
-          <button
-            onClick={async () => {
-              await signOut();
-            }}
-            className="px-4 h-10 rounded-2xl bg-stone-50 border border-stone-200 text-[10px] font-black uppercase tracking-widest text-stone-500 hover:text-rose-600 hover:border-rose-200 transition-all"
-            title="Sign Out"
-          >
-            Sign Out
-          </button>
+          <p className="mt-0.5 text-xs font-semibold text-[var(--bp-blue)]">
+            {profile.name}
+          </p>
         </div>
-      </header>
+      )}
 
-      <main className="flex-1 max-w-2xl mx-auto w-full p-6">
+      <button
+        type="button"
+        onClick={() =>
+          setActiveTab('profile')
+        }
+        className="bp-label min-h-10 border border-[var(--bp-blue)] px-4 text-[var(--bp-blue)]"
+      >
+        Profile
+      </button>
+    </div>
+  </div>
+</header>
+
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
+        {activeTab === 'profile' && (
+  <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
+    <div className="border-b border-[var(--bp-line)] pb-6">
+      <p className="bp-index">
+        08 / PROFILE
+      </p>
+
+      <h1 className="bp-heading mt-2 text-3xl text-[var(--bp-blue)]">
+        Profile
+      </h1>
+
+      <p className="mt-2 text-sm text-[var(--bp-muted)]">
+        Your account, defaults and BREWPRINT settings.
+      </p>
+    </div>
+
+    {profile && (
+      <div className="mt-8 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+        <div className="border-b border-[var(--bp-line)] p-5">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Brewer
+          </p>
+
+          <p className="mt-2 text-lg font-semibold text-[var(--bp-blue)]">
+            {profile.name}
+          </p>
+
+          <p className="bp-code mt-1 text-[var(--bp-muted)]">
+            {profile.role}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 border-b border-[var(--bp-line)]">
+          <div className="border-r border-[var(--bp-line)] p-5">
+            <p className="bp-label text-[var(--bp-muted)]">
+              Default method
+            </p>
+
+            <p className="bp-code mt-2 text-[var(--bp-blue)]">
+              {profile.defaultMethod || 'All'}
+            </p>
+          </div>
+
+          <div className="p-5">
+            <p className="bp-label text-[var(--bp-muted)]">
+              Default grinder
+            </p>
+
+            <p className="bp-code mt-2 text-[var(--bp-blue)]">
+              {profile.defaultGrinder || 'Not set'}
+            </p>
+          </div>
+        </div>
+
+        <div className="p-5">
+          <p className="bp-label text-[var(--bp-muted)]">
+            Default brewer
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-blue)]">
+            {profile.defaultBrewer || 'Not set'}
+          </p>
+        </div>
+      </div>
+    )}
+
+    <button
+      type="button"
+      onClick={() => setShowProfileModal(true)}
+      className="bp-button bp-button-primary mt-6 w-full"
+    >
+      Edit Profile
+    </button>
+
+    <button
+      type="button"
+      onClick={signOut}
+      className="bp-button mt-3 w-full"
+    >
+      Sign Out
+    </button>
+  </div>
+)}
         {activeTab === 'home' && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
             <div className="space-y-1">
@@ -2134,86 +2220,132 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-md bg-stone-900/90 backdrop-blur-xl border border-white/10 px-4 py-5 flex justify-around items-center z-50 rounded-[3rem] shadow-2xl">
-        {[
-          {
-            id: 'home',
-            icon: (
-              <Icons.Coffee className="w-6 h-6" />
-            ),
-            label: 'Home',
-          },
-          {
-            id: 'journal',
-            icon: (
-              <Icons.Book className="w-6 h-6" />
-            ),
-            label: 'Journal',
-          },
-          {
-            id: 'library',
-            icon: (
-              <Icons.Search className="w-6 h-6" />
-            ),
-            label: 'Library',
-          },
-          {
-            id: 'community',
-            icon: (
-              <Icons.Users className="w-6 h-6" />
-            ),
-            label: 'Community',
-          },
-        ].map(item => {
-          const isActive =
-            activeTab === item.id ||
-            (
-              activeTab ===
-                'analytics' &&
-              item.id === 'home'
-            );
+      <nav
+  className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--bp-line-strong)] bg-[var(--bp-paper)]"
+  style={{
+    paddingBottom:
+      'env(safe-area-inset-bottom)',
+  }}
+>
+  <div className="mx-auto grid h-[76px] w-full max-w-2xl grid-cols-5">
+    <button
+      type="button"
+      onClick={() =>
+        setActiveTab('home')
+      }
+      className={`relative flex flex-col items-center justify-center gap-1.5 border-r border-[var(--bp-line)] ${
+        activeTab === 'home' ||
+        activeTab === 'analytics'
+          ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
+          : 'text-[var(--bp-muted)]'
+      }`}
+    >
+      {(activeTab === 'home' ||
+        activeTab === 'analytics') && (
+        <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
+      )}
 
-          return (
-            <button
-              key={item.id}
-              onClick={() =>
-                setActiveTab(
-                  item.id as
-                    | 'home'
-                    | 'journal'
-                    | 'library'
-                    | 'community'
-                )
-              }
-              className={`flex flex-col items-center gap-1.5 transition-all group ${
-                isActive
-                  ? 'text-amber-400'
-                  : 'text-stone-500 hover:text-stone-300'
-              }`}
-            >
-              <div
-                className={`p-2.5 rounded-2xl transition-all ${
-                  isActive
-                    ? 'bg-amber-400/10 scale-110 shadow-inner'
-                    : 'group-hover:bg-white/5'
-                }`}
-              >
-                {item.icon}
-              </div>
+      <BrewprintIcon
+        name="home"
+        size={21}
+      />
 
-              <span
-                className={`text-[8px] font-black uppercase tracking-[0.3em] ${
-                  isActive
-                    ? 'opacity-100'
-                    : 'opacity-40'
-                }`}
-              >
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
-      </nav>
+      <span className="bp-label">
+        Home
+      </span>
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        setActiveTab('library')
+      }
+      className={`relative flex flex-col items-center justify-center gap-1.5 border-r border-[var(--bp-line)] ${
+        activeTab === 'library'
+          ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
+          : 'text-[var(--bp-muted)]'
+      }`}
+    >
+      {activeTab === 'library' && (
+        <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
+      )}
+
+      <BrewprintIcon
+        name="archive"
+        size={21}
+      />
+
+      <span className="bp-label">
+        Archive
+      </span>
+    </button>
+
+    <button
+      type="button"
+      onClick={startBrewCapture}
+      className="relative flex flex-col items-center justify-center gap-1.5 bg-[var(--bp-orange)] text-[var(--bp-blue)]"
+    >
+      <BrewprintIcon
+        name="plus"
+        size={25}
+      />
+
+      <span className="bp-label">
+        Brew
+      </span>
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        setActiveTab('journal')
+      }
+      className={`relative flex flex-col items-center justify-center gap-1.5 border-l border-[var(--bp-line)] ${
+        activeTab === 'journal'
+          ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
+          : 'text-[var(--bp-muted)]'
+      }`}
+    >
+      {activeTab === 'journal' && (
+        <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
+      )}
+
+      <BrewprintIcon
+        name="history"
+        size={21}
+      />
+
+      <span className="bp-label">
+        History
+      </span>
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        setActiveTab('profile')
+      }
+      className={`relative flex flex-col items-center justify-center gap-1.5 border-l border-[var(--bp-line)] ${
+        activeTab === 'profile'
+          ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
+          : 'text-[var(--bp-muted)]'
+      }`}
+    >
+      {activeTab === 'profile' && (
+        <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
+      )}
+
+      <BrewprintIcon
+        name="profile"
+        size={21}
+      />
+
+      <span className="bp-label">
+        Profile
+      </span>
+    </button>
+  </div>
+</nav>
     </div>
   );
 };

@@ -1,10 +1,369 @@
-/* Custom variables */
-:root {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("/fonts/ibm-plex-sans/IBMPlexSans-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
-/* Custom scrollbar */
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("/fonts/ibm-plex-sans/IBMPlexSans-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("/fonts/ibm-plex-sans/IBMPlexSans-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("/fonts/ibm-plex-sans/IBMPlexSans-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/ibm-plex-mono/IBMPlexMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/ibm-plex-mono/IBMPlexMono-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/ibm-plex-mono/IBMPlexMono-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/ibm-plex-mono/IBMPlexMono-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  src: url("/fonts/eb-garamond/EBGaramond-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  src: url("/fonts/eb-garamond/EBGaramond-Italic-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 400 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  /* BREWPRINT core colours */
+  --bp-blue: #0c2748;
+  --bp-paper: #f4f0e6;
+  --bp-orange: #ff6b35;
+
+  /* Supporting colours */
+  --bp-blue-soft: #18395f;
+  --bp-blue-muted: #4b617a;
+  --bp-paper-light: #faf8f2;
+  --bp-paper-dark: #e7e1d4;
+  --bp-line: rgba(12, 39, 72, 0.18);
+  --bp-line-strong: rgba(12, 39, 72, 0.38);
+  --bp-muted: rgba(12, 39, 72, 0.62);
+  --bp-white: #ffffff;
+  --bp-danger: #a13d32;
+  --bp-success: #315f46;
+
+  /* Typography */
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-serif: "EB Garamond", Georgia, serif;
+
+  /* Spacing */
+  --bp-space-1: 4px;
+  --bp-space-2: 8px;
+  --bp-space-3: 12px;
+  --bp-space-4: 16px;
+  --bp-space-5: 24px;
+  --bp-space-6: 32px;
+  --bp-space-7: 40px;
+  --bp-space-8: 48px;
+  --bp-space-9: 64px;
+
+  /* Structure */
+  --bp-grid-unit: 8px;
+  --bp-grid-major: 24px;
+
+  /* Lines */
+  --bp-line-construction: 1px;
+  --bp-line-functional: 1.5px;
+  --bp-line-emphasis: 2px;
+
+  /* Radius */
+  --bp-radius-xs: 3px;
+  --bp-radius-sm: 4px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bp-paper);
+  color: var(--bp-blue);
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--bp-paper);
+  color: var(--bp-blue);
+  font-family: var(--font-sans);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+::selection {
+  background: var(--bp-orange);
+  color: var(--bp-blue);
+}
+
+/* BREWPRINT typography helpers */
+
+.bp-sans {
+  font-family: var(--font-sans);
+}
+
+.bp-mono {
+  font-family: var(--font-mono);
+}
+
+.bp-serif {
+  font-family: var(--font-serif);
+}
+
+.display-font {
+  font-family: var(--font-serif);
+}
+
+.bp-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.bp-code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+}
+
+.bp-measurement {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.bp-coffee-name {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.bp-heading {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.bp-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--bp-space-2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.bp-section-title::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  background: currentColor;
+}
+
+/* BREWPRINT surfaces */
+
+.bp-page {
+  min-height: 100vh;
+  background: var(--bp-paper);
+  color: var(--bp-blue);
+}
+
+.bp-panel {
+  border: var(--bp-line-construction) solid var(--bp-line);
+  background: var(--bp-paper-light);
+  border-radius: var(--bp-radius-sm);
+}
+
+.bp-rule {
+  width: 100%;
+  height: 1px;
+  background: var(--bp-line);
+}
+
+.bp-grid {
+  background-image:
+    linear-gradient(to right, var(--bp-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--bp-line) 1px, transparent 1px);
+  background-size: var(--bp-grid-major) var(--bp-grid-major);
+}
+
+.bp-grid-subtle {
+  background-image:
+    linear-gradient(
+      to right,
+      rgba(12, 39, 72, 0.055) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(12, 39, 72, 0.055) 1px,
+      transparent 1px
+    );
+  background-size: var(--bp-grid-major) var(--bp-grid-major);
+}
+
+/* BREWPRINT interactive primitives */
+
+.bp-button {
+  min-height: 44px;
+  border: var(--bp-line-functional) solid var(--bp-blue);
+  border-radius: var(--bp-radius-sm);
+  padding: 10px 16px;
+  background: transparent;
+  color: var(--bp-blue);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.bp-button:hover {
+  background: rgba(12, 39, 72, 0.05);
+}
+
+.bp-button:active {
+  transform: translateY(1px);
+}
+
+.bp-button-primary {
+  border-color: var(--bp-orange);
+  background: var(--bp-orange);
+  color: var(--bp-blue);
+}
+
+.bp-button-primary:hover {
+  background: #f85f29;
+}
+
+.bp-input {
+  width: 100%;
+  min-height: 44px;
+  border: var(--bp-line-functional) solid var(--bp-line-strong);
+  border-radius: var(--bp-radius-sm);
+  padding: 10px 12px;
+  background: var(--bp-paper-light);
+  color: var(--bp-blue);
+  font-family: var(--font-sans);
+  outline: none;
+}
+
+.bp-input:focus {
+  border-color: var(--bp-orange);
+  box-shadow: 0 0 0 1px var(--bp-orange);
+}
+
+.bp-input::placeholder {
+  color: var(--bp-muted);
+}
+
+/* Technical accents */
+
+.bp-reference-line {
+  position: relative;
+  padding-left: 16px;
+}
+
+.bp-reference-line::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: var(--bp-orange);
+}
+
+.bp-index {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--bp-orange);
+}
+
+.bp-muted {
+  color: var(--bp-muted);
+}
+
+/* Scrollbars */
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
@@ -14,12 +373,12 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e7e5e4;
-  border-radius: 10px;
+  background: var(--bp-line-strong);
+  border-radius: 2px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #d6d3d1;
+  background: var(--bp-blue-muted);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -29,4 +388,33 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* BREWPRINT shell */
+
+#root {
+  min-height: 100vh;
+  background: var(--bp-paper);
+}
+
+.bp-page {
+  background-color: var(--bp-paper);
+  background-image:
+    linear-gradient(
+      to right,
+      rgba(12, 39, 72, 0.025) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(12, 39, 72, 0.025) 1px,
+      transparent 1px
+    );
+  background-size: 24px 24px;
+}
+
+@media (max-width: 639px) {
+  .bp-page {
+    background-image: none;
+  }
 }
