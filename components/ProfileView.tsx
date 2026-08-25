@@ -8,6 +8,7 @@ interface ProfileViewProps {
   coffeeCount: number;
   brewCount: number;
   onEdit: () => void;
+  onExportData: () => void;
   onSignOut: () => void | Promise<void>;
   onDeleteAccount: () => void;
 }
@@ -18,6 +19,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   coffeeCount,
   brewCount,
   onEdit,
+  onExportData,
   onSignOut,
   onDeleteAccount,
 }) => {
@@ -203,6 +205,29 @@ const ProfileView: React.FC<ProfileViewProps> = ({
         <p className="bp-code mt-3 text-[var(--bp-muted)]">
           Profile, coffee records and brew records are synced to your authenticated account.
         </p>
+
+        <button
+  type="button"
+  onClick={onExportData}
+  className="mt-4 flex min-h-14 w-full items-center justify-between border border-[var(--bp-line)] bg-[var(--bp-paper-light)] px-5 text-[var(--bp-blue)]"
+>
+  <div className="text-left">
+    <p className="bp-label">
+      Export User Data
+    </p>
+
+    <p className="mt-1 text-sm font-semibold">
+      Profile, coffees and brew records
+    </p>
+  </div>
+
+  <span
+    aria-hidden="true"
+    className="bp-code text-lg"
+  >
+    ↓
+  </span>
+</button>
       </section>
 
       <section>

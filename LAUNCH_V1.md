@@ -1,6 +1,6 @@
-# Barista Logbook V1 Launch Plan
+# Brewprint V1 Launch Plan
 
-Last updated: 23 August 2026
+Last updated: 25 August 2026
 
 Target paid launch: 28 September 2026
 
@@ -14,7 +14,7 @@ Paid launch: 28 September 2026
 
 A new user must be able to:
 
-1. Understand what Barista Logbook does.
+1. Understand what Brewprint does.
 2. Create an account.
 3. Complete their profile once.
 4. Add a coffee.
@@ -36,7 +36,7 @@ Record → Brew → Compare → Improve
 
 ## Current Development Status
 
-Completed and verified by 23 August 2026:
+Completed and verified by 25 August 2026:
 
 * Authentication, profiles and cross-device data sync
 * Password recovery and email verification flows
@@ -47,32 +47,35 @@ Completed and verified by 23 August 2026:
 * Optional brew photo upload
 * Automatic and atomic coffee weight deduction
 * Brew history search and filtering
-* Brew Again flow from existing Journal entries
+* Brew Again flow from existing History entries
 * Brew Again recipe prefill with fresh result fields
 * Brew Again creates a separate brew while preserving the original
-* Home dashboard rebuilt around real Coffee Library and Brew Log data
-* Recent Brew summary with direct brew access and Brew Again
-* Favourite Coffee analysis
-* Best Brews analysis
-* Common Approach analysis across successful brews
-* Brewing Trends analysis
-* Coffee Usage and estimated brews remaining
-* Full Analytics with selectable time periods
-* Coffee choice analytics for origins, processes, roasters and roast levels
-* Brew method performance analytics
-* Highest-rated method and coffee analysis with minimum sample sizes
-* Sensory profile and flavour-group analytics
+* Home Dashboard implemented
+* Best Brews dashboard data
+* Brewing Trends dashboard data
+* Coffee Usage dashboard data
+* Analytics views updated
+* Home summary layout improvements
 * Header safe-area improvements for iPhone
 * Coffee Library empty state
 * Brew Log empty state
 * Coffee Library card redesign
 * Coffee Library mobile layout tested at 390 px
-* Add Bean and Edit Bean form mobile redesign
-* Full-screen mobile bean form
+* Add Coffee and Edit Coffee form mobile redesign
+* Full-screen mobile coffee form
 * iPhone input zoom prevention
 * Persistent mobile Save and Discard controls
-* Desktop and mobile bean form testing
+* Desktop and mobile coffee form testing
 * Brew Log mobile usability review
+* Brew flow tested at 390 px
+* Edit Brew mobile flow verified
+* Brew Again mobile flow verified
+* Brew photo mobile flow verified
+* Brew Save and Cancel behaviour verified
+* Brewprint Technical Editorial UI direction implemented across core product areas
+* Brewprint brand assets integrated
+* Home, Archive, Brew, History and Profile navigation structure implemented
+* Brew History interaction updated to open full brew records
 * Supabase security audit and database hardening
 * RLS verified across all user tables
 * Private image storage policies verified
@@ -81,12 +84,15 @@ Completed and verified by 23 August 2026:
 * Secure password changes enabled
 * Frontend password validation matched to Supabase rules
 * Account deletion and associated user data deletion
+* Full user data export
+* Structured JSON export for account, profile, coffees and brews
+* Brew History CSV export retained
+* Export excludes authentication tokens and temporary image URLs
+* Cross-account export isolation verified
 * Gemini API moved behind a server-side API endpoint
 * Gemini SDK removed from the frontend request flow
 * Gemini API key injection removed from the Vite browser bundle
 * Frontend verified with no remaining Gemini secret references
-* Local production builds passing
-* All previously completed changes committed and merged into main
 * Cloudflare Turnstile CAPTCHA protection added to authentication
 * CAPTCHA enabled in Supabase Authentication
 * CAPTCHA protection verified for sign in, signup, verification resend and password reset
@@ -103,22 +109,23 @@ Completed and verified by 23 August 2026:
 * @types/node updated within the Node 22 compatibility line
 * Production build passed after dependency updates
 * Development smoke test passed after dependency updates
-* Brew Journal cards restored to open the full brew entry on card click
+* Brew History cards restored to open the full brew entry on card click
 * Edit, Brew Again and Delete actions verified independently after card interaction fix
 * Node 24.19.0 confirmed for local development
 * Major dependency migrations identified and deliberately deferred for separate testing
-* Home dashboard and Full Analytics production build passed
-* Home dashboard mobile interaction testing passed
-* BrewForm brew image path typo corrected during dashboard integration
+* Local production builds passing
 
 Current recommended development focus:
 
-1. Production-quality review and remaining P0 reliability checks
-2. Mobile navigation and loading, error and empty-state review
-3. Subscription system
-4. Beta and production preparation
-5. Separate major dependency migration review for Vite, TypeScript and Google GenAI
-6. Gemini production key setup immediately before beta and production testing
+1. Complete remaining P0 product reliability checks
+2. Complete loading, error and empty-state review
+3. Build the subscription and payment system
+4. Complete legal, pricing and support requirements
+5. Prepare closed beta and production environments
+6. Complete final production testing
+7. Review App.tsx responsibilities after launch-critical work
+
+AI remains deferred for V1 unless explicitly re-enabled before launch.
 
 ## Priority Levels
 
@@ -126,7 +133,7 @@ P0 = Required before launch
 
 P1 = Strongly preferred for launch
 
-P2 = Post-launch
+P2 = Post-launch or deferred work
 
 # P0 Launch Requirements
 
@@ -155,8 +162,8 @@ P2 = Post-launch
 * [x] First-use empty state
 * [x] Coffee card information hierarchy
 * [x] Mobile card layout
-* [x] Mobile Add Bean form
-* [x] Mobile Edit Bean form
+* [x] Mobile Add Coffee form
+* [x] Mobile Edit Coffee form
 * [x] Mobile Save and Discard controls
 * [x] Final mobile usability review
 
@@ -175,7 +182,18 @@ P2 = Post-launch
 * [x] Brew Again preserves recipe inputs while resetting tasting results, sensory scores, flavour groups and brew photo
 * [x] Brew Again preserves the original brew log and deducts the new dose from remaining coffee
 * [x] Previous brew image path does not carry into the new brew
+* [x] Full brew record opens from History card
+* [x] Edit action verified
+* [x] Brew Again action verified
+* [x] Delete action verified
 * [x] Final mobile usability review
+* [x] 390 px Brew Log test
+* [x] Mobile coffee selection flow
+* [x] Mobile Brew Form
+* [x] Mobile Edit Brew
+* [x] Mobile Brew Again
+* [x] Mobile brew photo
+* [x] Mobile Save and Cancel behaviour
 
 ## Security
 
@@ -198,6 +216,9 @@ P2 = Post-launch
 * [x] Verify CAPTCHA in production
 * [x] Remove Gemini API key from browser
 * [x] Create server-side Gemini request flow
+* [x] Complete production dependency security pass
+* [x] Resolve known npm vulnerabilities
+* [x] Verify user-data export isolation between accounts
 
 ## Onboarding
 
@@ -232,20 +253,23 @@ P2 = Post-launch
 * [x] Coffee Library empty state
 * [x] Brew Log empty state
 * [x] Coffee Library mobile review
-* [x] Bean form mobile review
+* [x] Coffee form mobile review
 * [x] iPhone safe-area header fix
 * [x] iPhone form input zoom prevention
 * [x] Brew Log mobile review
+* [x] Brew Log 390 px test
+* [x] Brew capture mobile flow review
+* [x] Edit Brew mobile review
+* [x] Brew Again mobile review
+* [x] Brew photo mobile review
+* [x] Brew Save and Cancel review
 * [x] Complete production dependency compatibility pass
 * [x] Update compatible React, Tailwind and Node type dependencies
 * [x] Production build passes after dependency updates
 * [x] Development smoke test passes after dependency updates
-* [x] Restore full brew opening from Journal card
+* [x] Restore full brew opening from History card
 * [x] Verify Edit, Brew Again and Delete actions after card interaction fix
-* [x] Home dashboard mobile review
-* [x] Home dashboard detail-view navigation review
-* [x] Full Analytics functional review
-* [ ] Mobile navigation review
+* [ ] Complete mobile navigation review
 * [ ] PWA installation testing
 * [ ] Production console error review
 * [ ] Cross-browser testing
@@ -253,7 +277,18 @@ P2 = Post-launch
 
 ## User Data
 
-* [ ] Export user data
+* [x] Export user data
+* [x] Export account identity
+* [x] Export profile data
+* [x] Export Coffee Library
+* [x] Export Brew Logs
+* [x] Retain Brew History CSV export
+* [x] Exclude temporary signed image URLs
+* [x] Exclude browser File objects
+* [x] Exclude authentication tokens and secrets
+* [x] Retain stable image storage paths where available
+* [x] Verify export download
+* [x] Verify export isolation between accounts
 * [x] Delete account
 * [x] Delete associated user data
 * [x] Confirm deleted users lose access
@@ -267,10 +302,6 @@ P2 = Post-launch
 * [ ] Upgrade page
 * [ ] Production domain review
 * [ ] Beta feedback process
-* [ ] Create new Gemini API key before enabling AI features
-* [ ] Add GEMINI_API_KEY as a server-only Vercel environment variable
-* [ ] Test Gemini server endpoint in production
-* [ ] Revoke previous exposed Gemini API key
 
 # P1 Launch Features
 
@@ -295,60 +326,29 @@ P2 = Post-launch
 * [x] Number of brews
 * [x] Average rating
 * [x] Best-rated brew
-* [x] Coffee consumed
-* [x] Favourite brew method
+* [x] Coffee usage data
+* [x] Brew method trends
 * [x] Coffee origin trends
-* [x] Coffee processing trends
-* [x] Roaster trends
-* [x] Roast-level trends
-* [x] Sensory profile averages
-* [x] Flavour-group frequency
+* [x] Coffee process trends
+* [x] Roast trends
 
 ## Dashboard
 
-* [x] Current coffees
-* [x] Recent brews
-* [x] Brew activity by selected period
-* [x] Coffee remaining
-* [x] Best brews
-* [x] Favourite Coffee
+* [x] Home Dashboard
+* [x] Best Brews
 * [x] Brewing Trends
 * [x] Coffee Usage
-* [x] Estimated brews remaining
-* [x] Common Approach across successful brews
 * [x] Quick Log Brew action
-* [x] Full Analytics access
-* [x] Mobile dashboard review
-
-## Analytics
-
-* [x] Selectable 30-day period
-* [x] Selectable 3-month period
-* [x] Selectable 6-month period
-* [x] Selectable 1-year period
-* [x] All-time analytics
-* [x] Total brew count
-* [x] Unique coffees brewed
-* [x] Average rating
-* [x] Total dry coffee used
-* [x] Median dose
-* [x] Median yield
-* [x] Median brew ratio
-* [x] Median brew time
-* [x] Median water temperature
-* [x] Brew method performance
-* [x] Highest-rated methods with minimum sample size
-* [x] Highest-rated coffees with minimum sample size
-* [x] Coffee choice analysis
-* [x] Sensory analysis
-* [x] Flavour-group analysis
-* [x] Correlation versus causation guidance
+* [x] Links from dashboard into brew records
+* [x] Links from dashboard into analytics
+* [ ] Experiments
 
 # P2 Post-Launch
 
 Do not work on these before V1 unless launch-critical work is complete.
 
-* [ ] Experiments and structured variable testing
+## Product Expansion
+
 * [ ] Café accounts
 * [ ] Team accounts
 * [ ] Roaster accounts
@@ -362,6 +362,28 @@ Do not work on these before V1 unless launch-critical work is complete.
 * [ ] Native iOS app
 * [ ] Native Android app
 * [ ] Equipment integrations
+
+## Deferred AI
+
+AI is not required for the V1 paid launch.
+
+Before AI features are enabled:
+
+* [ ] Create a new Gemini API key
+* [ ] Add GEMINI_API_KEY as a server-only Vercel environment variable
+* [ ] Test Gemini server endpoint in production
+* [ ] Test Gemini failure handling
+* [ ] Revoke any previously exposed Gemini API key
+* [ ] Review AI feature value before enabling it for users
+
+## Deferred Dependency Migrations
+
+Major dependency migrations stay separate from launch-critical fixes.
+
+* [ ] Review next major Vite migration
+* [ ] Review next major TypeScript migration
+* [ ] Review Google GenAI dependency requirements
+* [ ] Run isolated compatibility testing before major upgrades
 
 # Development Schedule
 
@@ -379,21 +401,13 @@ Goal: Technical foundation, launch scope and core mobile usability.
 * [x] Build onboarding
 * [x] Fix onboarding completion persistence
 * [x] Improve Home summary layout
-* [x] Build useful Home brewing dashboard
-* [x] Add Recent Brew dashboard interaction
-* [x] Add Favourite Coffee analysis
-* [x] Add Best Brews analysis
-* [x] Add Brewing Trends
-* [x] Add Coffee Usage tracking
-* [x] Add Full Analytics
-* [x] Complete dashboard mobile review
 * [x] Fix iPhone header safe area
 * [x] Improve first-use Coffee Library
 * [x] Improve first-use Brew Log
 * [x] Redesign Coffee Library card
 * [x] Test Coffee Library card at 390 px
-* [x] Improve Add Bean mobile form
-* [x] Improve Edit Bean mobile form
+* [x] Improve Add Coffee mobile form
+* [x] Improve Edit Coffee mobile form
 * [x] Add mobile form safe-area spacing
 * [x] Prevent iPhone input zoom
 * [x] Complete Coffee Library mobile review
@@ -405,13 +419,17 @@ Goal: Technical foundation, launch scope and core mobile usability.
 * [x] Remove Gemini API key from browser
 * [x] Create server-side Gemini request flow
 * [x] Complete Brew Again
-* [ ] Test Gemini failure handling
+* [x] Build Home Dashboard
+* [x] Build Best Brews dashboard view
+* [x] Build Brewing Trends dashboard view
+* [x] Build Coffee Usage dashboard view
+* [x] Update Analytics
 * [ ] Review application structure
 * [ ] Start reducing responsibilities in App.tsx
 
 ### 19 August 2026, Session 3: Brew Again
 
-* [x] Added Brew Again flow from existing Journal entries
+* [x] Added Brew Again flow from existing History entries
 * [x] Existing recipe parameters prefill into the new brew
 * [x] Tasting results reset for the new brew
 * [x] Sensory scores reset for the new brew
@@ -423,79 +441,22 @@ Goal: Technical foundation, launch scope and core mobile usability.
 * [x] Coffee remaining weight deducts correctly for the repeated brew
 * [x] Production build passed
 
-### 23 August 2026, Session 6: Home Dashboard and Brewing Analytics
+### 23 August 2026, Session 5: Home Dashboard and Brewing Analytics
 
-Goal: Turn the Home summary cards into a useful brewing dashboard based on real Coffee Library and Brew Log data.
-
-* [x] Rebuilt Home around useful brewing summaries
-* [x] Connected dashboard calculations to existing Coffee Library and Brew Log data
-* [x] Added Recent Brew summary with direct access to the full brew entry
-* [x] Added Brew Again access from Recent Brew
-* [x] Added Favourite Coffee analysis
-* [x] Added Favourite Coffee brew count and average rating
-* [x] Added typical dose, yield, ratio, temperature and brew time
-* [x] Added Best Recorded Brew access
-* [x] Added estimated brews remaining
-* [x] Added Best Brews analysis
-* [x] Added Common Approach analysis across successful brews
-* [x] Added View Brew and Brew Again actions from Best Brews
-* [x] Added brew-frequency Trends
-* [x] Added brew-method Trends
-* [x] Added coffee-origin Trends
-* [x] Added coffee-processing Trends
-* [x] Added Coffee Usage tracking
-* [x] Added total coffee remaining
-* [x] Added remaining weight and percentage per coffee
-* [x] Added typical dose and estimated brews remaining
-* [x] Added detailed views behind Home summary cards
-* [x] Added Full Analytics view
-* [x] Added 30-day, 3-month, 6-month, 1-year and all-time filters
-* [x] Added total brew, unique coffee, average rating and coffee-used analytics
-* [x] Added median dose, yield, ratio, brew time and water-temperature analytics
-* [x] Added origin, process, roaster and roast-level frequency analysis
-* [x] Added brew-method performance analysis
-* [x] Added highest-rated methods with minimum sample-size protection
-* [x] Added highest-rated coffees with minimum sample-size protection
-* [x] Added average sensory profile
-* [x] Added recorded flavour-group frequency
-* [x] Added guidance that brewing correlations do not prove causation
-* [x] Removed Experiments card from V1 scope
-* [x] Moved structured experiment tracking to potential post-launch development
-* [x] Fixed BrewForm brewImagePath typo found during integration
-* [x] Recent Brew interaction tested
-* [x] Brew Again interaction tested
-* [x] Favourite Coffee data tested
-* [x] Best Brews data and actions tested
-* [x] Trends calculations tested
-* [x] Coffee Usage calculations tested
-* [x] Home dashboard mobile layout tested
-* [x] Detail-card scrolling and navigation tested
-* [x] Full Analytics tested
-* [x] Analytics time-range switching tested
-* [x] npm run dev passed
-* [x] npm run build passed
-
-Product direction confirmed:
-
-The dashboard should help answer:
-
-* What have I been brewing?
-* Which coffees and brew methods do I use most?
-* Which recipes have produced my best results?
-* What variables commonly appear in my better brews?
-* Can I reuse a successful approach on another coffee?
-* How are my coffee choices changing over time?
-* How much coffee am I using?
-* How much coffee do I have left?
-* Approximately how many brews remain?
-
-Analytics should report patterns from the user's brewing history without presenting correlation as proof that a specific variable caused a better result.
-
-V1 decision:
-
-Home Dashboard and Brewing Analytics are complete for the current V1 scope.
-
-Further analytics should only be added before launch if beta testing identifies a clear user need.
+* [x] Added HomeDashboard component
+* [x] Added Best Brews
+* [x] Added Brewing Trends
+* [x] Added Coffee Usage
+* [x] Added method-share and brewing-variable information
+* [x] Added origin, process and roast trend information
+* [x] Connected dashboard actions to existing Brew Log flows
+* [x] Updated AnalyticsView
+* [x] Updated BrewForm where required
+* [x] Updated App.tsx integration
+* [x] Experiments deliberately deferred
+* [x] Development test passed
+* [x] Production build passed
+* [x] Mobile review passed
 
 ## Week 2, 24 to 30 August
 
@@ -509,46 +470,116 @@ Goal: Complete remaining P0 product quality, security and mobile requirements.
 * [x] Remove Gemini API key from browser
 * [x] Create server-side Gemini request flow
 * [x] Add authentication CAPTCHA protection
-* [ ] Test Gemini failure handling
 * [x] Complete Brew Log mobile review
-* [x] Complete mobile navigation review
-* [ ] Review loading states
-* [ ] Review error states
-* [ ] Review empty states
-* [ ] Complete new-account production test
+* [x] Complete 390 px Brew Log test
+* [x] Verify mobile coffee selection flow
+* [x] Verify mobile Brew Form
+* [x] Verify mobile Edit Brew
+* [x] Verify mobile Brew Again
+* [x] Verify mobile brew photo
+* [x] Verify mobile Save and Cancel behaviour
 * [x] Complete production dependency security pass
 * [x] Resolve all known npm vulnerabilities
 * [x] Complete compatible dependency updates
 * [x] Verify production build after dependency changes
 * [x] Complete development smoke test after dependency changes
-* [x] Restore Journal card full-entry interaction
+* [x] Restore History card full-entry interaction
+* [x] Implement Brewprint Technical Editorial UI across core screens
+* [x] Implement Brewprint navigation structure
+* [x] Complete user data export
+* [x] Add Export User Data to Profile
+* [x] Verify user export contents
+* [x] Verify user export does not expose authentication data
+* [x] Verify cross-account export isolation
+* [ ] Complete mobile navigation review
+* [ ] Review loading states
+* [ ] Review error states
+* [ ] Review empty states
+* [ ] Complete new-account production test
 * [ ] Review application structure
 * [ ] Start reducing responsibilities in App.tsx
 
+### 24 August 2026: Brewprint V1 UI/UX Implementation Pass
+
+* [x] Applied Brewprint Technical Editorial visual system to core application areas
+* [x] Integrated Brewprint branding
+* [x] Updated Home presentation
+* [x] Updated Archive presentation
+* [x] Updated coffee record interactions
+* [x] Updated Brew Log presentation
+* [x] Updated History presentation
+* [x] Updated Analytics presentation
+* [x] Updated navigation
+* [x] Restored full Brew History card opening
+* [x] Preserved Edit, Brew Again and Delete actions
+* [x] Production build passed
+* [x] Functional tests passed
+
+### 25 August 2026: Brew Log Mobile Usability Verification
+
+* [x] Journal list reviewed on mobile
+* [x] Brew capture coffee selection reviewed
+* [x] Brew Form reviewed
+* [x] Edit Brew reviewed
+* [x] Brew Again reviewed
+* [x] Brew photo behaviour reviewed
+* [x] Save behaviour reviewed
+* [x] Cancel behaviour reviewed
+* [x] Touch controls reviewed
+* [x] 390 px layout tested
+* [x] Mobile session accepted as passed
+
+### 25 August 2026, Session 8: User Data Export
+
+* [x] Preserved existing Brew History CSV export
+* [x] Added full account data export from Profile
+* [x] Added Export User Data action to Profile Data section
+* [x] Export includes account identity
+* [x] Export includes profile
+* [x] Export includes Coffee Library
+* [x] Export includes Brew Logs
+* [x] Export uses structured JSON
+* [x] Added schema version
+* [x] Added export timestamp
+* [x] Temporary signed image URLs excluded
+* [x] Browser File objects excluded
+* [x] Authentication tokens and secrets excluded
+* [x] Stable image storage paths retained where available
+* [x] Export download tested successfully
+* [x] Account A export tested
+* [x] Account B export tested
+* [x] Cross-account data isolation verified
+* [x] Account IDs verified against the authenticated user
+* [x] Production build passed
+
 ## Week 3, 31 August to 6 September
 
-Goal: Retention features.
+Goal: Retention features and remaining product refinement.
 
 * [x] Brew Again
 * [ ] Saved recipes
 * [ ] Brew comparison
 * [x] Coffee statistics
 * [x] Dashboard improvements
-* [x] Brewing analytics
-* [ ] Search improvements
+* [x] Search and filtering improvements
+* [ ] Final decision on which P1 features remain in launch scope
 
 ## Week 4, 7 to 13 September
 
-Goal: Payments.
+Goal: Payments and commercial system.
 
 * [ ] Subscription database
 * [ ] Free and Pro account logic
 * [ ] Payment provider test environment
 * [ ] Checkout
 * [ ] Webhooks
+* [ ] Subscription status sync
 * [ ] Subscription management
 * [ ] Failed payment testing
 * [ ] Cancellation testing
+* [ ] Free account limit testing
+* [ ] Upgrade screen
+* [ ] Pricing page
 
 ## Week 5, 14 to 20 September
 
@@ -566,6 +597,8 @@ Track:
 * [ ] Bugs
 * [ ] Feature requests
 * [ ] Mobile problems
+* [ ] Subscription problems
+* [ ] Export or account-control problems
 
 Development priority:
 
@@ -579,23 +612,32 @@ Goal: Production readiness.
 * [ ] Terms
 * [ ] Support contact
 * [x] Account deletion
-* [ ] Data export
-* [ ] Security review
-* [ ] Full RLS test
+* [x] Data export
+* [ ] Final security review
+* [ ] Final RLS test
 * [ ] Full payment test
 * [ ] Production environment review
 * [ ] Cross-device test
 * [ ] Cross-browser test
+* [ ] PWA installation test
+* [ ] Production console review
 * [ ] Full new-user journey test
-* [ ] Create new Gemini API key
-* [ ] Add Gemini key to server-only Vercel environment
-* [ ] Test Gemini server endpoint in production
-* [ ] Revoke previous exposed Gemini API key
+* [ ] Full subscription journey test
+* [ ] Full cancellation test
+* [ ] Full failed-payment test
+* [ ] Confirm beta feedback has been reviewed
+* [ ] Confirm no launch-blocking bugs remain
+
+AI production setup is not required unless AI is intentionally enabled for V1.
 
 ## 28 September
 
-* [ ] Launch Barista Logbook V1
+* [ ] Launch Brewprint V1
 * [ ] Enable paid Pro subscriptions
+* [ ] Confirm production payments
+* [ ] Confirm production account creation
+* [ ] Confirm production account deletion
+* [ ] Confirm production data export
 * [ ] Begin tracking real customer behaviour
 
 # Definition of Done
@@ -608,8 +650,32 @@ Every development task must meet these requirements:
 * [ ] Loading state checked where relevant
 * [ ] Error state checked where relevant
 * [ ] Database permissions checked where relevant
+* [ ] User isolation checked where relevant
 * [ ] No unexpected console errors
 * [ ] `npm run build` passes
 * [ ] Change committed
 * [ ] Change pushed
 * [ ] Production deployment checked where relevant
+
+# Launch Gate
+
+Brewprint V1 is ready for paid launch when:
+
+* [ ] All P0 product functionality is complete
+* [ ] All P0 security requirements are complete
+* [ ] User data export and deletion are complete
+* [ ] Free and Pro account logic is complete
+* [ ] Payments work in production
+* [ ] Subscription status sync works
+* [ ] Cancellation works
+* [ ] Failed payments are handled
+* [ ] Privacy Policy is published
+* [ ] Terms of Service are published
+* [ ] Support contact is published
+* [ ] Pricing and Upgrade screens are live
+* [ ] Closed beta is complete
+* [ ] Production mobile testing passes
+* [ ] Cross-browser testing passes
+* [ ] Full new-user production journey passes
+* [ ] No known launch-blocking security issues remain
+* [ ] No known launch-blocking bugs remain

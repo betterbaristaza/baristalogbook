@@ -1496,6 +1496,87 @@ const App: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+    const handleExportUserData = () => {
+    if (!user) {
+      alert('You must be signed in to export your data.');
+      return;
+    }
+
+    const exportedAt = new Date();
+
+    const exportData = {
+      schemaVersion: 1,
+      exportedAt: exportedAt.toISOString(),
+
+      account: {
+        id: user.id,
+        email: user.email ?? null,
+        createdAt: user.created_at ?? null,
+      },
+
+      profile,
+
+      coffees,
+
+      brews: brewLogs,
+    };
+
+    const excludedKeys = new Set([
+      'bagImage',
+      'labelImage',
+      'brewImage',
+      'bagImageFile',
+      'labelImageFile',
+      'brewImageFile',
+    ]);
+
+    const jsonContent = JSON.stringify(
+      exportData,
+      (key, value) => {
+        if (excludedKeys.has(key)) {
+          return undefined;
+        }
+
+        return value;
+      },
+      2
+    );
+
+    const blob = new Blob(
+      [jsonContent],
+      {
+        type: 'application/json;charset=utf-8;',
+      }
+    );
+
+    const url = URL.createObjectURL(blob);
+
+    const link =
+      document.createElement('a');
+
+    link.setAttribute(
+      'href',
+      url
+    );
+
+    link.setAttribute(
+      'download',
+      `brewprint_user_data_${
+        exportedAt
+          .toISOString()
+          .split('T')[0]
+      }.json`
+    );
+
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  };
+
   const completeOnboarding = async () => {
     if (!user) {
       return;
@@ -1748,18 +1829,19 @@ const App: React.FC = () => {
 
         {activeTab === 'profile' && !viewingBrew && (
   <ProfileView
-    profile={profile}
-    email={user.email || ''}
-    coffeeCount={coffees.length}
-    brewCount={brewLogs.length}
-    onEdit={() =>
-      setShowProfileModal(true)
-    }
-    onSignOut={signOut}
-    onDeleteAccount={() =>
-      setShowDeleteAccountModal(true)
-    }
-  />
+  profile={profile}
+  email={user.email || ''}
+  coffeeCount={coffees.length}
+  brewCount={brewLogs.length}
+  onEdit={() =>
+    setShowProfileModal(true)
+  }
+  onExportData={handleExportUserData}
+  onSignOut={signOut}
+  onDeleteAccount={() =>
+    setShowDeleteAccountModal(true)
+  }
+/>
 )}
 {activeTab === 'home' && !viewingBrew && (
   <HomeDashboard
