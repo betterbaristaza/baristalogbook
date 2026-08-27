@@ -24,6 +24,7 @@ import AnalyticsView from './components/AnalyticsView';
 import AuthScreen from './components/AuthScreen';
 import OnboardingWelcome from './components/OnboardingWelcome';
 import HomeDashboard from './components/HomeDashboard';
+import PrivacyPolicyPage from './components/PrivacyPolicyPage';
 import {
   BrewprintIcon,
   BrewprintMark,
@@ -1714,17 +1715,24 @@ const App: React.FC = () => {
     setActiveTab(tab);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
-      </div>
-    );
-  }
+  const pathname =
+  window.location.pathname.replace(/\/+$/, '') || '/';
 
-  if (!user || passwordRecovery) {
-    return <AuthScreen />;
-  }
+if (pathname === '/privacy') {
+  return <PrivacyPolicyPage />;
+}
+
+if (loading) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      Loading...
+    </div>
+  );
+}
+
+if (!user || passwordRecovery) {
+  return <AuthScreen />;
+}
 
   if (
     profileLoading ||
