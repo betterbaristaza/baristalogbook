@@ -1,0 +1,8 @@
+-- BREWPRINT
+-- Migration intentionally contains no executable statements.
+--
+-- This migration was recorded by the remote Supabase database
+-- before the monetisation schema was added.
+--
+-- The actual billing architecture is created in:
+-- 20260902110000_create_billing_architecture.sql
