@@ -10,6 +10,8 @@ import {
   BrewLog,
 } from '../types';
 
+import { useEntitlements } from '../context/EntitlementContext';
+
 const INITIAL_EQUIPMENT_DB = {
   GRINDERS: [
     'Niche Zero',
@@ -418,6 +420,11 @@ const BrewForm: React.FC<
   title,
   isBrewAgain = false,
 }) => {
+  const {
+    isPro,
+    loading: entitlementsLoading,
+  } = useEntitlements();
+
   const [method, setMethod] =
     useState<BrewMethod>(
       initialData?.method ||
@@ -865,6 +872,15 @@ const BrewForm: React.FC<
   const handleBrewImageUpload = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    if (entitlementsLoading || !isPro) {
+      alert(
+        'Brew photos are available with Brewprint Pro.'
+      );
+
+      event.target.value = '';
+      return;
+    }
+
     const file =
       event.target.files?.[0];
 
@@ -942,7 +958,10 @@ const BrewForm: React.FC<
             : initialData
                 ?.brewImagePath,
 
-        brewImageFile,
+        brewImageFile:
+          isPro
+            ? brewImageFile
+            : undefined,
 
         date: new Date().toISOString(),
 
@@ -2284,55 +2303,99 @@ const BrewForm: React.FC<
               </h3>
             </div>
 
-            <span className="bp-label text-[var(--bp-muted)]">
-              Optional
+            <span
+              className={`bp-label ${
+                isPro
+                  ? 'text-[var(--bp-muted)]'
+                  : 'text-[var(--bp-orange)]'
+              }`}
+            >
+              {isPro
+                ? 'Optional'
+                : 'Pro'}
             </span>
           </div>
 
-          <button
-            type="button"
-            onClick={() =>
-              brewImageInputRef.current?.click()
-            }
-            className="group relative flex min-h-36 w-full items-center justify-center overflow-hidden border border-[var(--bp-line)] bg-[var(--bp-paper-light)]"
-          >
-            {brewImage ? (
-              <>
-                <img
-                  src={brewImage}
-                  alt="Brew preview"
-                  className="h-56 w-full object-cover"
-                />
-
-                <div className="absolute inset-0 flex items-center justify-center bg-[rgba(12,39,72,0.55)] opacity-0 transition-opacity group-hover:opacity-100">
-                  <span className="bp-label text-white">
-                    Change image
-                  </span>
-                </div>
-              </>
-            ) : (
-              <div className="p-8 text-center">
-                <p className="bp-label text-[var(--bp-blue)]">
-                  Add Brew Photo
-                </p>
-
-                <p className="bp-code mt-2 text-[var(--bp-muted)]">
-                  Take a photo or choose one from your device
+          {entitlementsLoading ? (
+            <div className="flex min-h-36 items-center justify-center border border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-6 text-center">
+              <div>
+                <p className="bp-label text-[var(--bp-muted)]">
+                  Checking Pro access...
                 </p>
               </div>
-            )}
-          </button>
+            </div>
+          ) : isPro ? (
+            <>
+              <button
+                type="button"
+                onClick={() =>
+                  brewImageInputRef.current?.click()
+                }
+                className="group relative flex min-h-36 w-full items-center justify-center overflow-hidden border border-[var(--bp-line)] bg-[var(--bp-paper-light)]"
+              >
+                {brewImage ? (
+                  <>
+                    <img
+                      src={brewImage}
+                      alt="Brew preview"
+                      className="h-56 w-full object-cover"
+                    />
 
-          <input
-            ref={brewImageInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={
-              handleBrewImageUpload
-            }
-          />
+                    <div className="absolute inset-0 flex items-center justify-center bg-[rgba(12,39,72,0.55)] opacity-0 transition-opacity group-hover:opacity-100">
+                      <span className="bp-label text-white">
+                        Change image
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="p-8 text-center">
+                    <p className="bp-label text-[var(--bp-blue)]">
+                      Add Brew Photo
+                    </p>
+
+                    <p className="bp-code mt-2 text-[var(--bp-muted)]">
+                      Take a photo or choose one from your device
+                    </p>
+                  </div>
+                )}
+              </button>
+
+              <input
+                ref={brewImageInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={
+                  handleBrewImageUpload
+                }
+              />
+            </>
+          ) : (
+            <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+              <div className="p-6 text-center">
+                <p className="bp-label text-[var(--bp-orange)]">
+                  Brewprint Pro
+                </p>
+
+                <p className="bp-heading mt-2 text-lg text-[var(--bp-blue)]">
+                  Brew Photos
+                </p>
+
+                <p className="bp-code mx-auto mt-2 max-w-sm text-[var(--bp-muted)]">
+                  Add a photo to each brew record with Brewprint Pro.
+                </p>
+              </div>
+
+              {initialData?.brewImage && !isBrewAgain && (
+                <div className="border-t border-[var(--bp-line)] px-5 py-4">
+                  <p className="bp-code text-center text-[var(--bp-muted)]">
+                    Your existing brew photo remains safely stored.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </section>
 
         <section>

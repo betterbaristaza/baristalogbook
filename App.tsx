@@ -909,7 +909,10 @@ const App: React.FC = () => {
 
     try {
       const bagImageFile = bean.bagImageFile;
-      const labelImageFile = bean.labelImageFile;
+
+      const labelImageFile = isPro
+        ? bean.labelImageFile
+        : undefined;
 
       const beanForDatabase: CoffeeBean = {
         ...bean,
@@ -1288,7 +1291,7 @@ const App: React.FC = () => {
   // Brew History access and filtering
   // ----------------------------------------------------------
 
-const visibleHistoryLogs = useMemo(() => {
+  const visibleHistoryLogs = useMemo(() => {
   const sortedLogs = [...brewLogs].sort(
     (a, b) =>
       new Date(b.date).getTime() -
@@ -2743,40 +2746,70 @@ const brewAgainFromLog = (
 
             {(viewingCoffee.bagImage ||
               viewingCoffee.labelImage) && (
-                <section className="border border-[var(--bp-line)]">
-                  <div
-                    className={`grid gap-px bg-[var(--bp-line)] ${viewingCoffee.bagImage &&
-                        viewingCoffee.labelImage
-                        ? 'grid-cols-2'
-                        : 'grid-cols-1'
-                      }`}
-                  >
-                    {viewingCoffee.bagImage && (
-                      <div className="bg-[var(--bp-paper-dark)]">
-                        <img
-                          src={
-                            viewingCoffee.bagImage
-                          }
-                          alt={`${viewingCoffee.name} front of bag`}
-                          className="h-56 w-full object-cover"
-                        />
-                      </div>
-                    )}
+              <section className="border border-[var(--bp-line)]">
+                <div
+                  className={`grid gap-px bg-[var(--bp-line)] ${
+                    viewingCoffee.bagImage &&
+                    viewingCoffee.labelImage
+                      ? 'grid-cols-2'
+                      : 'grid-cols-1'
+                  }`}
+                >
+                  {viewingCoffee.bagImage && (
+                    <div className="bg-[var(--bp-paper-dark)]">
+                      <img
+                        src={viewingCoffee.bagImage}
+                        alt={`${viewingCoffee.name} front of bag`}
+                        className="h-56 w-full object-cover"
+                      />
+                    </div>
+                  )}
 
-                    {viewingCoffee.labelImage && (
+                  {viewingCoffee.labelImage && (
+                    <ProGate
+                      loadingFallback={
+                        <div className="flex h-56 items-center justify-center bg-[var(--bp-paper-light)]">
+                          <div className="text-center">
+                            <p className="bp-label text-[var(--bp-orange)]">
+                              Rear Label
+                            </p>
+
+                            <p className="bp-code mt-2 text-[var(--bp-muted)]">
+                              Checking Pro access...
+                            </p>
+                          </div>
+                        </div>
+                      }
+                      fallback={
+                        <div className="flex h-56 items-center justify-center bg-[var(--bp-paper-light)] p-5">
+                          <div className="text-center">
+                            <p className="bp-label text-[var(--bp-orange)]">
+                              Brewprint Pro
+                            </p>
+
+                            <h2 className="bp-heading mt-2 text-lg text-[var(--bp-blue)]">
+                              Rear Label
+                            </h2>
+
+                            <p className="bp-code mt-2 text-[var(--bp-muted)]">
+                              Rear bag references are available with Brewprint Pro.
+                            </p>
+                          </div>
+                        </div>
+                      }
+                    >
                       <div className="bg-[var(--bp-paper-dark)]">
                         <img
-                          src={
-                            viewingCoffee.labelImage
-                          }
+                          src={viewingCoffee.labelImage}
                           alt={`${viewingCoffee.name} rear label`}
                           className="h-56 w-full object-cover"
                         />
                       </div>
-                    )}
-                  </div>
-                </section>
-              )}
+                    </ProGate>
+                  )}
+                </div>
+              </section>
+            )}
 
             <section>
               <div className="mb-3">

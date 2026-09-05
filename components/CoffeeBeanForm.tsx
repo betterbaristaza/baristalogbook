@@ -9,6 +9,8 @@ import {
   RoastLevel,
 } from '../types';
 
+import { useEntitlements } from '../context/EntitlementContext';
+
 interface CoffeeBeanFormProps {
   onSave: (
     bean: CoffeeBean
@@ -24,6 +26,11 @@ const CoffeeBeanForm: React.FC<
   onCancel,
   initialData,
 }) => {
+  const {
+    isPro,
+    loading: entitlementsLoading,
+  } = useEntitlements();
+
   const [formData, setFormData] =
     useState<Partial<CoffeeBean>>(
       initialData || {
@@ -127,6 +134,18 @@ const CoffeeBeanForm: React.FC<
     event: React.ChangeEvent<HTMLInputElement>,
     type: 'bagImage' | 'labelImage'
   ) => {
+    if (
+      type === 'labelImage' &&
+      !isPro
+    ) {
+      alert(
+        'Rear label photos are available with Brewprint Pro.'
+      );
+
+      event.target.value = '';
+      return;
+    }
+
     const file =
       event.target.files?.[0];
 
@@ -427,37 +446,93 @@ const CoffeeBeanForm: React.FC<
             </div>
 
             <div className="p-3">
-              <p className="bp-label mb-3 text-[var(--bp-muted)]">
-                Rear Label
-              </p>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="bp-label text-[var(--bp-muted)]">
+                  Rear Label
+                </p>
 
-              <button
-                type="button"
-                onClick={() =>
-                  labelInputRef.current?.click()
-                }
-                className="group relative flex aspect-square w-full items-center justify-center overflow-hidden border border-[var(--bp-line)] bg-[var(--bp-paper-light)]"
-              >
-                {formData.labelImage ? (
-                  <>
-                    <img
-                      src={
-                        formData.labelImage
-                      }
-                      alt="Back of coffee bag"
-                      className="h-full w-full object-cover"
-                    />
+                <span className="bp-label text-[var(--bp-orange)]">
+                  Pro
+                </span>
+              </div>
 
-                    <div className="absolute inset-0 flex items-center justify-center bg-[rgba(12,39,72,0.55)] opacity-0 transition-opacity group-hover:opacity-100">
-                      <span className="bp-label text-white">
-                        Change image
-                      </span>
-                    </div>
-                  </>
-                ) : (
+              {entitlementsLoading ? (
+                <div className="flex aspect-square w-full items-center justify-center border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
                   <div className="text-center">
+                    <div className="mx-auto h-7 w-7 animate-pulse border border-[var(--bp-line-strong)]" />
+
+                    <p className="bp-code mt-3 text-[var(--bp-muted)]">
+                      Checking access...
+                    </p>
+                  </div>
+                </div>
+              ) : isPro ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      labelInputRef.current?.click()
+                    }
+                    className="group relative flex aspect-square w-full items-center justify-center overflow-hidden border border-[var(--bp-line)] bg-[var(--bp-paper-light)]"
+                  >
+                    {formData.labelImage ? (
+                      <>
+                        <img
+                          src={
+                            formData.labelImage
+                          }
+                          alt="Back of coffee bag"
+                          className="h-full w-full object-cover"
+                        />
+
+                        <div className="absolute inset-0 flex items-center justify-center bg-[rgba(12,39,72,0.55)] opacity-0 transition-opacity group-hover:opacity-100">
+                          <span className="bp-label text-white">
+                            Change image
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center">
+                        <svg
+                          className="mx-auto h-7 w-7 text-[var(--bp-muted)]"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="1.5"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+
+                        <p className="bp-code mt-3 text-[var(--bp-muted)]">
+                          Add image
+                        </p>
+                      </div>
+                    )}
+                  </button>
+
+                  <input
+                    ref={labelInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={event =>
+                      handleImageUpload(
+                        event,
+                        'labelImage'
+                      )
+                    }
+                  />
+                </>
+              ) : (
+                <div className="flex aspect-square w-full items-center justify-center border border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-5">
+                  <div className="max-w-[180px] text-center">
                     <svg
-                      className="mx-auto h-7 w-7 text-[var(--bp-muted)]"
+                      className="mx-auto h-7 w-7 text-[var(--bp-orange)]"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -466,30 +541,20 @@ const CoffeeBeanForm: React.FC<
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth="1.5"
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2h-1V8a5 5 0 00-10 0v3H6a2 2 0 00-2 2v6a2 2 0 002 2zm3-10V8a3 3 0 016 0v3H9z"
                       />
                     </svg>
 
-                    <p className="bp-code mt-3 text-[var(--bp-muted)]">
-                      Add image
+                    <p className="bp-label mt-3 text-[var(--bp-blue)]">
+                      Brewprint Pro
+                    </p>
+
+                    <p className="bp-code mt-2 text-[var(--bp-muted)]">
+                      Add a rear bag reference photo with Pro.
                     </p>
                   </div>
-                )}
-              </button>
-
-              <input
-                ref={labelInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="hidden"
-                onChange={event =>
-                  handleImageUpload(
-                    event,
-                    'labelImage'
-                  )
-                }
-              />
+                </div>
+              )}
             </div>
           </div>
         </section>
