@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
+
 import { BrewLog, CoffeeBean } from '../types';
 import { Icons } from '../constants';
+import { ProGate } from './ProGate';
 
 interface HomeDashboardProps {
   coffees: CoffeeBean[];
@@ -1111,127 +1113,239 @@ const HomeDashboard: React.FC<HomeDashboardProps> = ({
       )}
     </button>
 
-    <button
-      type="button"
-      onClick={() =>
-        setDetailView('best')
-      }
-      className="min-h-48 border-b border-[var(--bp-line)] bg-[var(--bp-paper)] p-5 text-left"
-    >
+    <ProGate
+  loadingFallback={
+    <div className="min-h-48 border-b border-[var(--bp-line)] bg-[var(--bp-paper)] p-5">
+      <div className="h-full animate-pulse">
+        <div className="flex items-start justify-between gap-3">
+          <div className="h-9 w-9 bg-[var(--bp-paper-dark)]" />
+          <div className="h-3 w-20 bg-[var(--bp-paper-dark)]" />
+        </div>
+
+        <div className="mt-6 h-10 w-16 bg-[var(--bp-paper-dark)]" />
+        <div className="mt-3 h-3 w-24 bg-[var(--bp-paper-dark)]" />
+
+        <div className="mt-5 border-t border-[var(--bp-line)] pt-4">
+          <div className="h-3 w-24 bg-[var(--bp-paper-dark)]" />
+          <div className="mt-3 h-3 w-20 bg-[var(--bp-paper-dark)]" />
+        </div>
+      </div>
+    </div>
+  }
+  fallback={
+    <div className="min-h-48 border-b border-[var(--bp-line)] bg-[var(--bp-paper)] p-5">
       <div className="flex items-start justify-between gap-3">
         <span className="flex h-9 w-9 items-center justify-center border border-[var(--bp-line-strong)]">
-          <Icons.Star className="h-4 w-4 text-[var(--bp-blue)]" />
+          <Icons.Star className="h-4 w-4 text-[var(--bp-muted)]" />
         </span>
 
         <span className="bp-label text-[var(--bp-orange)]">
-          Best Brews
+          Pro
         </span>
       </div>
 
-      <p className="bp-measurement mt-6 text-4xl font-semibold text-[var(--bp-blue)]">
-        {dashboard.topFiveAverageRating.toFixed(
-          1
-        )}
-      </p>
+      <h4 className="bp-heading mt-6 text-xl text-[var(--bp-blue)]">
+        Best Brews
+      </h4>
 
-      <p className="bp-label mt-1 text-[var(--bp-muted)]">
-        Top 5 average
+      <p className="mt-2 text-sm leading-relaxed text-[var(--bp-muted)]">
+        Find patterns across your highest-rated brews.
       </p>
 
       <div className="mt-5 border-t border-[var(--bp-line)] pt-4">
         <p className="bp-label text-[var(--bp-muted)]">
-          Common method
+          Brewprint Pro
         </p>
 
-        <p className="bp-code mt-2 truncate text-[var(--bp-blue)]">
-          {dashboard.topFiveMethod ||
-            'Not enough data'}
+        <p className="bp-code mt-2 text-[var(--bp-blue)]">
+          Upgrade access required
         </p>
       </div>
-    </button>
+    </div>
+  }
+>
+  <button
+    type="button"
+    onClick={() =>
+      setDetailView('best')
+    }
+    className="min-h-48 w-full border-b border-[var(--bp-line)] bg-[var(--bp-paper)] p-5 text-left"
+  >
+    <div className="flex items-start justify-between gap-3">
+      <span className="flex h-9 w-9 items-center justify-center border border-[var(--bp-line-strong)]">
+        <Icons.Star className="h-4 w-4 text-[var(--bp-blue)]" />
+      </span>
 
-    <button
-      type="button"
-      onClick={() =>
-        setDetailView('trends')
-      }
-      className="col-span-2 border-b border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-5 text-left"
-    >
+      <span className="bp-label text-[var(--bp-orange)]">
+        Best Brews
+      </span>
+    </div>
+
+    <p className="bp-measurement mt-6 text-4xl font-semibold text-[var(--bp-blue)]">
+      {dashboard.topFiveAverageRating.toFixed(
+        1
+      )}
+    </p>
+
+    <p className="bp-label mt-1 text-[var(--bp-muted)]">
+      Top 5 average
+    </p>
+
+    <div className="mt-5 border-t border-[var(--bp-line)] pt-4">
+      <p className="bp-label text-[var(--bp-muted)]">
+        Common method
+      </p>
+
+      <p className="bp-code mt-2 truncate text-[var(--bp-blue)]">
+        {dashboard.topFiveMethod ||
+          'Not enough data'}
+      </p>
+    </div>
+  </button>
+</ProGate>
+
+    <ProGate
+  loadingFallback={
+    <div className="col-span-2 min-h-48 border-b border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-5">
+      <div className="animate-pulse">
+        <div className="h-3 w-32 bg-[var(--bp-paper-dark)]" />
+        <div className="mt-4 h-10 w-20 bg-[var(--bp-paper-dark)]" />
+
+        <div className="mt-5 grid grid-cols-3 border-t border-[var(--bp-line)] pt-4">
+          <div className="h-8 border-r border-[var(--bp-line)]" />
+          <div className="h-8 border-r border-[var(--bp-line)]" />
+          <div className="h-8" />
+        </div>
+      </div>
+    </div>
+  }
+  fallback={
+    <div className="col-span-2 min-h-48 border-b border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="bp-label text-[var(--bp-muted)]">
-            Trends / Last 30 days
+          <p className="bp-label text-[var(--bp-orange)]">
+            Pro
           </p>
 
-          <div className="mt-2 flex items-end gap-2">
-            <p className="bp-measurement text-4xl font-semibold text-[var(--bp-blue)]">
-              {dashboard.monthlyBrews}
-            </p>
+          <h4 className="bp-heading mt-3 text-xl text-[var(--bp-blue)]">
+            Brewing Trends
+          </h4>
 
-            <span className="bp-code pb-1 text-[var(--bp-muted)]">
-              BREWS
-            </span>
-          </div>
-
-          <p className="bp-code mt-1 text-[var(--bp-muted)]">
-            <ChangeValue
-              value={
-                dashboard.monthlyGrowth
-              }
-            />
-            {' / '}
-            vs previous 30 days
+          <p className="mt-2 max-w-md text-sm leading-relaxed text-[var(--bp-muted)]">
+            Compare your recent brewing habits and see changes
+            across methods, origins and processing styles.
           </p>
         </div>
 
-        <span className="flex h-9 w-9 items-center justify-center border border-[var(--bp-line-strong)]">
-          <Icons.Book className="h-4 w-4 text-[var(--bp-blue)]" />
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-[var(--bp-line-strong)]">
+          <Icons.Book className="h-4 w-4 text-[var(--bp-muted)]" />
         </span>
       </div>
 
-      <div className="mt-5 grid grid-cols-3 border-t border-[var(--bp-line)]">
-        <div className="border-r border-[var(--bp-line)] py-4 pr-3">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Method
+      <div className="mt-5 border-t border-[var(--bp-line)] pt-4">
+        <p className="bp-label text-[var(--bp-muted)]">
+          Brewprint Pro
+        </p>
+
+        <p className="bp-code mt-2 text-[var(--bp-blue)]">
+          Trend analysis requires Pro
+        </p>
+      </div>
+    </div>
+  }
+>
+  <button
+    type="button"
+    onClick={() =>
+      setDetailView('trends')
+    }
+    className="col-span-2 w-full border-b border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-5 text-left"
+  >
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <p className="bp-label text-[var(--bp-muted)]">
+          Trends / Last 30 days
+        </p>
+
+        <div className="mt-2 flex items-end gap-2">
+          <p className="bp-measurement text-4xl font-semibold text-[var(--bp-blue)]">
+            {dashboard.monthlyBrews}
           </p>
 
-          <p className="bp-code mt-2 truncate text-[var(--bp-blue)]">
-            {dashboard.topMethod?.[0] ||
-              '—'}
-          </p>
+          <span className="bp-code pb-1 text-[var(--bp-muted)]">
+            BREWS
+          </span>
         </div>
 
-        <div className="border-r border-[var(--bp-line)] px-3 py-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Origin
-          </p>
+        <p className="bp-code mt-1 text-[var(--bp-muted)]">
+          <ChangeValue
+            value={
+              dashboard.monthlyGrowth
+            }
+          />
+          {' / '}
+          vs previous 30 days
+        </p>
+      </div>
 
-          <p className="bp-code mt-2 truncate text-[var(--bp-blue)]">
-            {dashboard.topOrigin?.[0] ||
-              '—'}
-          </p>
-        </div>
+      <span className="flex h-9 w-9 items-center justify-center border border-[var(--bp-line-strong)]">
+        <Icons.Book className="h-4 w-4 text-[var(--bp-blue)]" />
+      </span>
+    </div>
 
-        <div className="py-4 pl-3">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Process
-          </p>
+    <div className="mt-5 grid grid-cols-3 border-t border-[var(--bp-line)]">
+      <div className="border-r border-[var(--bp-line)] py-4 pr-3">
+        <p className="bp-label text-[var(--bp-muted)]">
+          Method
+        </p>
 
-          <p className="bp-code mt-2 truncate text-[var(--bp-blue)]">
-            {dashboard.topProcess?.[0] ||
-              '—'}
-          </p>
+        <p className="bp-code mt-2 truncate text-[var(--bp-blue)]">
+          {dashboard.topMethod?.[0] ||
+            '—'}
+        </p>
+      </div>
+
+      <div className="border-r border-[var(--bp-line)] px-3 py-4">
+        <p className="bp-label text-[var(--bp-muted)]">
+          Origin
+        </p>
+
+        <p className="bp-code mt-2 truncate text-[var(--bp-blue)]">
+          {dashboard.topOrigin?.[0] ||
+            '—'}
+        </p>
+      </div>
+
+      <div className="py-4 pl-3">
+        <p className="bp-label text-[var(--bp-muted)]">
+          Process
+        </p>
+
+        <p className="bp-code mt-2 truncate text-[var(--bp-blue)]">
+          {dashboard.topProcess?.[0] ||
+            '—'}
+        </p>
+      </div>
+    </div>
+  </button>
+</ProGate>
+
+      <ProGate
+  loadingFallback={
+    <div className="col-span-2 min-h-48 bg-[var(--bp-paper)] p-5">
+      <div className="animate-pulse">
+        <div className="h-3 w-28 bg-[var(--bp-paper-dark)]" />
+        <div className="mt-4 h-10 w-28 bg-[var(--bp-paper-dark)]" />
+
+        <div className="mt-5 grid grid-cols-2 border-t border-[var(--bp-line)] pt-4">
+          <div className="h-8 border-r border-[var(--bp-line)]" />
+          <div className="h-8" />
         </div>
       </div>
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        setDetailView('usage')
-      }
-      className="col-span-2 bg-[var(--bp-paper)] p-5 text-left"
-    >
+    </div>
+  }
+  fallback={
+    <div className="col-span-2 bg-[var(--bp-paper)] p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="bp-label text-[var(--bp-muted)]">
@@ -1251,31 +1365,13 @@ const HomeDashboard: React.FC<HomeDashboardProps> = ({
           </div>
         </div>
 
-        <span className="flex h-9 w-9 items-center justify-center border border-[var(--bp-line-strong)]">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-[var(--bp-line-strong)]">
           <Icons.Info className="h-4 w-4 text-[var(--bp-blue)]" />
         </span>
       </div>
 
-      <div className="mt-5 grid grid-cols-3 border-t border-[var(--bp-line)]">
-        <div className="border-r border-[var(--bp-line)] py-4 pr-3">
-          <Metric
-            label="Used 30D"
-            value={`${Math.round(
-              dashboard.coffeeUsed30Days
-            )}g`}
-          />
-        </div>
-
-        <div className="border-r border-[var(--bp-line)] px-3 py-4">
-          <Metric
-            label="Dose"
-            value={`${formatNumber(
-              dashboard.overallMedianDose
-            )}g`}
-          />
-        </div>
-
-        <div className="py-4 pl-3">
+      <div className="mt-5 grid grid-cols-2 border-t border-[var(--bp-line)]">
+        <div className="border-r border-[var(--bp-line)] py-4 pr-4">
           <Metric
             label="Est. Brews"
             value={
@@ -1283,8 +1379,81 @@ const HomeDashboard: React.FC<HomeDashboardProps> = ({
             }
           />
         </div>
+
+        <div className="py-4 pl-4">
+          <p className="bp-label text-[var(--bp-orange)]">
+            Pro Analysis
+          </p>
+
+          <p className="bp-code mt-2 text-[var(--bp-muted)]">
+            Usage patterns locked
+          </p>
+        </div>
       </div>
-    </button>
+    </div>
+  }
+>
+  <button
+    type="button"
+    onClick={() =>
+      setDetailView('usage')
+    }
+    className="col-span-2 w-full bg-[var(--bp-paper)] p-5 text-left"
+  >
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <p className="bp-label text-[var(--bp-muted)]">
+          Coffee Usage
+        </p>
+
+        <div className="mt-2 flex items-end gap-2">
+          <p className="bp-measurement text-4xl font-semibold text-[var(--bp-blue)]">
+            {Math.round(
+              dashboard.totalRemaining
+            )}
+          </p>
+
+          <span className="bp-code pb-1 text-[var(--bp-muted)]">
+            G AVAILABLE
+          </span>
+        </div>
+      </div>
+
+      <span className="flex h-9 w-9 items-center justify-center border border-[var(--bp-line-strong)]">
+        <Icons.Info className="h-4 w-4 text-[var(--bp-blue)]" />
+      </span>
+    </div>
+
+    <div className="mt-5 grid grid-cols-3 border-t border-[var(--bp-line)]">
+      <div className="border-r border-[var(--bp-line)] py-4 pr-3">
+        <Metric
+          label="Used 30D"
+          value={`${Math.round(
+            dashboard.coffeeUsed30Days
+          )}g`}
+        />
+      </div>
+
+      <div className="border-r border-[var(--bp-line)] px-3 py-4">
+        <Metric
+          label="Dose"
+          value={`${formatNumber(
+            dashboard.overallMedianDose
+          )}g`}
+        />
+      </div>
+
+      <div className="py-4 pl-3">
+        <Metric
+          label="Est. Brews"
+          value={
+            dashboard.totalEstimatedBrews
+          }
+        />
+      </div>
+    </div>
+  </button>
+</ProGate>
   </div>
 </section>
 
@@ -1847,7 +2016,8 @@ const HomeDashboard: React.FC<HomeDashboardProps> = ({
   )}
 
       {detailView === 'best' && (
-  <DetailShell
+  <ProGate>
+    <DetailShell
     eyebrow="03.01 / BEST BREWS"
     title="What has worked well"
     onClose={() =>
@@ -2072,11 +2242,13 @@ const HomeDashboard: React.FC<HomeDashboardProps> = ({
         )}
       </div>
     </section>
-  </DetailShell>
+      </DetailShell>
+  </ProGate>
 )}
 
       {detailView === 'trends' && (
-  <DetailShell
+  <ProGate>
+    <DetailShell
     eyebrow="04.01 / BREWING TRENDS"
     title="How your brewing is changing"
     onClose={() =>
@@ -2372,9 +2544,9 @@ const HomeDashboard: React.FC<HomeDashboardProps> = ({
         </p>
       </div>
     </section>
-  </DetailShell>
+      </DetailShell>
+  </ProGate>
 )}
-
       {detailView === 'usage' && (
   <DetailShell
     eyebrow="05.01 / COFFEE USAGE"

@@ -13,6 +13,7 @@ import {
 
 import { Icons } from './constants';
 
+import { ProGate } from './components/ProGate';
 import CoffeeCard from './components/CoffeeCard';
 import BrewForm from './components/BrewForm';
 import CoffeeBeanForm from './components/CoffeeBeanForm';
@@ -38,6 +39,10 @@ import { brewLogService } from './services/brewLogService';
 import { profileService } from './services/profileService';
 import { imageService } from './services/imageService';
 import { accountService } from './services/accountService';
+
+// ============================================================
+// BREW DETAIL HELPERS
+// ============================================================
 
 interface BrewDetailCellProps {
   label: string;
@@ -200,11 +205,10 @@ const BrewDetailView: React.FC<BrewDetailViewProps> = ({
 
               <p className="bp-measurement mt-2 text-xl font-semibold text-[var(--bp-blue)]">
                 {log.brewTime > 0
-                  ? `${log.brewTime}${
-                      log.method === BrewMethod.COLD_BREW
-                        ? ' HR'
-                        : ' S'
-                    }`
+                  ? `${log.brewTime}${log.method === BrewMethod.COLD_BREW
+                    ? ' HR'
+                    : ' S'
+                  }`
                   : '—'}
               </p>
             </div>
@@ -565,7 +569,7 @@ const BrewDetailView: React.FC<BrewDetailViewProps> = ({
 
             <p className="mt-2 text-sm leading-relaxed text-[var(--bp-blue)]">
               {log.tastingNotes &&
-              log.tastingNotes.length > 0
+                log.tastingNotes.length > 0
                 ? log.tastingNotes.join(' / ')
                 : 'Not recorded'}
             </p>
@@ -647,6 +651,10 @@ const BrewDetailView: React.FC<BrewDetailViewProps> = ({
 };
 
 
+// ============================================================
+// APP
+// ============================================================
+
 const App: React.FC = () => {
   const {
     user,
@@ -654,6 +662,10 @@ const App: React.FC = () => {
     passwordRecovery,
     signOut,
   } = useAuth();
+
+  // ----------------------------------------------------------
+  // Core app state
+  // ----------------------------------------------------------
 
   const [coffees, setCoffees] = useState<CoffeeBean[]>(
     []
@@ -752,6 +764,10 @@ const App: React.FC = () => {
 
   const [selectedCoffee, setSelectedCoffee] =
     useState<CoffeeBean | null>(null);
+
+  // ----------------------------------------------------------
+  // Authentication and cloud data loading
+  // ----------------------------------------------------------
 
   useEffect(() => {
     if (!user) {
@@ -873,6 +889,10 @@ const App: React.FC = () => {
 
     loadBrewLogs();
   }, [user]);
+
+  // ----------------------------------------------------------
+  // Coffee actions
+  // ----------------------------------------------------------
 
   const handleSaveBean = async (
     bean: CoffeeBean
@@ -1043,6 +1063,10 @@ const App: React.FC = () => {
     }
   };
 
+  // ----------------------------------------------------------
+  // Brew actions
+  // ----------------------------------------------------------
+
   const uploadBrewImage = async (
     savedLog: BrewLog,
     brewImageFile?: File
@@ -1161,14 +1185,14 @@ const App: React.FC = () => {
               remainingWeight: Math.max(
                 0,
                 coffee.remainingWeight -
-                  (log.dose || 0)
+                (log.dose || 0)
               ),
             };
 
             setCoffees(previous =>
               previous.map(current =>
                 current.id ===
-                updatedCoffee.id
+                  updatedCoffee.id
                   ? updatedCoffee
                   : current
               )
@@ -1186,9 +1210,9 @@ const App: React.FC = () => {
         setProfile(previous =>
           previous
             ? {
-                ...previous,
-                onboardingCompleted: true,
-              }
+              ...previous,
+              onboardingCompleted: true,
+            }
             : previous
         );
 
@@ -1254,6 +1278,10 @@ const App: React.FC = () => {
     }
   };
 
+  // ----------------------------------------------------------
+  // History filters
+  // ----------------------------------------------------------
+
   const filteredLogs = useMemo(() => {
     return brewLogs.filter(log => {
       const coffee = coffees.find(
@@ -1318,11 +1346,11 @@ const App: React.FC = () => {
             logDate >=
             new Date(
               now.getTime() -
-                7 *
-                  24 *
-                  60 *
-                  60 *
-                  1000
+              7 *
+              24 *
+              60 *
+              60 *
+              1000
             )
           );
         }
@@ -1332,11 +1360,11 @@ const App: React.FC = () => {
             logDate >=
             new Date(
               now.getTime() -
-                30 *
-                  24 *
-                  60 *
-                  60 *
-                  1000
+              30 *
+              24 *
+              60 *
+              60 *
+              1000
             )
           );
         }
@@ -1366,6 +1394,10 @@ const App: React.FC = () => {
     setRatingFilter('all');
     setDateRange('all');
   };
+
+  // ----------------------------------------------------------
+  // Data export
+  // ----------------------------------------------------------
 
   const handleExportCSV = () => {
     if (brewLogs.length === 0) {
@@ -1481,10 +1513,9 @@ const App: React.FC = () => {
 
     link.setAttribute(
       'download',
-      `brewprint_history_export_${
-        new Date()
-          .toISOString()
-          .split('T')[0]
+      `brewprint_history_export_${new Date()
+        .toISOString()
+        .split('T')[0]
       }.csv`
     );
 
@@ -1497,7 +1528,7 @@ const App: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-    const handleExportUserData = () => {
+  const handleExportUserData = () => {
     if (!user) {
       alert('You must be signed in to export your data.');
       return;
@@ -1562,10 +1593,9 @@ const App: React.FC = () => {
 
     link.setAttribute(
       'download',
-      `brewprint_user_data_${
-        exportedAt
-          .toISOString()
-          .split('T')[0]
+      `brewprint_user_data_${exportedAt
+        .toISOString()
+        .split('T')[0]
       }.json`
     );
 
@@ -1577,6 +1607,10 @@ const App: React.FC = () => {
 
     URL.revokeObjectURL(url);
   };
+
+  // ----------------------------------------------------------
+  // Onboarding and navigation helpers
+  // ----------------------------------------------------------
 
   const completeOnboarding = async () => {
     if (!user) {
@@ -1715,24 +1749,28 @@ const App: React.FC = () => {
     setActiveTab(tab);
   };
 
+  // ----------------------------------------------------------
+  // Route handling and authenticated app shell
+  // ----------------------------------------------------------
+
   const pathname =
-  window.location.pathname.replace(/\/+$/, '') || '/';
+    window.location.pathname.replace(/\/+$/, '') || '/';
 
-if (pathname === '/privacy') {
-  return <PrivacyPolicyPage />;
-}
+  if (pathname === '/privacy') {
+    return <PrivacyPolicyPage />;
+  }
 
-if (loading) {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      Loading...
-    </div>
-  );
-}
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
 
-if (!user || passwordRecovery) {
-  return <AuthScreen />;
-}
+  if (!user || passwordRecovery) {
+    return <AuthScreen />;
+  }
 
   if (
     profileLoading ||
@@ -1759,57 +1797,57 @@ if (!user || passwordRecovery) {
 
   return (
     <div
-  className="bp-page min-h-screen flex flex-col"
-  style={{
-    paddingBottom:
-      'calc(env(safe-area-inset-bottom) + 88px)',
-  }}
->
-   
-      <header
-  className="sticky top-0 z-40 border-b border-[var(--bp-line)] bg-[var(--bp-paper)]"
-  style={{
-    paddingTop:
-      'env(safe-area-inset-top)',
-  }}
->
-  <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
-    <button
-      type="button"
-      onClick={() => goToTab('home')}
-      className="flex items-center gap-3"
-      aria-label="Go to Home"
+      className="bp-page min-h-screen flex flex-col"
+      style={{
+        paddingBottom:
+          'calc(env(safe-area-inset-bottom) + 88px)',
+      }}
     >
-      <BrewprintMark className="h-8 w-8" />
 
-      <BrewprintWordmark className="h-[15px] w-auto" />
-    </button>
-
-    <div className="hidden items-center gap-4 sm:flex">
-      {profile && (
-        <div className="border-r border-[var(--bp-line)] pr-4 text-right">
-          <p className="bp-label text-[var(--bp-muted)]">
-            {profile.role}
-          </p>
-
-          <p className="mt-0.5 text-xs font-semibold text-[var(--bp-blue)]">
-            {profile.name}
-          </p>
-        </div>
-      )}
-
-      <button
-        type="button"
-        onClick={() =>
-          goToTab('profile')
-        }
-        className="bp-label min-h-10 border border-[var(--bp-blue)] px-4 text-[var(--bp-blue)]"
+      <header
+        className="sticky top-0 z-40 border-b border-[var(--bp-line)] bg-[var(--bp-paper)]"
+        style={{
+          paddingTop:
+            'env(safe-area-inset-top)',
+        }}
       >
-        Profile
-      </button>
-    </div>
-  </div>
-</header>
+        <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
+          <button
+            type="button"
+            onClick={() => goToTab('home')}
+            className="flex items-center gap-3"
+            aria-label="Go to Home"
+          >
+            <BrewprintMark className="h-8 w-8" />
+
+            <BrewprintWordmark className="h-[15px] w-auto" />
+          </button>
+
+          <div className="hidden items-center gap-4 sm:flex">
+            {profile && (
+              <div className="border-r border-[var(--bp-line)] pr-4 text-right">
+                <p className="bp-label text-[var(--bp-muted)]">
+                  {profile.role}
+                </p>
+
+                <p className="mt-0.5 text-xs font-semibold text-[var(--bp-blue)]">
+                  {profile.name}
+                </p>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() =>
+                goToTab('profile')
+              }
+              className="bp-label min-h-10 border border-[var(--bp-blue)] px-4 text-[var(--bp-blue)]"
+            >
+              Profile
+            </button>
+          </div>
+        </div>
+      </header>
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
         {viewingBrew && (
@@ -1836,53 +1874,105 @@ if (!user || passwordRecovery) {
 
 
         {activeTab === 'profile' && !viewingBrew && (
-  <ProfileView
-  profile={profile}
-  email={user.email || ''}
-  coffeeCount={coffees.length}
-  brewCount={brewLogs.length}
-  onEdit={() =>
-    setShowProfileModal(true)
-  }
-  onExportData={handleExportUserData}
-  onSignOut={signOut}
-  onDeleteAccount={() =>
-    setShowDeleteAccountModal(true)
-  }
-/>
-)}
-{activeTab === 'home' && !viewingBrew && (
-  <HomeDashboard
-    coffees={coffees}
-    brewLogs={brewLogs}
-    profileName={profile?.name}
-    isLoading={
-      coffeesLoading ||
-      brewLogsLoading
-    }
-    onLogBrew={
-      handleDashboardLogBrew
-    }
-    onOpenBrew={
-      openExistingBrew
-    }
-    onBrewAgain={
-      brewAgainFromLog
-    }
-    onOpenAnalytics={() =>
-      goToTab('analytics')
-    }
-  />
-)}
-
-        {activeTab === 'analytics' && !viewingBrew && (
-          <AnalyticsView
-            brewLogs={brewLogs}
-            coffees={coffees}
-            onBack={() =>
-              goToTab('home')
+          <ProfileView
+            profile={profile}
+            email={user.email || ''}
+            coffeeCount={coffees.length}
+            brewCount={brewLogs.length}
+            onEdit={() =>
+              setShowProfileModal(true)
+            }
+            onExportData={handleExportUserData}
+            onSignOut={signOut}
+            onDeleteAccount={() =>
+              setShowDeleteAccountModal(true)
             }
           />
+        )}
+        {activeTab === 'home' && !viewingBrew && (
+          <HomeDashboard
+            coffees={coffees}
+            brewLogs={brewLogs}
+            profileName={profile?.name}
+            isLoading={
+              coffeesLoading ||
+              brewLogsLoading
+            }
+            onLogBrew={
+              handleDashboardLogBrew
+            }
+            onOpenBrew={
+              openExistingBrew
+            }
+            onBrewAgain={
+              brewAgainFromLog
+            }
+            onOpenAnalytics={() =>
+              goToTab('analytics')
+            }
+          />
+        )}
+
+        {activeTab === 'analytics' && !viewingBrew && (
+          <ProGate
+            loadingFallback={
+              <section className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-5">
+                <p className="bp-label text-[var(--bp-muted)]">
+                  Checking Pro access...
+                </p>
+              </section>
+            }
+            fallback={
+              <section className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+                <div className="border-b border-[var(--bp-line)] p-5">
+                  <p className="bp-index">
+                    05 / ANALYTICS
+                  </p>
+
+                  <p className="bp-label mt-4 text-[var(--bp-orange)]">
+                    Brewprint Pro
+                  </p>
+
+                  <h1 className="bp-heading mt-2 text-3xl text-[var(--bp-blue)]">
+                    Full Analytics
+                  </h1>
+
+                  <p className="mt-3 max-w-md text-sm leading-relaxed text-[var(--bp-muted)]">
+                    Analyse your brew history, compare methods and
+                    identify patterns across your recorded coffees.
+                  </p>
+                </div>
+
+                <div className="p-5">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Pro Access Required
+                  </p>
+
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    Advanced analytics are included with Brewprint Pro.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    goToTab('home')
+                  }
+                  className="bp-label min-h-12 w-full border-t border-[var(--bp-line)] px-4 text-[var(--bp-blue)]"
+                >
+                  Back to Home
+                </button>
+              </section>
+            }
+          >
+            <AnalyticsView
+              brewLogs={brewLogs}
+              coffees={coffees}
+              onBack={() =>
+                goToTab('home')
+              }
+            />
+          </ProGate>
         )}
 
         {activeTab === 'journal' && !viewingBrew && (
@@ -1956,11 +2046,10 @@ if (!user || passwordRecovery) {
                         !showFilters
                       )
                     }
-                    className={`bp-label flex min-w-[92px] items-center justify-center gap-2 border-l border-[var(--bp-line)] px-4 ${
-                      showFilters
+                    className={`bp-label flex min-w-[92px] items-center justify-center gap-2 border-l border-[var(--bp-line)] px-4 ${showFilters
                         ? 'bg-[var(--bp-blue)] text-[var(--bp-paper)]'
                         : 'text-[var(--bp-blue)]'
-                    }`}
+                      }`}
                     aria-expanded={showFilters}
                   >
                     <Icons.Filter className="h-4 w-4" />
@@ -1982,8 +2071,8 @@ if (!user || passwordRecovery) {
                             setMethodFilter(
                               event.target
                                 .value as
-                                | BrewMethod
-                                | 'all'
+                              | BrewMethod
+                              | 'all'
                             )
                           }
                           className="bp-input mt-2 w-full"
@@ -2018,10 +2107,10 @@ if (!user || passwordRecovery) {
                                 .value === 'all'
                                 ? 'all'
                                 : Number(
-                                    event
-                                      .target
-                                      .value
-                                  )
+                                  event
+                                    .target
+                                    .value
+                                )
                             )
                           }
                           className="bp-input mt-2 w-full"
@@ -2062,18 +2151,17 @@ if (!user || passwordRecovery) {
                             onClick={() =>
                               setDateRange(
                                 range as
-                                  | 'all'
-                                  | 'today'
-                                  | 'week'
-                                  | 'month'
+                                | 'all'
+                                | 'today'
+                                | 'week'
+                                | 'month'
                               )
                             }
-                            className={`bp-label min-h-11 border-r border-[var(--bp-line)] px-2 last:border-r-0 ${
-                              dateRange ===
-                              range
+                            className={`bp-label min-h-11 border-r border-[var(--bp-line)] px-2 last:border-r-0 ${dateRange ===
+                                range
                                 ? 'bg-[var(--bp-blue)] text-[var(--bp-paper)]'
                                 : 'text-[var(--bp-blue)]'
-                            }`}
+                              }`}
                           >
                             {range}
                           </button>
@@ -2220,11 +2308,11 @@ if (!user || passwordRecovery) {
 
                   const ratio =
                     log.dose > 0 &&
-                    log.yield > 0
+                      log.yield > 0
                       ? `1:${(
-                          log.yield /
-                          log.dose
-                        ).toFixed(1)}`
+                        log.yield /
+                        log.dose
+                      ).toFixed(1)}`
                       : '—';
 
                   const equipment =
@@ -2251,7 +2339,7 @@ if (!user || passwordRecovery) {
                       onKeyDown={event => {
                         if (
                           event.key ===
-                            'Enter' ||
+                          'Enter' ||
                           event.key === ' '
                         ) {
                           event.preventDefault();
@@ -2347,7 +2435,7 @@ if (!user || passwordRecovery) {
                           <p className="bp-measurement mt-1 font-semibold text-[var(--bp-blue)]">
                             {log.brewTime}
                             {log.method ===
-                            BrewMethod.COLD_BREW
+                              BrewMethod.COLD_BREW
                               ? 'h'
                               : 's'}
                           </p>
@@ -2386,7 +2474,7 @@ if (!user || passwordRecovery) {
 
                       {log.flavorGroups &&
                         log.flavorGroups.length >
-                          0 && (
+                        0 && (
                           <div className="border-b border-[var(--bp-line)] p-4">
                             <p className="bp-label text-[var(--bp-muted)]">
                               Flavour Groups
@@ -2475,623 +2563,622 @@ if (!user || passwordRecovery) {
         )}
 
         {!viewingBrew && viewingCoffee && (
-  <section className="space-y-8">
-    <div className="border-b border-[var(--bp-line)] pb-6">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="bp-index">
-            03 / COFFEE DETAIL
-          </p>
+          <section className="space-y-8">
+            <div className="border-b border-[var(--bp-line)] pb-6">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="bp-index">
+                    03 / COFFEE DETAIL
+                  </p>
 
-          <p className="bp-label mt-3 text-[var(--bp-orange)]">
-            {viewingCoffee.roaster ||
-              'Roaster not recorded'}
-          </p>
+                  <p className="bp-label mt-3 text-[var(--bp-orange)]">
+                    {viewingCoffee.roaster ||
+                      'Roaster not recorded'}
+                  </p>
 
-          <h1 className="bp-coffee-name mt-2 break-words text-4xl text-[var(--bp-blue)]">
-            {viewingCoffee.name}
-          </h1>
-        </div>
+                  <h1 className="bp-coffee-name mt-2 break-words text-4xl text-[var(--bp-blue)]">
+                    {viewingCoffee.name}
+                  </h1>
+                </div>
 
-        <button
-          type="button"
-          onClick={() =>
-            setViewingCoffee(null)
-          }
-          className="bp-button h-10 min-h-0 px-3"
-        >
-          Back
-        </button>
-      </div>
-    </div>
-
-    {(viewingCoffee.bagImage ||
-      viewingCoffee.labelImage) && (
-      <section className="border border-[var(--bp-line)]">
-        <div
-          className={`grid gap-px bg-[var(--bp-line)] ${
-            viewingCoffee.bagImage &&
-            viewingCoffee.labelImage
-              ? 'grid-cols-2'
-              : 'grid-cols-1'
-          }`}
-        >
-          {viewingCoffee.bagImage && (
-            <div className="bg-[var(--bp-paper-dark)]">
-              <img
-                src={
-                  viewingCoffee.bagImage
-                }
-                alt={`${viewingCoffee.name} front of bag`}
-                className="h-56 w-full object-cover"
-              />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setViewingCoffee(null)
+                  }
+                  className="bp-button h-10 min-h-0 px-3"
+                >
+                  Back
+                </button>
+              </div>
             </div>
-          )}
 
-          {viewingCoffee.labelImage && (
-            <div className="bg-[var(--bp-paper-dark)]">
-              <img
-                src={
-                  viewingCoffee.labelImage
-                }
-                alt={`${viewingCoffee.name} rear label`}
-                className="h-56 w-full object-cover"
-              />
-            </div>
-          )}
-        </div>
-      </section>
-    )}
+            {(viewingCoffee.bagImage ||
+              viewingCoffee.labelImage) && (
+                <section className="border border-[var(--bp-line)]">
+                  <div
+                    className={`grid gap-px bg-[var(--bp-line)] ${viewingCoffee.bagImage &&
+                        viewingCoffee.labelImage
+                        ? 'grid-cols-2'
+                        : 'grid-cols-1'
+                      }`}
+                  >
+                    {viewingCoffee.bagImage && (
+                      <div className="bg-[var(--bp-paper-dark)]">
+                        <img
+                          src={
+                            viewingCoffee.bagImage
+                          }
+                          alt={`${viewingCoffee.name} front of bag`}
+                          className="h-56 w-full object-cover"
+                        />
+                      </div>
+                    )}
 
-    <section>
-      <div className="mb-3">
-        <p className="bp-index">
-          03.01 / IDENTITY
-        </p>
-      </div>
+                    {viewingCoffee.labelImage && (
+                      <div className="bg-[var(--bp-paper-dark)]">
+                        <img
+                          src={
+                            viewingCoffee.labelImage
+                          }
+                          alt={`${viewingCoffee.name} rear label`}
+                          className="h-56 w-full object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </section>
+              )}
 
-      <div className="grid grid-cols-2 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
-        <div className="border-b border-r border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Roaster
-          </p>
+            <section>
+              <div className="mb-3">
+                <p className="bp-index">
+                  03.01 / IDENTITY
+                </p>
+              </div>
 
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {viewingCoffee.roaster ||
-              '—'}
-          </p>
-        </div>
+              <div className="grid grid-cols-2 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+                <div className="border-b border-r border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Roaster
+                  </p>
 
-        <div className="border-b border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Roaster Location
-          </p>
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    {viewingCoffee.roaster ||
+                      '—'}
+                  </p>
+                </div>
 
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {viewingCoffee.roasterLocation ||
-              '—'}
-          </p>
-        </div>
+                <div className="border-b border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Roaster Location
+                  </p>
 
-        <div className="border-b border-r border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Origin
-          </p>
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    {viewingCoffee.roasterLocation ||
+                      '—'}
+                  </p>
+                </div>
 
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {viewingCoffee.origin ||
-              '—'}
-          </p>
-        </div>
+                <div className="border-b border-r border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Origin
+                  </p>
 
-        <div className="border-b border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Region
-          </p>
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    {viewingCoffee.origin ||
+                      '—'}
+                  </p>
+                </div>
 
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {viewingCoffee.region ||
-              '—'}
-          </p>
-        </div>
+                <div className="border-b border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Region
+                  </p>
 
-        <div className="border-r border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Farm
-          </p>
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    {viewingCoffee.region ||
+                      '—'}
+                  </p>
+                </div>
 
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {viewingCoffee.farm ||
-              '—'}
-          </p>
-        </div>
+                <div className="border-r border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Farm
+                  </p>
 
-        <div className="p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Producer
-          </p>
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    {viewingCoffee.farm ||
+                      '—'}
+                  </p>
+                </div>
 
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {viewingCoffee.producer ||
-              '—'}
-          </p>
-        </div>
-      </div>
-    </section>
+                <div className="p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Producer
+                  </p>
 
-    <section>
-      <div className="mb-3">
-        <p className="bp-index">
-          03.02 / PRODUCTION
-        </p>
-      </div>
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    {viewingCoffee.producer ||
+                      '—'}
+                  </p>
+                </div>
+              </div>
+            </section>
 
-      <div className="grid grid-cols-2 border border-[var(--bp-line)] bg-[var(--bp-paper)]">
-        <div className="border-b border-r border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Process
-          </p>
+            <section>
+              <div className="mb-3">
+                <p className="bp-index">
+                  03.02 / PRODUCTION
+                </p>
+              </div>
 
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {viewingCoffee.process ||
-              '—'}
-          </p>
-        </div>
+              <div className="grid grid-cols-2 border border-[var(--bp-line)] bg-[var(--bp-paper)]">
+                <div className="border-b border-r border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Process
+                  </p>
 
-        <div className="border-b border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Varietal
-          </p>
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    {viewingCoffee.process ||
+                      '—'}
+                  </p>
+                </div>
 
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {viewingCoffee.varietal ||
-              '—'}
-          </p>
-        </div>
+                <div className="border-b border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Varietal
+                  </p>
 
-        <div className="border-b border-r border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Altitude
-          </p>
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    {viewingCoffee.varietal ||
+                      '—'}
+                  </p>
+                </div>
 
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {viewingCoffee.altitude ||
-              '—'}
-          </p>
-        </div>
+                <div className="border-b border-r border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Altitude
+                  </p>
 
-        <div className="border-b border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Harvest
-          </p>
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    {viewingCoffee.altitude ||
+                      '—'}
+                  </p>
+                </div>
 
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {viewingCoffee.harvestSeason ||
-              '—'}
-          </p>
-        </div>
+                <div className="border-b border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Harvest
+                  </p>
 
-        <div className="col-span-2 p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Terroir
-          </p>
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    {viewingCoffee.harvestSeason ||
+                      '—'}
+                  </p>
+                </div>
 
-          <p className="mt-2 text-sm leading-relaxed text-[var(--bp-blue)]">
-            {viewingCoffee.terroir ||
-              'Not recorded'}
-          </p>
-        </div>
-      </div>
-    </section>
+                <div className="col-span-2 p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Terroir
+                  </p>
 
-    <section>
-      <div className="mb-3">
-        <p className="bp-index">
-          03.03 / ROAST
-        </p>
-      </div>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--bp-blue)]">
+                    {viewingCoffee.terroir ||
+                      'Not recorded'}
+                  </p>
+                </div>
+              </div>
+            </section>
 
-      <div className="grid grid-cols-2 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
-        <div className="border-b border-r border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Roast Level
-          </p>
+            <section>
+              <div className="mb-3">
+                <p className="bp-index">
+                  03.03 / ROAST
+                </p>
+              </div>
 
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {viewingCoffee.roastLevel ||
-              '—'}
-          </p>
-        </div>
+              <div className="grid grid-cols-2 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+                <div className="border-b border-r border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Roast Level
+                  </p>
 
-        <div className="border-b border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Roast Date
-          </p>
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    {viewingCoffee.roastLevel ||
+                      '—'}
+                  </p>
+                </div>
 
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {viewingCoffee.roastDate
-              ? new Date(
-                  viewingCoffee.roastDate
-                ).toLocaleDateString()
-              : '—'}
-          </p>
-        </div>
+                <div className="border-b border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Roast Date
+                  </p>
 
-        <div className="border-r border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Purchase Date
-          </p>
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    {viewingCoffee.roastDate
+                      ? new Date(
+                        viewingCoffee.roastDate
+                      ).toLocaleDateString()
+                      : '—'}
+                  </p>
+                </div>
 
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {viewingCoffee.purchaseDate
-              ? new Date(
-                  viewingCoffee.purchaseDate
-                ).toLocaleDateString()
-              : '—'}
-          </p>
-        </div>
+                <div className="border-r border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Purchase Date
+                  </p>
 
-        <div className="p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Price
-          </p>
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    {viewingCoffee.purchaseDate
+                      ? new Date(
+                        viewingCoffee.purchaseDate
+                      ).toLocaleDateString()
+                      : '—'}
+                  </p>
+                </div>
 
-          <p className="bp-code mt-2 text-[var(--bp-blue)]">
-            {typeof viewingCoffee.price ===
-            'number'
-              ? viewingCoffee.price
-              : '—'}
-          </p>
-        </div>
-      </div>
-    </section>
+                <div className="p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Price
+                  </p>
 
-    <section>
-      <div className="mb-3">
-        <p className="bp-index">
-          03.04 / BAG
-        </p>
-      </div>
+                  <p className="bp-code mt-2 text-[var(--bp-blue)]">
+                    {typeof viewingCoffee.price ===
+                      'number'
+                      ? viewingCoffee.price
+                      : '—'}
+                  </p>
+                </div>
+              </div>
+            </section>
 
-      <div className="grid grid-cols-3 border border-[var(--bp-line)] bg-[var(--bp-paper)]">
-        <div className="border-r border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Starting
-          </p>
+            <section>
+              <div className="mb-3">
+                <p className="bp-index">
+                  03.04 / BAG
+                </p>
+              </div>
 
-          <p className="bp-measurement mt-2 text-xl font-semibold text-[var(--bp-blue)]">
-            {viewingCoffee.totalWeight}g
-          </p>
-        </div>
+              <div className="grid grid-cols-3 border border-[var(--bp-line)] bg-[var(--bp-paper)]">
+                <div className="border-r border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Starting
+                  </p>
 
-        <div className="border-r border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Remaining
-          </p>
+                  <p className="bp-measurement mt-2 text-xl font-semibold text-[var(--bp-blue)]">
+                    {viewingCoffee.totalWeight}g
+                  </p>
+                </div>
 
-          <p className="bp-measurement mt-2 text-xl font-semibold text-[var(--bp-blue)]">
-            {viewingCoffee.remainingWeight}g
-          </p>
-        </div>
+                <div className="border-r border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Remaining
+                  </p>
 
-        <div className="p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Used
-          </p>
+                  <p className="bp-measurement mt-2 text-xl font-semibold text-[var(--bp-blue)]">
+                    {viewingCoffee.remainingWeight}g
+                  </p>
+                </div>
 
-          <p className="bp-measurement mt-2 text-xl font-semibold text-[var(--bp-blue)]">
-            {Math.max(
-              0,
-              viewingCoffee.totalWeight -
-                viewingCoffee.remainingWeight
+                <div className="p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Used
+                  </p>
+
+                  <p className="bp-measurement mt-2 text-xl font-semibold text-[var(--bp-blue)]">
+                    {Math.max(
+                      0,
+                      viewingCoffee.totalWeight -
+                      viewingCoffee.remainingWeight
+                    )}
+                    g
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <div className="mb-3">
+                <p className="bp-index">
+                  03.05 / CUP NOTES
+                </p>
+              </div>
+
+              <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+                <div className="border-b border-[var(--bp-line)] p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Roaster Tasting Notes
+                  </p>
+
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--bp-blue)]">
+                    {viewingCoffee.bagTastingNotes &&
+                      viewingCoffee.bagTastingNotes
+                        .length > 0
+                      ? viewingCoffee.bagTastingNotes.join(
+                        ' / '
+                      )
+                      : 'Not recorded'}
+                  </p>
+                </div>
+
+                <div className="p-4">
+                  <p className="bp-label text-[var(--bp-muted)]">
+                    Personal Notes
+                  </p>
+
+                  <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[var(--bp-blue)]">
+                    {viewingCoffee.personalNotes ||
+                      'Not recorded'}
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {viewingCoffee.roasterURL && (
+              <a
+                href={viewingCoffee.roasterURL}
+                target="_blank"
+                rel="noreferrer"
+                className="bp-button block w-full text-center"
+              >
+                Roaster Website
+              </a>
             )}
-            g
-          </p>
-        </div>
-      </div>
-    </section>
 
-    <section>
-      <div className="mb-3">
-        <p className="bp-index">
-          03.05 / CUP NOTES
-        </p>
-      </div>
+            <div className="grid grid-cols-3 border border-[var(--bp-line)]">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingCoffee(
+                    viewingCoffee
+                  );
+                  setShowBeanForm(true);
+                }}
+                className="bp-label border-r border-[var(--bp-line)] px-4 py-4 text-[var(--bp-blue)]"
+              >
+                Edit Coffee
+              </button>
 
-      <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
-        <div className="border-b border-[var(--bp-line)] p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Roaster Tasting Notes
-          </p>
+              <button
+                type="button"
+                onClick={() => {
+                  handleDeleteCoffee(
+                    viewingCoffee.id
+                  );
+                }}
+                className="bp-label border-r border-[var(--bp-line)] px-4 py-4 text-[var(--bp-danger)]"
+              >
+                Delete
+              </button>
 
-          <p className="mt-2 text-sm leading-relaxed text-[var(--bp-blue)]">
-            {viewingCoffee.bagTastingNotes &&
-            viewingCoffee.bagTastingNotes
-              .length > 0
-              ? viewingCoffee.bagTastingNotes.join(
-                  ' / '
-                )
-              : 'Not recorded'}
-          </p>
-        </div>
-
-        <div className="p-4">
-          <p className="bp-label text-[var(--bp-muted)]">
-            Personal Notes
-          </p>
-
-          <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[var(--bp-blue)]">
-            {viewingCoffee.personalNotes ||
-              'Not recorded'}
-          </p>
-        </div>
-      </div>
-    </section>
-
-    {viewingCoffee.roasterURL && (
-      <a
-        href={viewingCoffee.roasterURL}
-        target="_blank"
-        rel="noreferrer"
-        className="bp-button block w-full text-center"
-      >
-        Roaster Website
-      </a>
-    )}
-
-    <div className="grid grid-cols-3 border border-[var(--bp-line)]">
-      <button
-        type="button"
-        onClick={() => {
-          setEditingCoffee(
-            viewingCoffee
-          );
-          setShowBeanForm(true);
-        }}
-        className="bp-label border-r border-[var(--bp-line)] px-4 py-4 text-[var(--bp-blue)]"
-      >
-        Edit Coffee
-      </button>
-
-      <button
-        type="button"
-        onClick={() => {
-          handleDeleteCoffee(
-            viewingCoffee.id
-          );
-        }}
-        className="bp-label border-r border-[var(--bp-line)] px-4 py-4 text-[var(--bp-danger)]"
-      >
-        Delete
-      </button>
-
-      <button
-        type="button"
-        onClick={() => {
-          setSelectedCoffee(
-            viewingCoffee
-          );
-          setEditingLog(null);
-          setPrefillLog(null);
-          setBrewFlowStep('brew');
-          setShowBrewFlow(true);
-        }}
-        className="bg-[var(--bp-orange)] px-4 py-4 text-[var(--bp-blue)]"
-      >
-        <span className="bp-label">
-          Brew
-        </span>
-      </button>
-    </div>
-  </section>
-)}
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCoffee(
+                    viewingCoffee
+                  );
+                  setEditingLog(null);
+                  setPrefillLog(null);
+                  setBrewFlowStep('brew');
+                  setShowBrewFlow(true);
+                }}
+                className="bg-[var(--bp-orange)] px-4 py-4 text-[var(--bp-blue)]"
+              >
+                <span className="bp-label">
+                  Brew
+                </span>
+              </button>
+            </div>
+          </section>
+        )}
 
         {activeTab === 'library' && !viewingCoffee && !viewingBrew && (
-  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-    <section className="border-b border-[var(--bp-line)] pb-6">
-      <p className="bp-index">
-        02 / ARCHIVE
-      </p>
-
-      <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="bp-heading text-3xl text-[var(--bp-blue)]">
-            Coffee Archive
-          </h1>
-
-          <p className="bp-code mt-2 max-w-md text-[var(--bp-muted)]">
-            Your current and previous coffees, weights, references and brew records.
-          </p>
-        </div>
-
-        {coffees.length > 0 && (
-          <button
-            type="button"
-            onClick={() => {
-              setEditingCoffee(null);
-              setShowBeanForm(true);
-            }}
-            className="flex w-full items-center justify-between bg-[var(--bp-orange)] px-5 py-4 text-[var(--bp-blue)] sm:w-auto sm:min-w-[170px]"
-          >
-            <div className="text-left">
-              <p className="bp-label">
-                New record
-              </p>
-
-              <p className="mt-1 text-sm font-semibold">
-                Add coffee
-              </p>
-            </div>
-
-            <Icons.Plus className="h-5 w-5" />
-          </button>
-        )}
-      </div>
-    </section>
-
-    {coffeesLoading ? (
-      <div className="mt-8 space-y-4">
-        {[1, 2, 3].map(item => (
-          <div
-            key={item}
-            className="h-36 animate-pulse border border-[var(--bp-line)] bg-[var(--bp-paper-light)]"
-          />
-        ))}
-      </div>
-    ) : coffees.length === 0 ? (
-      <section className="mt-8 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
-        <div className="border-b border-[var(--bp-line)] p-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center border border-[var(--bp-line-strong)]">
-              <Icons.Coffee className="h-5 w-5 text-[var(--bp-blue)]" />
-            </div>
-
-            <div>
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <section className="border-b border-[var(--bp-line)] pb-6">
               <p className="bp-index">
-                02.01 / FIRST COFFEE
+                02 / ARCHIVE
               </p>
 
-              <h2 className="bp-heading mt-1 text-xl text-[var(--bp-blue)]">
-                No coffees yet
-              </h2>
-            </div>
+              <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div className="min-w-0">
+                  <h1 className="bp-heading text-3xl text-[var(--bp-blue)]">
+                    Coffee Archive
+                  </h1>
+
+                  <p className="bp-code mt-2 max-w-md text-[var(--bp-muted)]">
+                    Your current and previous coffees, weights, references and brew records.
+                  </p>
+                </div>
+
+                {coffees.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingCoffee(null);
+                      setShowBeanForm(true);
+                    }}
+                    className="flex w-full items-center justify-between bg-[var(--bp-orange)] px-5 py-4 text-[var(--bp-blue)] sm:w-auto sm:min-w-[170px]"
+                  >
+                    <div className="text-left">
+                      <p className="bp-label">
+                        New record
+                      </p>
+
+                      <p className="mt-1 text-sm font-semibold">
+                        Add coffee
+                      </p>
+                    </div>
+
+                    <Icons.Plus className="h-5 w-5" />
+                  </button>
+                )}
+              </div>
+            </section>
+
+            {coffeesLoading ? (
+              <div className="mt-8 space-y-4">
+                {[1, 2, 3].map(item => (
+                  <div
+                    key={item}
+                    className="h-36 animate-pulse border border-[var(--bp-line)] bg-[var(--bp-paper-light)]"
+                  />
+                ))}
+              </div>
+            ) : coffees.length === 0 ? (
+              <section className="mt-8 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+                <div className="border-b border-[var(--bp-line)] p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center border border-[var(--bp-line-strong)]">
+                      <Icons.Coffee className="h-5 w-5 text-[var(--bp-blue)]" />
+                    </div>
+
+                    <div>
+                      <p className="bp-index">
+                        02.01 / FIRST COFFEE
+                      </p>
+
+                      <h2 className="bp-heading mt-1 text-xl text-[var(--bp-blue)]">
+                        No coffees yet
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-5">
+                  <p className="max-w-md text-sm leading-relaxed text-[var(--bp-muted)]">
+                    Add the coffee you are brewing so BREWPRINT can connect it to brew records, track remaining weight and build your coffee history.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingCoffee(null);
+                    setShowBeanForm(true);
+                  }}
+                  className="flex w-full items-center justify-between border-t border-[var(--bp-line)] bg-[var(--bp-orange)] px-5 py-4 text-[var(--bp-blue)]"
+                >
+                  <div className="text-left">
+                    <p className="bp-label">
+                      Create record
+                    </p>
+
+                    <p className="mt-1 text-sm font-semibold">
+                      Add your first coffee
+                    </p>
+                  </div>
+
+                  <Icons.Plus className="h-5 w-5" />
+                </button>
+              </section>
+            ) : (
+              <section className="mt-8 space-y-8">
+                <section>
+                  <div className="mb-4 flex items-end justify-between gap-4">
+                    <div>
+                      <p className="bp-index">
+                        02.01 / ACTIVE COFFEES
+                      </p>
+
+                      <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+                        Active Records
+                      </h2>
+                    </div>
+
+                    <span className="bp-code text-[var(--bp-muted)]">
+                      {
+                        coffees.filter(
+                          coffee => coffee.remainingWeight > 0
+                        ).length
+                      }{' '}
+                      ACTIVE
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4">
+                    {coffees
+                      .filter(
+                        coffee => coffee.remainingWeight > 0
+                      )
+                      .map(coffee => (
+                        <CoffeeCard
+                          key={coffee.id}
+                          coffee={coffee}
+                          onClick={current => {
+                            setViewingCoffee(current);
+                          }}
+                          onEdit={current => {
+                            setEditingCoffee(current);
+                            setShowBeanForm(true);
+                          }}
+                          onDelete={current =>
+                            handleDeleteCoffee(
+                              current.id
+                            )
+                          }
+                        />
+                      ))}
+                  </div>
+                </section>
+
+                {coffees.some(
+                  coffee => coffee.remainingWeight <= 0
+                ) && (
+                    <section>
+                      <div className="mb-4 flex items-end justify-between gap-4 border-t border-[var(--bp-line)] pt-8">
+                        <div>
+                          <p className="bp-index">
+                            02.02 / FINISHED COFFEES
+                          </p>
+
+                          <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+                            Finished Records
+                          </h2>
+                        </div>
+
+                        <span className="bp-code text-[var(--bp-muted)]">
+                          {
+                            coffees.filter(
+                              coffee =>
+                                coffee.remainingWeight <= 0
+                            ).length
+                          }{' '}
+                          FINISHED
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-4">
+                        {coffees
+                          .filter(
+                            coffee =>
+                              coffee.remainingWeight <= 0
+                          )
+                          .map(coffee => (
+                            <CoffeeCard
+                              key={coffee.id}
+                              coffee={coffee}
+                              onClick={current => {
+                                setViewingCoffee(current);
+                              }}
+                              onEdit={current => {
+                                setEditingCoffee(current);
+                                setShowBeanForm(true);
+                              }}
+                              onDelete={current =>
+                                handleDeleteCoffee(
+                                  current.id
+                                )
+                              }
+                            />
+                          ))}
+                      </div>
+                    </section>
+                  )}
+              </section>
+            )}
           </div>
-        </div>
-
-        <div className="p-5">
-          <p className="max-w-md text-sm leading-relaxed text-[var(--bp-muted)]">
-            Add the coffee you are brewing so BREWPRINT can connect it to brew records, track remaining weight and build your coffee history.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => {
-            setEditingCoffee(null);
-            setShowBeanForm(true);
-          }}
-          className="flex w-full items-center justify-between border-t border-[var(--bp-line)] bg-[var(--bp-orange)] px-5 py-4 text-[var(--bp-blue)]"
-        >
-          <div className="text-left">
-            <p className="bp-label">
-              Create record
-            </p>
-
-            <p className="mt-1 text-sm font-semibold">
-              Add your first coffee
-            </p>
-          </div>
-
-          <Icons.Plus className="h-5 w-5" />
-        </button>
-      </section>
-    ) : (
-      <section className="mt-8 space-y-8">
-  <section>
-    <div className="mb-4 flex items-end justify-between gap-4">
-      <div>
-        <p className="bp-index">
-          02.01 / ACTIVE COFFEES
-        </p>
-
-        <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
-          Active Records
-        </h2>
-      </div>
-
-      <span className="bp-code text-[var(--bp-muted)]">
-        {
-          coffees.filter(
-            coffee => coffee.remainingWeight > 0
-          ).length
-        }{' '}
-        ACTIVE
-      </span>
-    </div>
-
-    <div className="grid grid-cols-1 gap-4">
-      {coffees
-        .filter(
-          coffee => coffee.remainingWeight > 0
-        )
-        .map(coffee => (
-          <CoffeeCard
-            key={coffee.id}
-            coffee={coffee}
-            onClick={current => {
-  setViewingCoffee(current);
-}}
-            onEdit={current => {
-              setEditingCoffee(current);
-              setShowBeanForm(true);
-            }}
-            onDelete={current =>
-              handleDeleteCoffee(
-                current.id
-              )
-            }
-          />
-        ))}
-    </div>
-  </section>
-
-  {coffees.some(
-    coffee => coffee.remainingWeight <= 0
-  ) && (
-    <section>
-      <div className="mb-4 flex items-end justify-between gap-4 border-t border-[var(--bp-line)] pt-8">
-        <div>
-          <p className="bp-index">
-            02.02 / FINISHED COFFEES
-          </p>
-
-          <h2 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
-            Finished Records
-          </h2>
-        </div>
-
-        <span className="bp-code text-[var(--bp-muted)]">
-          {
-            coffees.filter(
-              coffee =>
-                coffee.remainingWeight <= 0
-            ).length
-          }{' '}
-          FINISHED
-        </span>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4">
-        {coffees
-          .filter(
-            coffee =>
-              coffee.remainingWeight <= 0
-          )
-          .map(coffee => (
-            <CoffeeCard
-              key={coffee.id}
-              coffee={coffee}
-              onClick={current => {
-  setViewingCoffee(current);
-}}
-              onEdit={current => {
-                setEditingCoffee(current);
-                setShowBeanForm(true);
-              }}
-              onDelete={current =>
-                handleDeleteCoffee(
-                  current.id
-                )
-              }
-            />
-          ))}
-      </div>
-    </section>
-  )}
-</section>
-    )}
-  </div>
-)}
+        )}
         {activeTab === 'grind' && !viewingBrew && (
           <GrindReference />
         )}
@@ -3119,211 +3206,218 @@ if (!user || passwordRecovery) {
         )}
       </main>
 
+      {/* ------------------------------------------------------
+          Brew capture flow
+          ------------------------------------------------------ */}
+
       {showBrewFlow && (
-  <div className="fixed inset-0 z-[70] overflow-y-auto bg-[rgba(12,39,72,0.48)] backdrop-blur-sm">
-    <div className="min-h-full p-0 sm:p-6">
-      <div className="mx-auto flex min-h-[100dvh] w-full max-w-2xl items-start justify-center sm:min-h-0">
-        {brewFlowStep === 'select' && (
-          <section className="w-full border-x border-[var(--bp-line)] bg-[var(--bp-paper)] sm:border">
-            <div
-              className="sticky top-0 z-20 border-b border-[var(--bp-line)] bg-[var(--bp-paper)] px-4 pb-4 sm:px-6"
-              style={{
-                paddingTop:
-                  'calc(env(safe-area-inset-top) + 1rem)',
-              }}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="bp-index">
-                    05 / BREW CAPTURE
-                  </p>
+        <div className="fixed inset-0 z-[70] overflow-y-auto bg-[rgba(12,39,72,0.48)] backdrop-blur-sm">
+          <div className="min-h-full p-0 sm:p-6">
+            <div className="mx-auto flex min-h-[100dvh] w-full max-w-2xl items-start justify-center sm:min-h-0">
+              {brewFlowStep === 'select' && (
+                <section className="w-full border-x border-[var(--bp-line)] bg-[var(--bp-paper)] sm:border">
+                  <div
+                    className="sticky top-0 z-20 border-b border-[var(--bp-line)] bg-[var(--bp-paper)] px-4 pb-4 sm:px-6"
+                    style={{
+                      paddingTop:
+                        'calc(env(safe-area-inset-top) + 1rem)',
+                    }}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="bp-index">
+                          05 / BREW CAPTURE
+                        </p>
 
-                  <h2 className="bp-heading mt-1 text-2xl text-[var(--bp-blue)]">
-                    Select Coffee
-                  </h2>
+                        <h2 className="bp-heading mt-1 text-2xl text-[var(--bp-blue)]">
+                          Select Coffee
+                        </h2>
 
-                  <p className="bp-code mt-2 text-[var(--bp-muted)]">
-                    Choose the coffee record for this brew.
-                  </p>
-                </div>
+                        <p className="bp-code mt-2 text-[var(--bp-muted)]">
+                          Choose the coffee record for this brew.
+                        </p>
+                      </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowBrewFlow(false);
-                    setEditingLog(null);
-                    setPrefillLog(null);
-                    setSelectedCoffee(null);
-                  }}
-                  className="bp-button h-10 min-h-0 px-3"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-6 px-4 py-6 sm:px-6">
-              <section>
-                <div className="mb-4 flex items-end justify-between gap-4">
-                  <div>
-                    <p className="bp-index">
-                      05.01 / COFFEE RECORDS
-                    </p>
-
-                    <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
-                      Available Coffees
-                    </h3>
-                  </div>
-
-                  <span className="bp-code text-[var(--bp-muted)]">
-                    {
-                      coffees.filter(
-                        coffee => coffee.remainingWeight > 0
-                      ).length
-                    }{' '}
-                    ACTIVE
-                  </span>
-                </div>
-
-                <div className="border border-[var(--bp-line)]">
-                  {coffees
-                    .filter(
-                      coffee => coffee.remainingWeight > 0
-                    )
-                    .map((coffee, index, activeCoffees) => (
                       <button
-                        key={coffee.id}
                         type="button"
                         onClick={() => {
-                          setSelectedCoffee(coffee);
-                          setBrewFlowStep('brew');
+                          setShowBrewFlow(false);
+                          setEditingLog(null);
+                          setPrefillLog(null);
+                          setSelectedCoffee(null);
                         }}
-                        className={`grid w-full grid-cols-[1fr_auto] bg-[var(--bp-paper-light)] text-left ${
-                          index < activeCoffees.length - 1
-                            ? 'border-b border-[var(--bp-line)]'
-                            : ''
-                        }`}
+                        className="bp-button h-10 min-h-0 px-3"
                       >
-                        <div className="min-w-0 p-4">
-                          <p className="bp-label text-[var(--bp-orange)]">
-                            {coffee.roaster ||
-                              'Roaster not recorded'}
-                          </p>
-
-                          <h4 className="bp-coffee-name mt-2 truncate text-2xl text-[var(--bp-blue)]">
-                            {coffee.name}
-                          </h4>
-
-                          <p className="bp-code mt-2 truncate text-[var(--bp-muted)]">
-                            {coffee.origin || 'Origin not recorded'}
-                            {coffee.process
-                              ? ` / ${coffee.process}`
-                              : ''}
-                          </p>
-                        </div>
-
-                        <div className="flex min-w-[96px] flex-col items-end justify-center border-l border-[var(--bp-line)] px-4">
-                          <p className="bp-measurement text-xl font-semibold text-[var(--bp-blue)]">
-                            {coffee.remainingWeight}
-                            g
-                          </p>
-
-                          <p className="bp-label mt-1 text-[var(--bp-muted)]">
-                            Remaining
-                          </p>
-                        </div>
+                        Close
                       </button>
-                    ))}
-                </div>
-
-                {coffees.filter(
-                  coffee => coffee.remainingWeight > 0
-                ).length === 0 && (
-                  <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-5">
-                    <p className="bp-label text-[var(--bp-muted)]">
-                      No active coffees
-                    </p>
-
-                    <p className="mt-2 text-sm leading-relaxed text-[var(--bp-muted)]">
-                      Add a new coffee record before logging a brew.
-                    </p>
-                  </div>
-                )}
-              </section>
-
-              <section>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setBrewFlowStep('new-bean')
-                  }
-                  className="flex w-full items-center justify-between border border-[var(--bp-line)] bg-[var(--bp-orange)] px-5 py-4 text-[var(--bp-blue)]"
-                >
-                  <div className="text-left">
-                    <p className="bp-label">
-                      New record
-                    </p>
-
-                    <p className="mt-1 text-sm font-semibold">
-                      Add Coffee
-                    </p>
+                    </div>
                   </div>
 
-                  <Icons.Plus className="h-5 w-5" />
-                </button>
-              </section>
-            </div>
-          </section>
-        )}
+                  <div className="space-y-6 px-4 py-6 sm:px-6">
+                    <section>
+                      <div className="mb-4 flex items-end justify-between gap-4">
+                        <div>
+                          <p className="bp-index">
+                            05.01 / COFFEE RECORDS
+                          </p>
 
-        {brewFlowStep === 'new-bean' && (
-          <CoffeeBeanForm
-            onSave={handleSaveBean}
-            onCancel={() =>
-              setBrewFlowStep('select')
-            }
-          />
-        )}
+                          <h3 className="bp-heading mt-1 text-lg text-[var(--bp-blue)]">
+                            Available Coffees
+                          </h3>
+                        </div>
 
-        {brewFlowStep === 'brew' &&
-          selectedCoffee && (
-            <BrewForm
-              coffee={selectedCoffee}
-              initialData={
-                editingLog ||
-                prefillLog ||
-                undefined
-              }
-              isBrewAgain={Boolean(
-                prefillLog
+                        <span className="bp-code text-[var(--bp-muted)]">
+                          {
+                            coffees.filter(
+                              coffee => coffee.remainingWeight > 0
+                            ).length
+                          }{' '}
+                          ACTIVE
+                        </span>
+                      </div>
+
+                      <div className="border border-[var(--bp-line)]">
+                        {coffees
+                          .filter(
+                            coffee => coffee.remainingWeight > 0
+                          )
+                          .map((coffee, index, activeCoffees) => (
+                            <button
+                              key={coffee.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedCoffee(coffee);
+                                setBrewFlowStep('brew');
+                              }}
+                              className={`grid w-full grid-cols-[1fr_auto] bg-[var(--bp-paper-light)] text-left ${index < activeCoffees.length - 1
+                                  ? 'border-b border-[var(--bp-line)]'
+                                  : ''
+                                }`}
+                            >
+                              <div className="min-w-0 p-4">
+                                <p className="bp-label text-[var(--bp-orange)]">
+                                  {coffee.roaster ||
+                                    'Roaster not recorded'}
+                                </p>
+
+                                <h4 className="bp-coffee-name mt-2 truncate text-2xl text-[var(--bp-blue)]">
+                                  {coffee.name}
+                                </h4>
+
+                                <p className="bp-code mt-2 truncate text-[var(--bp-muted)]">
+                                  {coffee.origin || 'Origin not recorded'}
+                                  {coffee.process
+                                    ? ` / ${coffee.process}`
+                                    : ''}
+                                </p>
+                              </div>
+
+                              <div className="flex min-w-[96px] flex-col items-end justify-center border-l border-[var(--bp-line)] px-4">
+                                <p className="bp-measurement text-xl font-semibold text-[var(--bp-blue)]">
+                                  {coffee.remainingWeight}
+                                  g
+                                </p>
+
+                                <p className="bp-label mt-1 text-[var(--bp-muted)]">
+                                  Remaining
+                                </p>
+                              </div>
+                            </button>
+                          ))}
+                      </div>
+
+                      {coffees.filter(
+                        coffee => coffee.remainingWeight > 0
+                      ).length === 0 && (
+                          <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-5">
+                            <p className="bp-label text-[var(--bp-muted)]">
+                              No active coffees
+                            </p>
+
+                            <p className="mt-2 text-sm leading-relaxed text-[var(--bp-muted)]">
+                              Add a new coffee record before logging a brew.
+                            </p>
+                          </div>
+                        )}
+                    </section>
+
+                    <section>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setBrewFlowStep('new-bean')
+                        }
+                        className="flex w-full items-center justify-between border border-[var(--bp-line)] bg-[var(--bp-orange)] px-5 py-4 text-[var(--bp-blue)]"
+                      >
+                        <div className="text-left">
+                          <p className="bp-label">
+                            New record
+                          </p>
+
+                          <p className="mt-1 text-sm font-semibold">
+                            Add Coffee
+                          </p>
+                        </div>
+
+                        <Icons.Plus className="h-5 w-5" />
+                      </button>
+                    </section>
+                  </div>
+                </section>
               )}
-              title={
-                editingLog
-                  ? 'Update Entry'
-                  : prefillLog
-                    ? 'Brew Again'
-                    : 'Log Brew'
-              }
-              onSave={handleSaveBrew}
-              onCancel={() => {
-                if (
-                  onboardingStep === 'brew'
-                ) {
-                  void completeOnboarding();
-                  return;
-                }
 
-                setShowBrewFlow(false);
-                setEditingLog(null);
-                setPrefillLog(null);
-                setSelectedCoffee(null);
-              }}
-            />
-          )}
-      </div>
-    </div>
-  </div>
-)}
+              {brewFlowStep === 'new-bean' && (
+                <CoffeeBeanForm
+                  onSave={handleSaveBean}
+                  onCancel={() =>
+                    setBrewFlowStep('select')
+                  }
+                />
+              )}
+
+              {brewFlowStep === 'brew' &&
+                selectedCoffee && (
+                  <BrewForm
+                    coffee={selectedCoffee}
+                    initialData={
+                      editingLog ||
+                      prefillLog ||
+                      undefined
+                    }
+                    isBrewAgain={Boolean(
+                      prefillLog
+                    )}
+                    title={
+                      editingLog
+                        ? 'Update Entry'
+                        : prefillLog
+                          ? 'Brew Again'
+                          : 'Log Brew'
+                    }
+                    onSave={handleSaveBrew}
+                    onCancel={() => {
+                      if (
+                        onboardingStep === 'brew'
+                      ) {
+                        void completeOnboarding();
+                        return;
+                      }
+
+                      setShowBrewFlow(false);
+                      setEditingLog(null);
+                      setPrefillLog(null);
+                      setSelectedCoffee(null);
+                    }}
+                  />
+                )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------
+          Coffee editor
+          ------------------------------------------------------ */}
 
       {showBeanForm && (
         <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md flex items-center justify-center z-[70] p-6 overflow-y-auto">
@@ -3348,6 +3442,10 @@ if (!user || passwordRecovery) {
         </div>
       )}
 
+      {/* ------------------------------------------------------
+          Profile and account modals
+          ------------------------------------------------------ */}
+
       {showProfileModal && (
         <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-[rgba(12,39,72,0.48)] p-0 backdrop-blur-sm sm:p-6">
           <ProfileModal
@@ -3356,7 +3454,7 @@ if (!user || passwordRecovery) {
             }
             isFirstLaunch={
               onboardingStep ===
-                'profile' || !profile
+              'profile' || !profile
             }
             onSave={async newProfile => {
               if (!user) {
@@ -3370,13 +3468,13 @@ if (!user || passwordRecovery) {
                       ...newProfile,
                       onboardingCompleted:
                         onboardingStep ===
-                        'profile'
+                          'profile'
                           ? false
                           : (
-                              newProfile.onboardingCompleted ??
-                              profile?.onboardingCompleted ??
-                              false
-                            ),
+                            newProfile.onboardingCompleted ??
+                            profile?.onboardingCompleted ??
+                            false
+                          ),
                     },
                     user.id
                   );
@@ -3418,28 +3516,28 @@ if (!user || passwordRecovery) {
             }}
             onCancel={
               onboardingStep ===
-              'profile'
+                'profile'
                 ? undefined
                 : profile
                   ? () =>
-                      setShowProfileModal(
-                        false
-                      )
+                    setShowProfileModal(
+                      false
+                    )
                   : undefined
             }
             onDeleteAccount={
               onboardingStep ===
-              'profile'
+                'profile'
                 ? undefined
                 : () => {
-                    setShowProfileModal(
-                      false
-                    );
+                  setShowProfileModal(
+                    false
+                  );
 
-                    setShowDeleteAccountModal(
-                      true
-                    );
-                  }
+                  setShowDeleteAccountModal(
+                    true
+                  );
+                }
             }
           />
         </div>
@@ -3489,134 +3587,134 @@ if (!user || passwordRecovery) {
         />
       )}
 
+      {/* ------------------------------------------------------
+          Bottom navigation
+          ------------------------------------------------------ */}
+
       <nav
-  className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--bp-line-strong)] bg-[var(--bp-paper)]"
-  style={{
-    paddingBottom:
-      'env(safe-area-inset-bottom)',
-  }}
->
-  <div className="mx-auto grid h-[76px] w-full max-w-2xl grid-cols-5">
-    <button
-      type="button"
-      onClick={() =>
-        goToTab('home')
-      }
-      className={`relative flex flex-col items-center justify-center gap-1.5 border-r border-[var(--bp-line)] ${
-        activeTab === 'home' ||
-        activeTab === 'analytics'
-          ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
-          : 'text-[var(--bp-muted)]'
-      }`}
-    >
-      {(activeTab === 'home' ||
-        activeTab === 'analytics') && (
-        <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
-      )}
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--bp-line-strong)] bg-[var(--bp-paper)]"
+        style={{
+          paddingBottom:
+            'env(safe-area-inset-bottom)',
+        }}
+      >
+        <div className="mx-auto grid h-[76px] w-full max-w-2xl grid-cols-5">
+          <button
+            type="button"
+            onClick={() =>
+              goToTab('home')
+            }
+            className={`relative flex flex-col items-center justify-center gap-1.5 border-r border-[var(--bp-line)] ${activeTab === 'home' ||
+                activeTab === 'analytics'
+                ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
+                : 'text-[var(--bp-muted)]'
+              }`}
+          >
+            {(activeTab === 'home' ||
+              activeTab === 'analytics') && (
+                <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
+              )}
 
-      <BrewprintIcon
-        name="home"
-        size={21}
-      />
+            <BrewprintIcon
+              name="home"
+              size={21}
+            />
 
-      <span className="bp-label">
-        Home
-      </span>
-    </button>
+            <span className="bp-label">
+              Home
+            </span>
+          </button>
 
-    <button
-      type="button"
-      onClick={() =>
-        goToTab('library')
-      }
-      className={`relative flex flex-col items-center justify-center gap-1.5 border-r border-[var(--bp-line)] ${
-        activeTab === 'library'
-          ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
-          : 'text-[var(--bp-muted)]'
-      }`}
-    >
+          <button
+            type="button"
+            onClick={() =>
+              goToTab('library')
+            }
+            className={`relative flex flex-col items-center justify-center gap-1.5 border-r border-[var(--bp-line)] ${activeTab === 'library'
+                ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
+                : 'text-[var(--bp-muted)]'
+              }`}
+          >
 
 
-      {activeTab === 'library' && (
-        <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
-      )}
+            {activeTab === 'library' && (
+              <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
+            )}
 
-      <BrewprintIcon
-        name="archive"
-        size={21}
-      />
+            <BrewprintIcon
+              name="archive"
+              size={21}
+            />
 
-      <span className="bp-label">
-        Archive
-      </span>
-    </button>
+            <span className="bp-label">
+              Archive
+            </span>
+          </button>
 
-    <button
-      type="button"
-      onClick={startBrewCapture}
-      className="relative flex flex-col items-center justify-center gap-1.5 bg-[var(--bp-orange)] text-[var(--bp-blue)]"
-    >
-      <BrewprintIcon
-        name="plus"
-        size={25}
-      />
+          <button
+            type="button"
+            onClick={startBrewCapture}
+            className="relative flex flex-col items-center justify-center gap-1.5 bg-[var(--bp-orange)] text-[var(--bp-blue)]"
+          >
+            <BrewprintIcon
+              name="plus"
+              size={25}
+            />
 
-      <span className="bp-label">
-        Brew
-      </span>
-    </button>
+            <span className="bp-label">
+              Brew
+            </span>
+          </button>
 
-    <button
-      type="button"
-      onClick={() =>
-        goToTab('journal')
-      }
-      className={`relative flex flex-col items-center justify-center gap-1.5 border-l border-[var(--bp-line)] ${
-        activeTab === 'journal'
-          ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
-          : 'text-[var(--bp-muted)]'
-      }`}
-    >
-      {activeTab === 'journal' && (
-        <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
-      )}
+          <button
+            type="button"
+            onClick={() =>
+              goToTab('journal')
+            }
+            className={`relative flex flex-col items-center justify-center gap-1.5 border-l border-[var(--bp-line)] ${activeTab === 'journal'
+                ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
+                : 'text-[var(--bp-muted)]'
+              }`}
+          >
+            {activeTab === 'journal' && (
+              <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
+            )}
 
-      <BrewprintIcon
-        name="history"
-        size={21}
-      />
+            <BrewprintIcon
+              name="history"
+              size={21}
+            />
 
-      <span className="bp-label">
-        History
-      </span>
-    </button>
+            <span className="bp-label">
+              History
+            </span>
+          </button>
 
-    <button
-      type="button"
-      onClick={() =>
-        goToTab('profile')
-      }
-      className={`relative flex flex-col items-center justify-center gap-1.5 border-l border-[var(--bp-line)] ${
-        activeTab === 'profile'
-          ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
-          : 'text-[var(--bp-muted)]'
-      }`}
-    >
-      {activeTab === 'profile' && (
-        <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
-      )}
+          <button
+            type="button"
+            onClick={() =>
+              goToTab('profile')
+            }
+            className={`relative flex flex-col items-center justify-center gap-1.5 border-l border-[var(--bp-line)] ${activeTab === 'profile'
+                ? 'bg-[var(--bp-paper-light)] text-[var(--bp-blue)]'
+                : 'text-[var(--bp-muted)]'
+              }`}
+          >
+            {activeTab === 'profile' && (
+              <span className="absolute inset-x-0 top-0 h-[2px] bg-[var(--bp-orange)]" />
+            )}
 
-      <BrewprintIcon
-        name="profile"
-        size={21}
-      />
+            <BrewprintIcon
+              name="profile"
+              size={21}
+            />
 
-      <span className="bp-label">
-        Profile
-      </span>
-    </button>
-  </div>
-</nav>
+            <span className="bp-label">
+              Profile
+            </span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 };
