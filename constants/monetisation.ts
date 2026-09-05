@@ -13,7 +13,7 @@ export const BREWPRINT_PRICING = {
 } as const;
 
 export const FREE_LIMITS = {
-  visibleBrewHistory: 30,
+  visibleBrewHistory: 15,
 } as const;
 
 export const PRO_FEATURES = {

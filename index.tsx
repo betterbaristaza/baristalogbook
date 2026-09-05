@@ -29,4 +29,4 @@ root.render(
       </EntitlementProvider>
     </AuthProvider>
   </React.StrictMode>
-);
+);  

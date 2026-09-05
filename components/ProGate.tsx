@@ -4,9 +4,7 @@ import { useEntitlements } from '../context/EntitlementContext';
 
 interface ProGateProps {
   children: React.ReactNode;
-
   fallback?: React.ReactNode;
-
   loadingFallback?: React.ReactNode;
 }
 

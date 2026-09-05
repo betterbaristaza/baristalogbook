@@ -12,6 +12,7 @@ import {
 } from './types';
 
 import { Icons } from './constants';
+import { FREE_LIMITS } from './constants/monetisation';
 
 import { ProGate } from './components/ProGate';
 import CoffeeCard from './components/CoffeeCard';
@@ -33,6 +34,7 @@ import {
 } from './components/BrewprintBrand';
 
 import { useAuth } from './context/AuthContext';
+import { useEntitlements } from './context/EntitlementContext';
 
 import { coffeeService } from './services/coffeeService';
 import { brewLogService } from './services/brewLogService';
@@ -663,6 +665,10 @@ const App: React.FC = () => {
     signOut,
   } = useAuth();
 
+  const {
+    isPro,
+  } = useEntitlements();
+
   // ----------------------------------------------------------
   // Core app state
   // ----------------------------------------------------------
@@ -1279,29 +1285,97 @@ const App: React.FC = () => {
   };
 
   // ----------------------------------------------------------
-  // History filters
+  // Brew History access and filtering
   // ----------------------------------------------------------
 
-  const filteredLogs = useMemo(() => {
-    return brewLogs.filter(log => {
+const visibleHistoryLogs = useMemo(() => {
+  const sortedLogs = [...brewLogs].sort(
+    (a, b) =>
+      new Date(b.date).getTime() -
+      new Date(a.date).getTime()
+  );
+
+  if (isPro) {
+    return sortedLogs;
+  }
+
+  return sortedLogs.slice(
+    0,
+    FREE_LIMITS.visibleBrewHistory
+  );
+}, [brewLogs, isPro]);
+
+const visibleHistoryIds = useMemo(
+  () =>
+    new Set(
+      visibleHistoryLogs.map(
+        log => log.id
+      )
+    ),
+  [visibleHistoryLogs]
+);
+
+const historyIsLimited =
+  !isPro &&
+  brewLogs.length >
+    FREE_LIMITS.visibleBrewHistory;
+
+const hiddenHistoryCount = Math.max(
+  0,
+  brewLogs.length -
+    visibleHistoryLogs.length
+);
+
+const canAccessBrewLog = (
+  log: BrewLog
+): boolean => {
+  return (
+    isPro ||
+    visibleHistoryIds.has(log.id)
+  );
+};
+
+useEffect(() => {
+  if (!viewingBrew) {
+    return;
+  }
+
+  if (isPro) {
+    return;
+  }
+
+  if (!visibleHistoryIds.has(viewingBrew.id)) {
+    setViewingBrew(null);
+  }
+}, [
+  viewingBrew,
+  isPro,
+  visibleHistoryIds,
+]);
+
+const filteredLogs = useMemo(() => {
+  return visibleHistoryLogs.filter(
+    log => {
       const coffee = coffees.find(
         current =>
           current.id === log.coffeeId
       );
 
       const query =
-        searchQuery.toLowerCase();
+        searchQuery
+          .trim()
+          .toLowerCase();
 
       const searchMatch =
-        !searchQuery ||
+        !query ||
         coffee?.name
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(query) ||
         coffee?.roaster
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(query) ||
         log.grinder
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(query) ||
         log.tastingNotes?.some(note =>
           note
@@ -1323,7 +1397,8 @@ const App: React.FC = () => {
         ratingFilter === 'all' ||
         (
           log.rating !== undefined &&
-          log.rating >= Number(ratingFilter)
+          log.rating >=
+            Number(ratingFilter)
         );
 
       const dateMatch = (() => {
@@ -1331,7 +1406,9 @@ const App: React.FC = () => {
           return true;
         }
 
-        const logDate = new Date(log.date);
+        const logDate =
+          new Date(log.date);
+
         const now = new Date();
 
         if (dateRange === 'today') {
@@ -1346,11 +1423,11 @@ const App: React.FC = () => {
             logDate >=
             new Date(
               now.getTime() -
-              7 *
-              24 *
-              60 *
-              60 *
-              1000
+                7 *
+                  24 *
+                  60 *
+                  60 *
+                  1000
             )
           );
         }
@@ -1360,11 +1437,11 @@ const App: React.FC = () => {
             logDate >=
             new Date(
               now.getTime() -
-              30 *
-              24 *
-              60 *
-              60 *
-              1000
+                30 *
+                  24 *
+                  60 *
+                  60 *
+                  1000
             )
           );
         }
@@ -1378,15 +1455,16 @@ const App: React.FC = () => {
         ratingMatch &&
         dateMatch
       );
-    });
-  }, [
-    brewLogs,
-    coffees,
-    searchQuery,
-    methodFilter,
-    ratingFilter,
-    dateRange,
-  ]);
+    }
+  );
+}, [
+  visibleHistoryLogs,
+  coffees,
+  searchQuery,
+  methodFilter,
+  ratingFilter,
+  dateRange,
+]);
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -1693,53 +1771,84 @@ const App: React.FC = () => {
   };
 
   const openExistingBrew = (
-    log: BrewLog
-  ) => {
-    setViewingCoffee(null);
-    setViewingBrew(log);
-  };
-
-  const editExistingBrew = (
-    log: BrewLog
-  ) => {
-    const coffee = coffees.find(
-      current =>
-        current.id === log.coffeeId
+  log: BrewLog
+) => {
+  if (!canAccessBrewLog(log)) {
+    alert(
+      'Full Brew History is available with Brewprint Pro.'
     );
 
-    if (!coffee) {
-      setActiveTab('journal');
-      return;
-    }
-
     setViewingBrew(null);
-    setEditingLog(log);
-    setPrefillLog(null);
-    setSelectedCoffee(coffee);
-    setShowBrewFlow(true);
-    setBrewFlowStep('brew');
-  };
+    setActiveTab('journal');
+    return;
+  }
 
-  const brewAgainFromLog = (
-    log: BrewLog
-  ) => {
-    const coffee = coffees.find(
-      current =>
-        current.id === log.coffeeId
+  setViewingCoffee(null);
+  setViewingBrew(log);
+};
+
+const editExistingBrew = (
+  log: BrewLog
+) => {
+  if (!canAccessBrewLog(log)) {
+    alert(
+      'Full Brew History is available with Brewprint Pro.'
     );
 
-    if (!coffee) {
-      setActiveTab('journal');
-      return;
-    }
+    setViewingBrew(null);
+    setActiveTab('journal');
+    return;
+  }
+
+  const coffee = coffees.find(
+    current =>
+      current.id === log.coffeeId
+  );
+
+  if (!coffee) {
+    setActiveTab('journal');
+    return;
+  }
+
+  setViewingBrew(null);
+  setEditingLog(log);
+  setPrefillLog(null);
+  setSelectedCoffee(coffee);
+  setShowBrewFlow(true);
+  setBrewFlowStep('brew');
+};
+
+const brewAgainFromLog = (
+  log: BrewLog
+) => {
+  if (!canAccessBrewLog(log)) {
+    alert(
+      'Full Brew History is available with Brewprint Pro.'
+    );
 
     setViewingBrew(null);
-    setPrefillLog(log);
-    setEditingLog(null);
-    setSelectedCoffee(coffee);
-    setShowBrewFlow(true);
-    setBrewFlowStep('brew');
-  };
+    setActiveTab('journal');
+    return;
+  }
+
+  const coffee = coffees.find(
+    current =>
+      current.id === log.coffeeId
+  );
+
+  if (!coffee) {
+    setActiveTab('journal');
+    return;
+  }
+
+  setViewingBrew(null);
+  setPrefillLog(log);
+  setEditingLog(null);
+  setSelectedCoffee(coffee);
+  setShowBrewFlow(true);
+  setBrewFlowStep('brew');
+};
+
 
   const goToTab = (
     tab: typeof activeTab
@@ -2191,11 +2300,50 @@ const App: React.FC = () => {
                   </div>
 
                   <span className="bp-code text-[var(--bp-muted)]">
-                    {filteredLogs.length} / {brewLogs.length} RECORDS
+                    {filteredLogs.length} / {visibleHistoryLogs.length} RECORDS
                   </span>
                 </div>
               </section>
             )}
+
+              {historyIsLimited && (
+                <section className="mt-6 border border-[var(--bp-line)] bg-[var(--bp-paper-light)]">
+                  <div className="grid grid-cols-[1fr_auto]">
+                    <div className="p-5">
+                      <p className="bp-label text-[var(--bp-orange)]">
+                        Brewprint Pro
+                      </p>
+
+                      <h2 className="bp-heading mt-2 text-lg text-[var(--bp-blue)]">
+                        Full Brew History
+                      </h2>
+
+                      <p className="mt-2 max-w-md text-sm leading-relaxed text-[var(--bp-muted)]">
+                        Free accounts show your latest{' '}
+                        {FREE_LIMITS.visibleBrewHistory}{' '}
+                        brew records. Your older brews remain
+                        safely stored.
+                      </p>
+                    </div>
+
+                    <div className="flex min-w-[108px] flex-col items-end justify-center border-l border-[var(--bp-line)] px-4 text-right">
+                      <p className="bp-measurement text-2xl font-semibold text-[var(--bp-blue)]">
+                        {hiddenHistoryCount}
+                      </p>
+
+                      <p className="bp-label mt-1 text-[var(--bp-muted)]">
+                        Older
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[var(--bp-line)] px-5 py-4">
+                    <p className="bp-code text-[var(--bp-muted)]">
+                      Upgrade to Pro for your complete in-app brew history.
+                    </p>
+                  </div>
+                </section>
+              )}
 
             {brewLogsLoading ? (
               <div className="mt-8 space-y-4">
