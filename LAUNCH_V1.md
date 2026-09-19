@@ -1673,3 +1673,13 @@ The next launch work should be completed in this order:
 8. Add failed-payment, expiry and cancellation-at-period-end handling.
 9. Test the complete Free -> Pro -> Free payment lifecycle.
 10. Complete the remaining production quality checks before closed beta.
+
+## 19 September 2026: TypeScript release checks
+
+- [x] Added Vite and PWA type declarations.
+- [x] Added npm run typecheck.
+- [x] Windows production build passed.
+- [x] Separate TypeScript check passed.
+- [x] git diff --check passed.
+- [ ] Main JavaScript bundle-size warning remains.
+- [ ] Payment verification, webhooks and lifecycle tests remain incomplete.
