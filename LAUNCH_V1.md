@@ -1697,3 +1697,17 @@ The next launch work should be completed in this order:
 - [ ] Subscription lifecycle and entitlement tests.
 
 These checks confirm checkout initialization only, not completed payments.
+
+## 19 September 2026: Payment-attempt database foundation
+
+- [x] Migration 20260919074743 applied and inspected.
+- [x] RLS enabled; browser roles denied direct CRUD access.
+- [x] Server-role inserts and updates tested.
+- [x] Monthly and annual amount constraints tested.
+- [x] Invalid currency and live environment rejected.
+- [x] Duplicate references and idempotency keys rejected.
+- [x] Second unresolved checkout for the same user rejected.
+- [x] Test fixtures rolled back; zero attempts remain.
+- [ ] Concurrent-request testing.
+- [ ] Connect checkout initialization to the table.
+- [ ] Provider verification and entitlement processing.
