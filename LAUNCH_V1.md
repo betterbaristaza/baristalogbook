@@ -1683,3 +1683,17 @@ The next launch work should be completed in this order:
 - [x] git diff --check passed.
 - [ ] Main JavaScript bundle-size warning remains.
 - [ ] Payment verification, webhooks and lifecycle tests remain incomplete.
+
+## 19 September 2026: Paystack TEST checkout initialization
+
+- [x] Preview deployment verified at commit 54e7ccc.
+- [x] Preview Paystack secret and plan variables configured.
+- [x] Turnstile and sign-in worked during browser testing.
+- [x] Monthly checkout opened in TEST mode at ZAR 59.
+- [x] Annual checkout opened in TEST mode at ZAR 499.
+- [ ] Durable transaction references and safe retries.
+- [ ] Server-side payment verification.
+- [ ] Signed webhook processing.
+- [ ] Subscription lifecycle and entitlement tests.
+
+These checks confirm checkout initialization only, not completed payments.
