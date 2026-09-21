@@ -1759,3 +1759,17 @@ These checks validate database storage only, not completed payments.
 - [ ] Callback integration, webhooks and lifecycle handling.
 
 The endpoint does not write billing records or grant Pro.
+
+## 21 September 2026: Actual Paystack TEST verification
+
+- [x] Monthly R59 abandoned payment: HTTP 200, abandoned, paymentVerified false.
+- [x] Monthly R59 declined payment: HTTP 200, failed, paymentVerified false.
+- [x] Monthly R59 successful payment: HTTP 200, success, paymentVerified true.
+- [x] All three responses reported entitlementApplied false.
+- [x] Successful checkout displayed confirmation; owner reported receiving the confirmation email.
+- [ ] Annual payment verification.
+- [ ] Atomic payment persistence and TEST entitlement activation.
+- [ ] Callback integration, webhooks and subscription lifecycle.
+
+These were actual Paystack TEST checks using the same checkout reference.
+Payment completion and release readiness remain unverified.
