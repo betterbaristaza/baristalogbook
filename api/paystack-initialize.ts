@@ -1,76 +1,110 @@
 import { randomUUID } from 'node:crypto';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-type BrewprintPlanCode =
-  | 'pro_monthly'
-  | 'pro_annual';
+type PlanCode = 'pro_monthly' | 'pro_annual';
+type Admin = SupabaseClient;
 
-interface PlanConfig {
-  amount: number;
-  currency: 'ZAR';
-  paystackPlanCode: string | undefined;
+interface Attempt {
+  id: string;
+  reference: string;
+  plan_code: PlanCode;
+  status: string;
+  authorization_url: string | null;
 }
 
-interface PaystackInitializeResponse {
-  status: boolean;
-  message: string;
-  data?: {
-    authorization_url?: string;
-    access_code?: string;
-    reference?: string;
-  };
-}
+const TABLE = 'billing_payment_attempts';
+const COLUMNS = 'id, reference, plan_code, status, authorization_url';
+const BLOCKING = ['created', 'initializing', 'pending', 'unknown', 'succeeded'];
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const getPlanConfig = (
-  planCode: BrewprintPlanCode
-): PlanConfig => {
-  const plans: Record<
-    BrewprintPlanCode,
-    PlanConfig
-  > = {
-    pro_monthly: {
-      amount: 5900,
-      currency: 'ZAR',
-      paystackPlanCode:
-        process.env.PAYSTACK_PLAN_PRO_MONTHLY,
-    },
+function safeCheckoutUrl(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
 
-    pro_annual: {
-      amount: 49900,
-      currency: 'ZAR',
-      paystackPlanCode:
-        process.env.PAYSTACK_PLAN_PRO_ANNUAL,
-    },
-  };
-
-  return plans[planCode];
-};
-
-const isValidPlanCode = (
-  value: unknown
-): value is BrewprintPlanCode =>
-  value === 'pro_monthly' ||
-  value === 'pro_annual';
-
-const isSafeAuthorizationUrl = (
-  value: string
-): boolean => {
   try {
     const url = new URL(value);
 
-    return (
-      url.protocol === 'https:' &&
-      url.hostname === 'checkout.paystack.com'
-    );
+    return url.origin === 'https://checkout.paystack.com'
+      && !url.username
+      && !url.password
+      && url.pathname !== '/';
   } catch {
     return false;
   }
-};
+}
 
-export default async function handler(
-  req: any,
-  res: any
+async function findBlocking(admin: Admin, userId: string) {
+  const { data, error } = await admin
+    .from(TABLE)
+    .select(COLUMNS)
+    .eq('user_id', userId)
+    .eq('environment', 'test')
+    .in('status', BLOCKING)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw new Error('attempt_lookup_failed');
+
+  return data as Attempt | null;
+}
+
+function respondWithAttempt(
+  res: any,
+  attempt: Attempt,
+  planCode: PlanCode
 ) {
+  if (attempt.plan_code !== planCode) {
+    return res.status(409).json({
+      error:
+        'Another plan has an unresolved checkout. Resolve it before changing plans.',
+    });
+  }
+
+  if (
+    attempt.status === 'pending'
+    && safeCheckoutUrl(attempt.authorization_url)
+  ) {
+    return res.status(200).json({
+      authorizationUrl: attempt.authorization_url,
+      reference: attempt.reference,
+      reused: true,
+    });
+  }
+
+  return res.status(409).json({
+    error:
+      'This payment attempt needs verification before another checkout can start.',
+  });
+}
+
+async function paystack(
+  secret: string,
+  path: string,
+  body?: object
+) {
+  const response = await fetch('https://api.paystack.co' + path, {
+    method: body ? 'POST' : 'GET',
+    headers: {
+      Authorization: 'Bearer ' + secret,
+      'Content-Type': 'application/json',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+    signal: AbortSignal.timeout(15000),
+    redirect: 'error',
+  });
+
+  const payload = await response.json();
+
+  if (!response.ok || payload?.status !== true || !payload.data) {
+    throw new Error('provider_request_failed');
+  }
+
+  return payload.data;
+}
+
+export default async function handler(req: any, res: any) {
+  res.setHeader('Cache-Control', 'no-store');
+
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
 
@@ -79,299 +113,271 @@ export default async function handler(
     });
   }
 
-  const supabaseUrl =
-    process.env.SUPABASE_URL;
-
-  const serviceRoleKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  const paystackSecretKey =
-    process.env.PAYSTACK_SECRET_KEY;
+  const authorization = req.headers?.authorization;
 
   if (
-    !supabaseUrl ||
-    !serviceRoleKey
-  ) {
-    console.error(
-      'Supabase server credentials are not configured'
-    );
-
-    return res.status(500).json({
-      error: 'Payment service is not configured',
-    });
-  }
-
-  if (!paystackSecretKey) {
-    console.error(
-      'PAYSTACK_SECRET_KEY is not configured'
-    );
-
-    return res.status(500).json({
-      error: 'Payment service is not configured',
-    });
-  }
-
-  /*
-   * Hard safety guard.
-   *
-   * Brewprint payment development must remain
-   * entirely in Paystack TEST mode.
-   *
-   * Even if a live key is accidentally configured,
-   * this endpoint refuses to use it.
-   */
-  if (
-    !paystackSecretKey.startsWith(
-      'sk_test_'
-    )
-  ) {
-    console.error(
-      'Paystack initialization blocked because the configured key is not a TEST key'
-    );
-
-    return res.status(500).json({
-      error: 'Payment service is not configured',
-    });
-  }
-
-  const authorization =
-    req.headers.authorization;
-
-  if (
-    !authorization?.startsWith(
-      'Bearer '
-    )
+    typeof authorization !== 'string'
+    || !/^Bearer \S+$/i.test(authorization)
   ) {
     return res.status(401).json({
       error: 'Unauthorized',
     });
   }
 
-  const accessToken =
-    authorization.slice(7);
+  let body = req.body;
 
-  const admin = createClient(
-    supabaseUrl,
-    serviceRoleKey,
-    {
+  if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch {
+      body = null;
+    }
+  }
+
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return res.status(400).json({
+      error: 'Invalid request body',
+    });
+  }
+
+  const { planCode, idempotencyKey } = body;
+
+  if (planCode !== 'pro_monthly' && planCode !== 'pro_annual') {
+    return res.status(400).json({
+      error: 'Invalid plan',
+    });
+  }
+
+  if (
+    idempotencyKey !== undefined
+    && (
+      typeof idempotencyKey !== 'string'
+      || !UUID.test(idempotencyKey)
+    )
+  ) {
+    return res.status(400).json({
+      error: 'Invalid checkout request key',
+    });
+  }
+
+  const url = process.env.SUPABASE_URL;
+  const serverKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const secret = process.env.PAYSTACK_SECRET_KEY;
+
+  const monthly = planCode === 'pro_monthly';
+  const amount = monthly ? 5900 : 49900;
+  const interval = monthly ? 'monthly' : 'annually';
+
+  const providerPlan = monthly
+    ? process.env.PAYSTACK_PLAN_PRO_MONTHLY
+    : process.env.PAYSTACK_PLAN_PRO_ANNUAL;
+
+  if (
+    !url
+    || !serverKey
+    || !secret?.startsWith('sk_test_')
+    || !providerPlan
+    || !/^PLN_[A-Za-z0-9]+$/.test(providerPlan)
+  ) {
+    console.error('paystack_initialize: configuration_invalid');
+
+    return res.status(503).json({
+      error: 'TEST payment service is not configured.',
+    });
+  }
+
+  let admin: Admin | undefined;
+  let reserved: Attempt | null = null;
+  let ownerId: string | undefined;
+
+  try {
+    admin = createClient(url, serverKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
       },
-    }
-  );
+    });
 
-  try {
-    /*
-     * Never trust a frontend user ID.
-     *
-     * The authenticated Brewprint user is
-     * derived directly from the Supabase
-     * access token.
-     */
     const {
       data: { user },
-      error: userError,
-    } = await admin.auth.getUser(
-      accessToken
-    );
+      error,
+    } = await admin.auth.getUser(authorization.slice(7));
 
-    if (
-      userError ||
-      !user
-    ) {
+    if (error || !user) {
       return res.status(401).json({
         error: 'Invalid session',
       });
     }
 
-    if (!user.email) {
-      return res.status(400).json({
-        error:
-          'Your account does not have an email address.',
+    if (!user.email || !user.email_confirmed_at) {
+      return res.status(403).json({
+        error: 'Verify your email before starting checkout.',
       });
     }
 
-    const { planCode } =
-      req.body ?? {};
+    ownerId = user.id;
 
-    /*
-     * The client is allowed to choose only
-     * a Brewprint plan identifier.
-     *
-     * Amounts, Paystack plan codes and
-     * currency come from trusted
-     * server-side configuration.
-     */
-    if (!isValidPlanCode(planCode)) {
-      return res.status(400).json({
-        error: 'Invalid plan',
-      });
+    if (idempotencyKey) {
+      const previous = await admin
+        .from(TABLE)
+        .select(COLUMNS)
+        .eq('user_id', user.id)
+        .eq('environment', 'test')
+        .eq('idempotency_key', idempotencyKey)
+        .maybeSingle();
+
+      if (previous.error) {
+        throw new Error('attempt_lookup_failed');
+      }
+
+      if (previous.data) {
+        return respondWithAttempt(
+          res,
+          previous.data as Attempt,
+          planCode
+        );
+      }
     }
 
-    const plan =
-      getPlanConfig(planCode);
+    const existing = await findBlocking(admin, user.id);
 
-    if (!plan.paystackPlanCode) {
-      console.error(
-        `Paystack plan configuration missing for ${planCode}`
-      );
-
-      return res.status(500).json({
-        error:
-          'Payment service is not configured',
-      });
+    if (existing) {
+      return respondWithAttempt(res, existing, planCode);
     }
 
-    /*
-     * Paystack references may contain
-     * alphanumeric characters, hyphens,
-     * periods and equals signs.
-     */
-    const reference =
-      `bp-test-${planCode.replace(
-        '_',
-        '-'
-      )}-${Date.now()}-${randomUUID()}`;
-
-    const paystackResponse =
-      await fetch(
-        'https://api.paystack.co/transaction/initialize',
-        {
-          method: 'POST',
-
-          headers: {
-            Authorization:
-              `Bearer ${paystackSecretKey}`,
-            'Content-Type':
-              'application/json',
-          },
-
-          body: JSON.stringify({
-            email: user.email,
-
-            /*
-             * Amount remains defined by
-             * Brewprint server configuration.
-             *
-             * Paystack subscriptions also use
-             * the trusted server-side plan code.
-             */
-            amount:
-              String(plan.amount),
-
-            currency:
-              plan.currency,
-
-            plan:
-              plan.paystackPlanCode,
-
-            reference,
-
-            metadata:
-              JSON.stringify({
-                brewprint_user_id:
-                  user.id,
-
-                brewprint_plan_code:
-                  planCode,
-
-                brewprint_environment:
-                  'test',
-              }),
-          }),
-        }
-      );
-
-    let payload:
-      | PaystackInitializeResponse
-      | null = null;
-
-    try {
-      payload =
-        (await paystackResponse.json()) as
-          PaystackInitializeResponse;
-    } catch {
-      payload = null;
-    }
-
-    if (
-      !paystackResponse.ok ||
-      !payload?.status ||
-      !payload.data
-    ) {
-      console.error(
-        'Paystack initialization failed',
-        {
-          status:
-            paystackResponse.status,
-          message:
-            payload?.message ??
-            'Unknown Paystack response',
-        }
-      );
-
-      return res.status(502).json({
-        error:
-          'Unable to initialize payment',
-      });
-    }
-
-    const authorizationUrl =
-      payload.data.authorization_url;
-
-    const returnedReference =
-      payload.data.reference;
-
-    const accessCode =
-      payload.data.access_code;
-
-    if (
-      !authorizationUrl ||
-      !returnedReference ||
-      !accessCode ||
-      returnedReference !== reference ||
-      !isSafeAuthorizationUrl(
-        authorizationUrl
-      )
-    ) {
-      console.error(
-        'Paystack returned an invalid initialization response'
-      );
-
-      return res.status(502).json({
-        error:
-          'Unable to initialize payment',
-      });
-    }
-
-    /*
-     * Initialization is NOT proof of payment.
-     *
-     * No billing subscription is activated
-     * here.
-     *
-     * No Brewprint Pro entitlement is
-     * created here.
-     *
-     * Payment verification and webhook
-     * handling will be implemented
-     * separately.
-     */
-    return res.status(200).json({
-      authorizationUrl,
-      accessCode,
-      reference,
-    });
-  } catch (error) {
-    console.error(
-      'Payment initialization error:',
-      error
+    // Paystack's plan overrides the initialize amount.
+    // Validate the provider plan before creating an attempt.
+    const plan = await paystack(
+      secret,
+      '/plan/' + encodeURIComponent(providerPlan)
     );
 
-    return res.status(500).json({
-      error:
-        'Unable to initialize payment',
+    if (
+      plan.domain !== 'test'
+      || plan.plan_code !== providerPlan
+      || plan.amount !== amount
+      || plan.currency !== 'ZAR'
+      || plan.interval !== interval
+    ) {
+      console.error('paystack_initialize: provider_plan_mismatch');
+
+      return res.status(503).json({
+        error: 'TEST payment plan configuration does not match.',
+      });
+    }
+
+    // Only the request that wins this INSERT may initialize checkout.
+    const inserted = await admin
+      .from(TABLE)
+      .insert({
+        user_id: user.id,
+        environment: 'test',
+        idempotency_key: idempotencyKey ?? randomUUID(),
+        reference: 'bp-test-' + randomUUID(),
+        plan_code: planCode,
+        amount,
+        currency: 'ZAR',
+        paystack_plan_code: providerPlan,
+        status: 'initializing',
+      })
+      .select(COLUMNS)
+      .single();
+
+    if (inserted.error) {
+      if (inserted.error.code === '23505') {
+        const winner = await findBlocking(admin, user.id);
+
+        if (winner) {
+          return respondWithAttempt(res, winner, planCode);
+        }
+
+        return res.status(409).json({
+          error: 'Checkout request already exists. Refresh your account.',
+        });
+      }
+
+      throw new Error('attempt_insert_failed');
+    }
+
+    reserved = inserted.data as Attempt;
+
+    const checkout = await paystack(
+      secret,
+      '/transaction/initialize',
+      {
+        email: user.email,
+        amount: String(amount),
+        currency: 'ZAR',
+        plan: providerPlan,
+        reference: reserved.reference,
+        metadata: JSON.stringify({
+          brewprint_user_id: user.id,
+          brewprint_plan_code: planCode,
+          brewprint_environment: 'test',
+        }),
+      }
+    );
+
+    if (
+      checkout.reference !== reserved.reference
+      || !safeCheckoutUrl(checkout.authorization_url)
+    ) {
+      throw new Error('provider_response_invalid');
+    }
+
+    const saved = await admin
+      .from(TABLE)
+      .update({
+        authorization_url: checkout.authorization_url,
+        status: 'pending',
+      })
+      .eq('id', reserved.id)
+      .eq('user_id', user.id)
+      .eq('status', 'initializing')
+      .select(COLUMNS)
+      .maybeSingle();
+
+    if (saved.error || !saved.data) {
+      throw new Error('attempt_save_failed');
+    }
+
+    // A saved checkout URL is not proof of payment.
+    // No Pro access is granted here.
+    return res.status(200).json({
+      authorizationUrl: saved.data.authorization_url,
+      reference: saved.data.reference,
+      reused: false,
+    });
+  } catch {
+    // Do not log exceptions, provider payloads, tokens,
+    // email addresses or checkout URLs.
+    console.error(
+      reserved
+        ? 'paystack_initialize: reconciliation_required'
+        : 'paystack_initialize: request_failed'
+    );
+
+    if (admin && reserved && ownerId) {
+      try {
+        const result = await admin
+          .from(TABLE)
+          .update({ status: 'unknown' })
+          .eq('id', reserved.id)
+          .eq('user_id', ownerId)
+          .eq('status', 'initializing');
+
+        if (result.error) {
+          console.error('paystack_initialize: uncertainty_update_failed');
+        }
+      } catch {
+        console.error('paystack_initialize: uncertainty_update_failed');
+      }
+    }
+
+    return res.status(503).json({
+      error: reserved
+        ? 'Checkout could not be confirmed. The saved attempt must be checked before starting another.'
+        : 'Unable to start checkout. Please try again shortly.',
     });
   }
 }

@@ -1711,3 +1711,14 @@ These checks confirm checkout initialization only, not completed payments.
 - [ ] Concurrent-request testing.
 - [ ] Connect checkout initialization to the table.
 - [ ] Provider verification and entitlement processing.
+
+## 21 September 2026: Durable checkout initialization
+
+- [x] Initialization now uses billing_payment_attempts.
+- [x] Stores the attempt before requesting Paystack checkout.
+- [x] Adds pending-checkout reuse and uncertain-attempt blocking.
+- [x] Adds provider-plan validation for TEST mode, amount, currency and interval.
+- [x] Windows build, TypeScript and whitespace checks passed.
+- [ ] Preview checkout and retry behaviour verified against Paystack.
+- [ ] Recovery of uncertain attempts.
+- [ ] Payment verification, webhooks and entitlement updates.
