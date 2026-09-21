@@ -1746,3 +1746,16 @@ These checks cover initialization and retry behaviour only.
 - [ ] Webhooks, lifecycle handling and account-deletion cancellation.
 
 These checks validate database storage only, not completed payments.
+
+## 21 September 2026: Payment verification endpoint
+
+- [x] Added authenticated, read-only TEST payment verification.
+- [x] Checks saved ownership, reference, amount, currency, metadata and provider status.
+- [x] Successful payments also require matching plan, transaction ID and payment timestamp.
+- [x] All 40 simulated endpoint tests passed.
+- [x] Windows build, separate TypeScript and whitespace checks passed.
+- [ ] Verification against actual Paystack TEST transactions.
+- [ ] Atomic payment, subscription and entitlement updates.
+- [ ] Callback integration, webhooks and lifecycle handling.
+
+The endpoint does not write billing records or grant Pro.
