@@ -205,16 +205,61 @@ export default async function handler(req: any, res: any) {
 
     // Inspection only. No attempt, subscription or entitlement writes.
     // A failed or abandoned result does not unlock another checkout here.
+       let entitlementApplied = false;
+    let persistenceReused = false;
+
+    if (payment.status === 'success') {
+      // All provider and ownership checks above must pass first.
+      // Numeric IDs have already passed the safe-integer check.
+      const { data: saved, error: saveError } = await admin.rpc(
+        'persist_verified_paystack_test_payment',
+        {
+          p_user_id: user.id,
+          p_reference: attempt.reference,
+          p_transaction_id: String(payment.id),
+          p_paid_at: payment.paid_at,
+          p_amount: attempt.amount,
+          p_currency: attempt.currency,
+          p_plan_code: attempt.plan_code,
+          p_paystack_plan_code: attempt.paystack_plan_code,
+        }
+      );
+
+      const result = asObject(saved);
+
+      if (
+        saveError
+        || result?.persisted !== true
+        || typeof result.reused !== 'boolean'
+      ) {
+        console.error('paystack_verify: persistence_unconfirmed');
+
+        // The transaction might have committed before a response was lost.
+        // Retrying the same reference safely retrieves the saved result.
+        return res.status(503).json({
+          error:
+            'Payment was verified, but saving could not be confirmed. Retry verification for this same payment.',
+        });
+      }
+
+      entitlementApplied = true;
+      persistenceReused = result.reused;
+    }
+
+    // entitlementApplied means a TEST entitlement record exists.
+    // It does not mean the entitlement is currently active:
+    // expiration and revocation must be checked when reading access.
+    // Production entitlements remain unchanged.
     return res.status(200).json({
       environment: 'test',
       reference: attempt.reference,
       planCode: attempt.plan_code,
       paymentStatus: payment.status,
       paymentVerified: payment.status === 'success',
-      entitlementApplied: false,
+      entitlementApplied,
+      persistenceReused,
     });
   } catch {
-    // Never log provider responses, credentials or customer information.
     console.error('paystack_verify: verification_unavailable');
 
     return res.status(503).json({

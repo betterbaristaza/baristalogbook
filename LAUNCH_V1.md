@@ -1773,3 +1773,19 @@ The endpoint does not write billing records or grant Pro.
 
 These were actual Paystack TEST checks using the same checkout reference.
 Payment completion and release readiness remain unverified.
+
+## 21 September 2026: Atomic TEST payment persistence
+
+- [x] Applied migration 20260921111243.
+- [x] Connected verified successful payments to the server-only persistence function.
+- [x] Database tests passed: initial persistence, repeat-call reuse, unchanged expiry, preserved revocation, ownership checks and conflicting-ID rollback.
+- [x] Monthly and annual database period calculations passed using fixtures.
+- [x] All database fixtures rolled back.
+- [x] All 44 simulated endpoint tests passed.
+- [x] Windows build, separate TypeScript and whitespace checks passed.
+- [ ] Deployed persistence of the actual monthly TEST payment.
+- [ ] Simultaneous verification requests.
+- [ ] Annual provider verification, deferred.
+- [ ] TEST access display, callbacks, webhooks and lifecycle handling.
+
+Payment completion remains unverified. Production entitlements are unchanged.

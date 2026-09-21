@@ -65,39 +65,96 @@ function fixture() {
 
 async function execute(f) {
   let providerCalls = 0;
-  let databaseCalls = 0;
+  let persistenceCalls = 0;
   const logs = [];
   const headers = {};
+  const mockAssertionErrors = [];
   const moduleObject = { exports: {} };
 
+  // Keep mock assertion failures visible even if the endpoint catches them.
+  function check(callback) {
+    try {
+      callback();
+    } catch (error) {
+      mockAssertionErrors.push(error);
+      throw error;
+    }
+  }
+
   const admin = {
+    async rpc(name, args) {
+      persistenceCalls++;
+
+      check(() => {
+        assert.equal(name, 'persist_verified_paystack_test_payment');
+        assert.equal(f.payment.status, 'success');
+        assert.deepEqual(JSON.parse(JSON.stringify(args)), {
+          p_user_id: f.user.id,
+          p_reference: f.attempt.reference,
+          p_transaction_id: String(f.payment.id),
+          p_paid_at: f.payment.paid_at,
+          p_amount: f.attempt.amount,
+          p_currency: f.attempt.currency,
+          p_plan_code: f.attempt.plan_code,
+          p_paystack_plan_code: f.attempt.paystack_plan_code,
+        });
+      });
+
+      if (f.persistenceThrows) {
+        throw new Error('private-persistence-error');
+      }
+
+      if (f.persistenceError) {
+        return {
+          data: null,
+          error: { message: 'private-persistence-error' },
+        };
+      }
+
+      return {
+        data: f.persistenceMalformed
+          ? { persisted: false }
+          : {
+              persisted: true,
+              reused: f.persistenceReused ?? false,
+              subscriptionId: 'fixture-subscription',
+              entitlementId: 'fixture-entitlement',
+            },
+        error: null,
+      };
+    },
+
     auth: {
       async getUser(token) {
-        assert.equal(token, 'fixture-token');
+        check(() => assert.equal(token, 'fixture-token'));
+
         return {
           data: { user: f.user },
           error: f.authError,
         };
       },
     },
+
     from(table) {
-      databaseCalls++;
-      assert.equal(table, 'billing_payment_attempts');
+      check(() => assert.equal(table, 'billing_payment_attempts'));
       const filters = {};
 
       const query = {
         select() {
           return query;
         },
+
         eq(column, value) {
           filters[column] = value;
           return query;
         },
+
         async maybeSingle() {
-          // Assert ownership restrictions, independently of the mock result.
-          assert.equal(filters.user_id, f.user.id);
-          assert.equal(filters.environment, 'test');
-          assert.equal(filters.reference, f.request.body.reference);
+          check(() => {
+            assert.equal(filters.user_id, f.user.id);
+            assert.equal(filters.environment, 'test');
+            assert.equal(filters.reference, f.request.body.reference);
+          });
 
           const matches = f.attempt && Object.entries(filters)
             .every(([key, value]) => f.attempt[key] === value);
@@ -109,7 +166,7 @@ async function execute(f) {
         },
       };
 
-      // No write methods exist. Any attempted write fails the happy tests.
+      // Persistence must use the RPC, not separate table writes.
       return query;
     },
   };
@@ -117,35 +174,51 @@ async function execute(f) {
   const sandbox = {
     module: moduleObject,
     exports: moduleObject.exports,
+
     require(name) {
-      assert.equal(name, '@supabase/supabase-js');
+      check(() => assert.equal(name, '@supabase/supabase-js'));
       return { createClient: () => admin };
     },
+
     process: { env: f.env },
     AbortSignal,
+
     console: {
       error: (...args) => logs.push(args.join(' ')),
     },
+
     fetch: async (url, options) => {
       providerCalls++;
-      assert.equal(
-        url,
-        'https://api.paystack.co/transaction/verify/bp-test-fixture'
-      );
-      assert.equal(options.method, 'GET');
-      assert.equal(options.redirect, 'error');
-      assert.equal(
-        options.headers.Authorization,
-        'Bearer sk_test_fixture'
-      );
 
-      if (f.fetchError) throw new Error('private-provider-error');
+      check(() => {
+        assert.equal(
+          url,
+          'https://api.paystack.co/transaction/verify/bp-test-fixture'
+        );
+        assert.equal(options.method, 'GET');
+        assert.equal(options.redirect, 'error');
+        assert.equal(
+          options.headers.Authorization,
+          'Bearer sk_test_fixture'
+        );
+      });
+
+      if (f.fetchError) {
+        throw new Error('private-provider-error');
+      }
 
       return {
         ok: f.providerOk,
+
         async json() {
-          if (f.badJson) throw new Error('private-provider-body');
-          return { status: f.envelopeStatus, data: f.payment };
+          if (f.badJson) {
+            throw new Error('private-provider-body');
+          }
+
+          return {
+            status: f.envelopeStatus,
+            data: f.payment,
+          };
         },
       };
     },
@@ -155,14 +228,17 @@ async function execute(f) {
 
   let code;
   let body;
+
   const response = {
     setHeader(name, value) {
       headers[name] = value;
     },
+
     status(value) {
       code = value;
       return response;
     },
+
     json(value) {
       body = JSON.parse(JSON.stringify(value));
       return response;
@@ -171,37 +247,57 @@ async function execute(f) {
 
   await moduleObject.exports.default(f.request, response);
 
+  if (mockAssertionErrors.length > 0) {
+    throw mockAssertionErrors[0];
+  }
+
   assert.equal(headers['Cache-Control'], 'no-store');
 
   const output = JSON.stringify({ body, logs });
+
   for (const secret of [
     'fixture-token',
     'fixture-server-key',
     'sk_test_fixture',
     'private-provider-error',
     'private-provider-body',
+    'private-persistence-error',
   ]) {
     assert.equal(output.includes(secret), false);
   }
 
-  return { code, body, providerCalls, databaseCalls, headers };
+  return { code, body, providerCalls, persistenceCalls };
 }
 
-function scenario(name, modify, expectedCode, expectedCalls, verified) {
+function scenario(
+  name,
+  modify,
+  expectedCode,
+  expectedProviderCalls,
+  verified,
+  expectedPersistenceCalls = verified === true ? 1 : 0
+) {
   test(name, async () => {
     const f = fixture();
     modify(f);
+
     const result = await execute(f);
 
     assert.equal(result.code, expectedCode);
-    assert.equal(result.providerCalls, expectedCalls);
+    assert.equal(result.providerCalls, expectedProviderCalls);
+    assert.equal(result.persistenceCalls, expectedPersistenceCalls);
 
     if (expectedCode === 200) {
       assert.equal(result.body.paymentVerified, verified);
-      assert.equal(result.body.entitlementApplied, false);
+      assert.equal(result.body.entitlementApplied, verified);
       assert.equal(result.body.environment, 'test');
+      assert.equal(
+        result.body.persistenceReused,
+        verified ? (f.persistenceReused ?? false) : false
+      );
     } else {
       assert.equal(result.body.paymentVerified, undefined);
+      assert.equal(result.body.entitlementApplied, undefined);
     }
   });
 }
@@ -216,8 +312,13 @@ scenario('matching annual success', f => {
 }, 200, 1, true);
 
 for (const status of [
-  'failed', 'abandoned', 'pending', 'ongoing',
-  'processing', 'queued', 'reversed',
+  'failed',
+  'abandoned',
+  'pending',
+  'ongoing',
+  'processing',
+  'queued',
+  'reversed',
 ]) {
   scenario(`${status} never confirms payment`, f => {
     f.payment.status = status;
@@ -346,3 +447,19 @@ scenario('forged client success fields ignored', f => {
   f.request.body.user_id = 'another-user';
   f.payment.status = 'failed';
 }, 200, 1, false);
+
+scenario('repeat verification reports saved result reuse', f => {
+  f.persistenceReused = true;
+}, 200, 1, true);
+
+scenario('database save error does not report applied entitlement', f => {
+  f.persistenceError = true;
+}, 503, 1, undefined, 1);
+
+scenario('database exception does not report applied entitlement', f => {
+  f.persistenceThrows = true;
+}, 503, 1, undefined, 1);
+
+scenario('invalid persistence response is rejected', f => {
+  f.persistenceMalformed = true;
+}, 503, 1, undefined, 1);
