@@ -1734,3 +1734,15 @@ These checks confirm checkout initialization only, not completed payments.
 - [ ] Webhooks and subscription lifecycle tests.
 
 These checks cover initialization and retry behaviour only.
+
+## 21 September 2026: Isolated TEST billing storage
+
+- [x] Applied migration 20260921074041.
+- [x] Windows build, TypeScript and whitespace checks passed.
+- [x] Confirmed RLS enabled and browser permissions absent.
+- [x] Database tests passed: service-role CRUD, nine invalid-value checks, three duplicate checks and linked deletion protection.
+- [x] Test fixtures rolled back; existing billing row counts unchanged.
+- [ ] Server-side payment verification and atomic entitlement updates.
+- [ ] Webhooks, lifecycle handling and account-deletion cancellation.
+
+These checks validate database storage only, not completed payments.
