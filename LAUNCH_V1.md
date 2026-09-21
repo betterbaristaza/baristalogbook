@@ -1722,3 +1722,15 @@ These checks confirm checkout initialization only, not completed payments.
 - [ ] Preview checkout and retry behaviour verified against Paystack.
 - [ ] Recovery of uncertain attempts.
 - [ ] Payment verification, webhooks and entitlement updates.
+
+## 21 September 2026: Preview checkout checks
+
+- [x] Monthly TEST checkout opens at R59.
+- [x] Reopening monthly checkout succeeds.
+- [x] Database inspection after retries shows exactly one pending monthly TEST attempt, amount 5900, currency ZAR.
+- [x] Annual checkout is blocked while the monthly attempt remains unresolved; no annual attempt was created.
+- [ ] Completed payment verification and Pro activation.
+- [ ] Recovery of abandoned or uncertain attempts.
+- [ ] Webhooks and subscription lifecycle tests.
+
+These checks cover initialization and retry behaviour only.
