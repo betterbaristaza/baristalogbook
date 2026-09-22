@@ -1789,3 +1789,31 @@ Payment completion and release readiness remain unverified.
 - [ ] TEST access display, callbacks, webhooks and lifecycle handling.
 
 Payment completion remains unverified. Production entitlements are unchanged.
+
+## 22 September 2026: Verified TEST payments and Profile status
+
+- [x] Actual monthly R59 TEST payment verified and persisted on preview.
+- [x] Monthly repeat verification reused the saved result without changing expiry.
+- [x] Two concurrent monthly retries preserved one subscription and one entitlement.
+- [x] Actual annual R499 TEST payment verified and persisted on preview.
+- [x] Two simultaneous first-time annual requests returned one new save and one reuse.
+- [x] Database confirmed one annual subscription and one entitlement with a matching one-year period.
+- [x] Added authenticated, read-only TEST status endpoint.
+- [x] All 32 simulated status endpoint tests passed.
+- [x] Deployed annual status endpoint returned the correct plan and expiry.
+- [x] Monthly and annual Profile displays verified after switching accounts.
+- [x] Active TEST status hides checkout buttons.
+- [x] Unpaid Profile shows R59 and R499 checkout options without stale paid-account status.
+- [x] TypeScript and build passed.
+- [x] Preview deployment confirmed at commit 9da6c0d.
+- [ ] Browser testing of status lookup failure and retry.
+- [ ] Payment callback and in-app verification flow.
+- [ ] Recovery of abandoned or uncertain attempts.
+- [ ] Correct misleading unresolved-checkout message for succeeded attempts.
+- [ ] Signed webhooks and subscription lifecycle handling.
+- [ ] Production payment-to-Pro activation and full release checks.
+
+TEST status display remains separate from production Pro feature access.
+Payment verification currently requires a manual authenticated request.
+Full payment lifecycle and paid release readiness remain unverified.
+Main JavaScript bundle warning remains, approximately 679 kB.
