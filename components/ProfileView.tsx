@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import { UserProfile } from '../types';
+import TestBillingAccess from './TestBillingAccess';
 import { useEntitlements } from '../context/EntitlementContext';
 
 import {
@@ -235,6 +236,10 @@ const ProfileView: React.FC<ProfileViewProps> = ({
           </h2>
         </div>
 
+        <TestBillingAccess
+          key={email ?? 'signed-out'}
+          enabled={Boolean(email) && !entitlementsLoading && !isPro}
+        >
         {entitlementsLoading ? (
           <div className="border border-[var(--bp-line)] bg-[var(--bp-paper-light)] p-5">
             <p className="bp-label text-[var(--bp-muted)]">
@@ -350,6 +355,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
           </div>
         )}
+        </TestBillingAccess>
       </section>
 
       <section>
