@@ -1817,3 +1817,35 @@ TEST status display remains separate from production Pro feature access.
 Payment verification currently requires a manual authenticated request.
 Full payment lifecycle and paid release readiness remain unverified.
 Main JavaScript bundle warning remains, approximately 679 kB.
+
+
+## 23 September 2026: TEST payment-return implementation
+
+- [x] Added client service using authenticated POST payment verification.
+- [x] Client rejects mismatched and inconsistent verification responses.
+- [x] Added payment-return screen with automatic verification and retry.
+- [x] Connected /payments/return behind authentication and password-recovery handling.
+- [x] Return route rejects duplicate or conflicting reference parameters.
+- [x] Return component isolates displayed results by account and reference.
+- [x] Added server-configured callback_url to checkout initialization.
+- [x] Callback configuration requires HTTPS and /payments/return.
+- [x] Owner confirmed PAYSTACK_TEST_CALLBACK_URL saved for the feature branch Preview environment.
+- [x] All 76 existing verification and status endpoint tests passed.
+- [x] All 27 new client verification service tests passed.
+- [x] TypeScript, build and tracked-file whitespace checks passed.
+- [ ] Verify preview deployment and callback configuration.
+- [ ] Test missing, invalid and conflicting return references in browser.
+- [ ] Test signed-out return, account isolation, verification errors and retry.
+- [ ] Test a fresh TEST checkout through automatic return and saved Profile status.
+- [ ] Test repeat return without duplicate records or changed expiry.
+- [ ] Browser testing of TEST status lookup failure and retry.
+- [ ] Recovery of abandoned or uncertain attempts.
+- [ ] Correct misleading unresolved-checkout messaging for succeeded attempts.
+- [ ] Signed webhooks and subscription lifecycle handling.
+- [ ] Production payment-to-Pro activation and full release checks.
+
+The new callback flow is implemented but has not passed browser testing.
+Existing checkout URLs retain their original callback configuration.
+TEST payment persistence does not unlock production Pro features.
+Paid launch readiness remains unverified.
+Main JavaScript bundle warning remains: 684.68 kB, gzip 174.84 kB.

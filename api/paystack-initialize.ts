@@ -32,6 +32,36 @@ function safeCheckoutUrl(value: unknown): value is string {
   }
 }
 
+function getTestCallbackUrl(): string | null {
+  const configured = process.env.PAYSTACK_TEST_CALLBACK_URL;
+
+  if (!configured || configured !== configured.trim()) {
+    return null;
+  }
+
+  try {
+    const callback = new URL(configured);
+
+    if (
+      callback.protocol !== 'https:'
+      || callback.username
+      || callback.password
+      || callback.port
+      || callback.pathname !== '/payments/return'
+      || callback.search
+      || callback.hash
+    ) {
+      return null;
+    }
+
+    // Only deployment configuration selects the destination.
+    // Never derive it from request headers or client input.
+    return callback.href;
+  } catch {
+    return null;
+  }
+}
+
 async function findBlocking(admin: Admin, userId: string) {
   const { data, error } = await admin
     .from(TABLE)
@@ -163,6 +193,7 @@ export default async function handler(req: any, res: any) {
   const url = process.env.SUPABASE_URL;
   const serverKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const secret = process.env.PAYSTACK_SECRET_KEY;
+  const callbackUrl = getTestCallbackUrl();
 
   const monthly = planCode === 'pro_monthly';
   const amount = monthly ? 5900 : 49900;
@@ -175,6 +206,7 @@ export default async function handler(req: any, res: any) {
   if (
     !url
     || !serverKey
+    || !callbackUrl
     || !secret?.startsWith('sk_test_')
     || !providerPlan
     || !/^PLN_[A-Za-z0-9]+$/.test(providerPlan)
@@ -310,6 +342,7 @@ export default async function handler(req: any, res: any) {
         currency: 'ZAR',
         plan: providerPlan,
         reference: reserved.reference,
+        callback_url: callbackUrl,
         metadata: JSON.stringify({
           brewprint_user_id: user.id,
           brewprint_plan_code: planCode,
