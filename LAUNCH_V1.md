@@ -1849,3 +1849,42 @@ Existing checkout URLs retain their original callback configuration.
 TEST payment persistence does not unlock production Pro features.
 Paid launch readiness remains unverified.
 Main JavaScript bundle warning remains: 684.68 kB, gzip 174.84 kB.
+
+
+## 23 September 2026: Monthly TEST callback browser checkpoint
+
+- [x] GitHub commit afe7ab4 confirmed on READY Vercel branch preview.
+- [x] Missing-reference return displays an error without confirming payment.
+- [x] Back to Profile opens Profile and removes the return path.
+- [x] Conflicting reference and trxref parameters are rejected.
+- [x] Unknown reference returns Payment attempt not found.
+- [x] Retrying an unknown reference preserves the error.
+- [x] Signed-out return requires sign-in and resumes verification afterward.
+- [x] Sign-in succeeded after reviewing Turnstile preview hostname configuration.
+- [x] Fresh monthly R59 TEST checkout returned to the verification screen and showed verified and saved.
+- [x] Profile showed monthly TEST access and expiry, with checkout buttons hidden.
+- [x] Supabase confirmed one subscription and one entitlement for the new payment.
+- [x] Reopening the payment and refreshing passed.
+- [x] Database recheck confirmed unchanged record counts and expiry.
+- [x] A different signed-in account could not verify the payment.
+- [x] Profile status lookup failure showed an error and retry without checkout buttons.
+- [x] Restoring connectivity and retrying restored the correct account display.
+
+Verified monthly expiry remained 2026-10-23T07:24:42Z
+(23 October 2026 at 09:24:42 SAST).
+
+Remaining callback checks:
+- [ ] Fresh annual checkout through automatic return.
+- [ ] Verification network failure or timeout followed by successful retry.
+- [ ] Duplicate reference parameters and malformed reference browser checks.
+
+Remaining billing work:
+- [ ] Recovery of abandoned or uncertain attempts.
+- [ ] Correct misleading unresolved-checkout messaging for succeeded payments while preserving duplicate-purchase protection.
+- [ ] Signed webhooks, renewals, cancellation, expiry and failed-payment handling.
+- [ ] Production activation and full release checks.
+
+These results update the pending browser checks in the earlier implementation entry.
+Monthly TEST callback and Profile display are verified.
+TEST billing does not unlock production Pro features.
+Full payment lifecycle and paid launch readiness remain unverified.
