@@ -1925,3 +1925,24 @@ Paystack remains TEST-only. No main merge, payment configuration changes or data
 - [x] Fresh npm ci followed by npm run check passes in cloud: TypeScript, 103 tests, Vite build and PWA generation.
 
 Next: sync this dependency checkpoint on Windows and complete the remaining TEST callback browser checks. Paystack stays TEST-only. Existing bundle warning remains.
+
+## 5 October 2026: Annual TEST recovery and repeat verification savepoint
+
+- [x] Dependency checkpoint 22b6bd3 passed GitHub CI and reached READY on Vercel. Owner subsequently reported Windows sync/check complete.
+- [x] Fresh annual R499 TEST checkout created on 5 October at 10:59:17 UTC.
+- [ ] Automatic callback acceptance: return showed Payment attempt not found while the browser displayed an older monthly account. Account mismatch was reported; original callback hostname is still unknown.
+- [x] Recovered the existing transaction through /payments/return on the latest preview while signed into the checkout account. Owner confirmed saved and verified.
+- [x] Read-only Supabase check confirmed pro_annual, 49900 ZAR cents, succeeded, and verification timestamp 2026-10-05T11:05:44.79698Z.
+- [x] Exactly one TEST subscription and one TEST entitlement were saved.
+- [x] Period starts 2026-10-05T10:59:26Z and expires 2027-10-05T10:59:26Z (5 October 2027 at 12:59:26 SAST).
+- [x] Owner reopened the verification link and refreshed, then confirmed saved and verified again. Database recheck confirmed one subscription, one entitlement and unchanged expiry.
+
+The initial error did not prove a failed payment. Existing monthly access belonged to an earlier payment and did not confirm this annual purchase. Reopening the completed Paystack checkout displayed a transaction-cannot-start message; verifying the existing transaction recovered it without another checkout.
+
+### Resume here
+
+1. Inspect PAYSTACK_TEST_CALLBACK_URL and identify the original returned Brewprint hostname. The owner supplied a checkout.paystack.com link, which does not identify the callback hostname. Check preview-origin/session mismatch and provide a clear account recovery flow while preserving ownership checks.
+2. Finish callback browser coverage: verification network failure/timeout and retry, duplicate reference parameters, malformed references, then a clean automatic return on the intended account/origin.
+3. Continue the ordered launch work above: unresolved-attempt recovery, signed TEST webhooks/lifecycle, entitlement integration, then WebP uploads and remaining release checks.
+
+Paystack remains TEST-only. Production Pro is not unlocked by TEST entitlements. No main merge. No application code or database mutation was made during this recovery investigation. Annual verification and repeat persistence pass; automatic callback handling remains open.
