@@ -1888,3 +1888,28 @@ These results update the pending browser checks in the earlier implementation en
 Monthly TEST callback and Profile display are verified.
 TEST billing does not unlock production Pro features.
 Full payment lifecycle and paid launch readiness remain unverified.
+
+## 5 October 2026: Release baseline
+
+- [x] Clean cloud checkout matches remote feature/paystack-test-initialization at 4fb07cec623adba1a4f7f2e593889d5299c51bf9.
+- [x] Existing Vercel branch preview is READY at that commit.
+- [x] Supabase BaristaLog is ACTIVE_HEALTHY; all three TEST billing migrations are applied.
+- [x] npm ci, TypeScript, all 103 automated Paystack tests and production build passed on Node 24.19.0 before changes.
+- [x] Added npm test for all tests/*.test.cjs files.
+- [x] Added npm run check: typecheck, tests, then production build; stops on failure.
+- [x] Added GitHub release-check workflow on branch pushes, pull requests and manual runs, using Node 24 and npm ci without application secrets.
+- [ ] Confirm new checkpoint CI and Vercel preview after push.
+- [ ] Confirm owner's Windows checkout matches the new remote checkpoint and passes npm run check.
+
+Paystack remains TEST-only. No main merge, payment configuration changes or database mutations are part of this baseline. Automated tests use fixtures; they do not replace checkout/browser or database integration checks. Existing bundle warning remains: 684.68 kB (174.80 kB gzip).
+
+### Next launch work, in order
+
+1. Finish TEST callback checks: fresh annual checkout, network failure/timeout and retry, duplicate parameters and malformed references. Verify ownership, record counts and unchanged expiry on repeat calls.
+2. Resolve abandoned/uncertain attempts and succeeded-payment checkout messaging without allowing duplicate purchases.
+3. Implement and verify signed TEST webhooks and lifecycle handling: duplicate events, renewals, cancellations, expiry and failed payments.
+4. Define and verify Pro feature access against trusted entitlements. Keep TEST access isolated and do not enable live payments.
+5. Add browser image conversion before upload: maximum 1600 px on the longest edge, preserve aspect ratio, adaptive WebP compression, target <=750 KB, hard maximum 1 MB. Reject uploads that cannot meet the maximum; confirm actual WebP output. New uploads must be WebP. Preserve existing JPG/PNG images and their display during migration. Eventually restrict Supabase Storage to image/webp after compatible upload paths are deployed and verified. Do not rewrite or delete existing images as part of that restriction.
+6. Complete core workflow and account-isolation checks, image/storage validation, export and deletion checks, and bundle/data-usage review.
+7. Run closed beta, resolve release blockers, verify deployment operations and document recovery steps.
+8. Assess Android/iOS packaging, store payment requirements and hosting costs before choosing the release route. Live payment activation and main merge require a separate release decision.
