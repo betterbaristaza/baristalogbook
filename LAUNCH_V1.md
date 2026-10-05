@@ -1913,3 +1913,15 @@ Paystack remains TEST-only. No main merge, payment configuration changes or data
 6. Complete core workflow and account-isolation checks, image/storage validation, export and deletion checks, and bundle/data-usage review.
 7. Run closed beta, resolve release blockers, verify deployment operations and document recovery steps.
 8. Assess Android/iOS packaging, store payment requirements and hosting costs before choosing the release route. Live payment activation and main merge require a separate release decision.
+
+## 5 October 2026: Windows baseline and dependency audit follow-up
+
+- [x] Owner's Windows output confirms clean feature branch synced to cafcafe166775d6a41149a2b612e60de6d3f2fd8.
+- [x] Windows npm run check shows TypeScript and all 103 tests passing, followed by Vite build completion. Uploaded output ends before the final PWA summary/exit status.
+- [x] GitHub Release check passed and Vercel preview was READY at cafcafe.
+- [x] Investigated npm audit's 3 high and 1 moderate findings in build-tool dependencies.
+- [x] Updated only affected transitive dependency families in package-lock.json: baseline-browser-mapping, browserslist and its data dependencies, both brace-expansion copies, and fast-uri. Direct dependencies and application code are unchanged.
+- [x] npm audit now reports zero known vulnerabilities.
+- [x] Fresh npm ci followed by npm run check passes in cloud: TypeScript, 103 tests, Vite build and PWA generation.
+
+Next: sync this dependency checkpoint on Windows and complete the remaining TEST callback browser checks. Paystack stays TEST-only. Existing bundle warning remains.
