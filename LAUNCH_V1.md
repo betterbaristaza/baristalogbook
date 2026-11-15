@@ -1673,3 +1673,276 @@ The next launch work should be completed in this order:
 8. Add failed-payment, expiry and cancellation-at-period-end handling.
 9. Test the complete Free -> Pro -> Free payment lifecycle.
 10. Complete the remaining production quality checks before closed beta.
+
+## 19 September 2026: TypeScript release checks
+
+- [x] Added Vite and PWA type declarations.
+- [x] Added npm run typecheck.
+- [x] Windows production build passed.
+- [x] Separate TypeScript check passed.
+- [x] git diff --check passed.
+- [ ] Main JavaScript bundle-size warning remains.
+- [ ] Payment verification, webhooks and lifecycle tests remain incomplete.
+
+## 19 September 2026: Paystack TEST checkout initialization
+
+- [x] Preview deployment verified at commit 54e7ccc.
+- [x] Preview Paystack secret and plan variables configured.
+- [x] Turnstile and sign-in worked during browser testing.
+- [x] Monthly checkout opened in TEST mode at ZAR 59.
+- [x] Annual checkout opened in TEST mode at ZAR 499.
+- [ ] Durable transaction references and safe retries.
+- [ ] Server-side payment verification.
+- [ ] Signed webhook processing.
+- [ ] Subscription lifecycle and entitlement tests.
+
+These checks confirm checkout initialization only, not completed payments.
+
+## 19 September 2026: Payment-attempt database foundation
+
+- [x] Migration 20260919074743 applied and inspected.
+- [x] RLS enabled; browser roles denied direct CRUD access.
+- [x] Server-role inserts and updates tested.
+- [x] Monthly and annual amount constraints tested.
+- [x] Invalid currency and live environment rejected.
+- [x] Duplicate references and idempotency keys rejected.
+- [x] Second unresolved checkout for the same user rejected.
+- [x] Test fixtures rolled back; zero attempts remain.
+- [ ] Concurrent-request testing.
+- [ ] Connect checkout initialization to the table.
+- [ ] Provider verification and entitlement processing.
+
+## 21 September 2026: Durable checkout initialization
+
+- [x] Initialization now uses billing_payment_attempts.
+- [x] Stores the attempt before requesting Paystack checkout.
+- [x] Adds pending-checkout reuse and uncertain-attempt blocking.
+- [x] Adds provider-plan validation for TEST mode, amount, currency and interval.
+- [x] Windows build, TypeScript and whitespace checks passed.
+- [ ] Preview checkout and retry behaviour verified against Paystack.
+- [ ] Recovery of uncertain attempts.
+- [ ] Payment verification, webhooks and entitlement updates.
+
+## 21 September 2026: Preview checkout checks
+
+- [x] Monthly TEST checkout opens at R59.
+- [x] Reopening monthly checkout succeeds.
+- [x] Database inspection after retries shows exactly one pending monthly TEST attempt, amount 5900, currency ZAR.
+- [x] Annual checkout is blocked while the monthly attempt remains unresolved; no annual attempt was created.
+- [ ] Completed payment verification and Pro activation.
+- [ ] Recovery of abandoned or uncertain attempts.
+- [ ] Webhooks and subscription lifecycle tests.
+
+These checks cover initialization and retry behaviour only.
+
+## 21 September 2026: Isolated TEST billing storage
+
+- [x] Applied migration 20260921074041.
+- [x] Windows build, TypeScript and whitespace checks passed.
+- [x] Confirmed RLS enabled and browser permissions absent.
+- [x] Database tests passed: service-role CRUD, nine invalid-value checks, three duplicate checks and linked deletion protection.
+- [x] Test fixtures rolled back; existing billing row counts unchanged.
+- [ ] Server-side payment verification and atomic entitlement updates.
+- [ ] Webhooks, lifecycle handling and account-deletion cancellation.
+
+These checks validate database storage only, not completed payments.
+
+## 21 September 2026: Payment verification endpoint
+
+- [x] Added authenticated, read-only TEST payment verification.
+- [x] Checks saved ownership, reference, amount, currency, metadata and provider status.
+- [x] Successful payments also require matching plan, transaction ID and payment timestamp.
+- [x] All 40 simulated endpoint tests passed.
+- [x] Windows build, separate TypeScript and whitespace checks passed.
+- [ ] Verification against actual Paystack TEST transactions.
+- [ ] Atomic payment, subscription and entitlement updates.
+- [ ] Callback integration, webhooks and lifecycle handling.
+
+The endpoint does not write billing records or grant Pro.
+
+## 21 September 2026: Actual Paystack TEST verification
+
+- [x] Monthly R59 abandoned payment: HTTP 200, abandoned, paymentVerified false.
+- [x] Monthly R59 declined payment: HTTP 200, failed, paymentVerified false.
+- [x] Monthly R59 successful payment: HTTP 200, success, paymentVerified true.
+- [x] All three responses reported entitlementApplied false.
+- [x] Successful checkout displayed confirmation; owner reported receiving the confirmation email.
+- [ ] Annual payment verification.
+- [ ] Atomic payment persistence and TEST entitlement activation.
+- [ ] Callback integration, webhooks and subscription lifecycle.
+
+These were actual Paystack TEST checks using the same checkout reference.
+Payment completion and release readiness remain unverified.
+
+## 21 September 2026: Atomic TEST payment persistence
+
+- [x] Applied migration 20260921111243.
+- [x] Connected verified successful payments to the server-only persistence function.
+- [x] Database tests passed: initial persistence, repeat-call reuse, unchanged expiry, preserved revocation, ownership checks and conflicting-ID rollback.
+- [x] Monthly and annual database period calculations passed using fixtures.
+- [x] All database fixtures rolled back.
+- [x] All 44 simulated endpoint tests passed.
+- [x] Windows build, separate TypeScript and whitespace checks passed.
+- [ ] Deployed persistence of the actual monthly TEST payment.
+- [ ] Simultaneous verification requests.
+- [ ] Annual provider verification, deferred.
+- [ ] TEST access display, callbacks, webhooks and lifecycle handling.
+
+Payment completion remains unverified. Production entitlements are unchanged.
+
+## 22 September 2026: Verified TEST payments and Profile status
+
+- [x] Actual monthly R59 TEST payment verified and persisted on preview.
+- [x] Monthly repeat verification reused the saved result without changing expiry.
+- [x] Two concurrent monthly retries preserved one subscription and one entitlement.
+- [x] Actual annual R499 TEST payment verified and persisted on preview.
+- [x] Two simultaneous first-time annual requests returned one new save and one reuse.
+- [x] Database confirmed one annual subscription and one entitlement with a matching one-year period.
+- [x] Added authenticated, read-only TEST status endpoint.
+- [x] All 32 simulated status endpoint tests passed.
+- [x] Deployed annual status endpoint returned the correct plan and expiry.
+- [x] Monthly and annual Profile displays verified after switching accounts.
+- [x] Active TEST status hides checkout buttons.
+- [x] Unpaid Profile shows R59 and R499 checkout options without stale paid-account status.
+- [x] TypeScript and build passed.
+- [x] Preview deployment confirmed at commit 9da6c0d.
+- [ ] Browser testing of status lookup failure and retry.
+- [ ] Payment callback and in-app verification flow.
+- [ ] Recovery of abandoned or uncertain attempts.
+- [ ] Correct misleading unresolved-checkout message for succeeded attempts.
+- [ ] Signed webhooks and subscription lifecycle handling.
+- [ ] Production payment-to-Pro activation and full release checks.
+
+TEST status display remains separate from production Pro feature access.
+Payment verification currently requires a manual authenticated request.
+Full payment lifecycle and paid release readiness remain unverified.
+Main JavaScript bundle warning remains, approximately 679 kB.
+
+
+## 23 September 2026: TEST payment-return implementation
+
+- [x] Added client service using authenticated POST payment verification.
+- [x] Client rejects mismatched and inconsistent verification responses.
+- [x] Added payment-return screen with automatic verification and retry.
+- [x] Connected /payments/return behind authentication and password-recovery handling.
+- [x] Return route rejects duplicate or conflicting reference parameters.
+- [x] Return component isolates displayed results by account and reference.
+- [x] Added server-configured callback_url to checkout initialization.
+- [x] Callback configuration requires HTTPS and /payments/return.
+- [x] Owner confirmed PAYSTACK_TEST_CALLBACK_URL saved for the feature branch Preview environment.
+- [x] All 76 existing verification and status endpoint tests passed.
+- [x] All 27 new client verification service tests passed.
+- [x] TypeScript, build and tracked-file whitespace checks passed.
+- [ ] Verify preview deployment and callback configuration.
+- [ ] Test missing, invalid and conflicting return references in browser.
+- [ ] Test signed-out return, account isolation, verification errors and retry.
+- [ ] Test a fresh TEST checkout through automatic return and saved Profile status.
+- [ ] Test repeat return without duplicate records or changed expiry.
+- [ ] Browser testing of TEST status lookup failure and retry.
+- [ ] Recovery of abandoned or uncertain attempts.
+- [ ] Correct misleading unresolved-checkout messaging for succeeded attempts.
+- [ ] Signed webhooks and subscription lifecycle handling.
+- [ ] Production payment-to-Pro activation and full release checks.
+
+The new callback flow is implemented but has not passed browser testing.
+Existing checkout URLs retain their original callback configuration.
+TEST payment persistence does not unlock production Pro features.
+Paid launch readiness remains unverified.
+Main JavaScript bundle warning remains: 684.68 kB, gzip 174.84 kB.
+
+
+## 23 September 2026: Monthly TEST callback browser checkpoint
+
+- [x] GitHub commit afe7ab4 confirmed on READY Vercel branch preview.
+- [x] Missing-reference return displays an error without confirming payment.
+- [x] Back to Profile opens Profile and removes the return path.
+- [x] Conflicting reference and trxref parameters are rejected.
+- [x] Unknown reference returns Payment attempt not found.
+- [x] Retrying an unknown reference preserves the error.
+- [x] Signed-out return requires sign-in and resumes verification afterward.
+- [x] Sign-in succeeded after reviewing Turnstile preview hostname configuration.
+- [x] Fresh monthly R59 TEST checkout returned to the verification screen and showed verified and saved.
+- [x] Profile showed monthly TEST access and expiry, with checkout buttons hidden.
+- [x] Supabase confirmed one subscription and one entitlement for the new payment.
+- [x] Reopening the payment and refreshing passed.
+- [x] Database recheck confirmed unchanged record counts and expiry.
+- [x] A different signed-in account could not verify the payment.
+- [x] Profile status lookup failure showed an error and retry without checkout buttons.
+- [x] Restoring connectivity and retrying restored the correct account display.
+
+Verified monthly expiry remained 2026-10-23T07:24:42Z
+(23 October 2026 at 09:24:42 SAST).
+
+Remaining callback checks:
+- [ ] Fresh annual checkout through automatic return.
+- [ ] Verification network failure or timeout followed by successful retry.
+- [ ] Duplicate reference parameters and malformed reference browser checks.
+
+Remaining billing work:
+- [ ] Recovery of abandoned or uncertain attempts.
+- [ ] Correct misleading unresolved-checkout messaging for succeeded payments while preserving duplicate-purchase protection.
+- [ ] Signed webhooks, renewals, cancellation, expiry and failed-payment handling.
+- [ ] Production activation and full release checks.
+
+These results update the pending browser checks in the earlier implementation entry.
+Monthly TEST callback and Profile display are verified.
+TEST billing does not unlock production Pro features.
+Full payment lifecycle and paid launch readiness remain unverified.
+
+## 5 October 2026: Release baseline
+
+- [x] Clean cloud checkout matches remote feature/paystack-test-initialization at 4fb07cec623adba1a4f7f2e593889d5299c51bf9.
+- [x] Existing Vercel branch preview is READY at that commit.
+- [x] Supabase BaristaLog is ACTIVE_HEALTHY; all three TEST billing migrations are applied.
+- [x] npm ci, TypeScript, all 103 automated Paystack tests and production build passed on Node 24.19.0 before changes.
+- [x] Added npm test for all tests/*.test.cjs files.
+- [x] Added npm run check: typecheck, tests, then production build; stops on failure.
+- [x] Added GitHub release-check workflow on branch pushes, pull requests and manual runs, using Node 24 and npm ci without application secrets.
+- [ ] Confirm new checkpoint CI and Vercel preview after push.
+- [ ] Confirm owner's Windows checkout matches the new remote checkpoint and passes npm run check.
+
+Paystack remains TEST-only. No main merge, payment configuration changes or database mutations are part of this baseline. Automated tests use fixtures; they do not replace checkout/browser or database integration checks. Existing bundle warning remains: 684.68 kB (174.80 kB gzip).
+
+### Next launch work, in order
+
+1. Finish TEST callback checks: fresh annual checkout, network failure/timeout and retry, duplicate parameters and malformed references. Verify ownership, record counts and unchanged expiry on repeat calls.
+2. Resolve abandoned/uncertain attempts and succeeded-payment checkout messaging without allowing duplicate purchases.
+3. Implement and verify signed TEST webhooks and lifecycle handling: duplicate events, renewals, cancellations, expiry and failed payments.
+4. Define and verify Pro feature access against trusted entitlements. Keep TEST access isolated and do not enable live payments.
+5. Add browser image conversion before upload: maximum 1600 px on the longest edge, preserve aspect ratio, adaptive WebP compression, target <=750 KB, hard maximum 1 MB. Reject uploads that cannot meet the maximum; confirm actual WebP output. New uploads must be WebP. Preserve existing JPG/PNG images and their display during migration. Eventually restrict Supabase Storage to image/webp after compatible upload paths are deployed and verified. Do not rewrite or delete existing images as part of that restriction.
+6. Complete core workflow and account-isolation checks, image/storage validation, export and deletion checks, and bundle/data-usage review.
+7. Run closed beta, resolve release blockers, verify deployment operations and document recovery steps.
+8. Assess Android/iOS packaging, store payment requirements and hosting costs before choosing the release route. Live payment activation and main merge require a separate release decision.
+
+## 5 October 2026: Windows baseline and dependency audit follow-up
+
+- [x] Owner's Windows output confirms clean feature branch synced to cafcafe166775d6a41149a2b612e60de6d3f2fd8.
+- [x] Windows npm run check shows TypeScript and all 103 tests passing, followed by Vite build completion. Uploaded output ends before the final PWA summary/exit status.
+- [x] GitHub Release check passed and Vercel preview was READY at cafcafe.
+- [x] Investigated npm audit's 3 high and 1 moderate findings in build-tool dependencies.
+- [x] Updated only affected transitive dependency families in package-lock.json: baseline-browser-mapping, browserslist and its data dependencies, both brace-expansion copies, and fast-uri. Direct dependencies and application code are unchanged.
+- [x] npm audit now reports zero known vulnerabilities.
+- [x] Fresh npm ci followed by npm run check passes in cloud: TypeScript, 103 tests, Vite build and PWA generation.
+
+Next: sync this dependency checkpoint on Windows and complete the remaining TEST callback browser checks. Paystack stays TEST-only. Existing bundle warning remains.
+
+## 5 October 2026: Annual TEST recovery and repeat verification savepoint
+
+- [x] Dependency checkpoint 22b6bd3 passed GitHub CI and reached READY on Vercel. Owner subsequently reported Windows sync/check complete.
+- [x] Fresh annual R499 TEST checkout created on 5 October at 10:59:17 UTC.
+- [ ] Automatic callback acceptance: return showed Payment attempt not found while the browser displayed an older monthly account. Account mismatch was reported; original callback hostname is still unknown.
+- [x] Recovered the existing transaction through /payments/return on the latest preview while signed into the checkout account. Owner confirmed saved and verified.
+- [x] Read-only Supabase check confirmed pro_annual, 49900 ZAR cents, succeeded, and verification timestamp 2026-10-05T11:05:44.79698Z.
+- [x] Exactly one TEST subscription and one TEST entitlement were saved.
+- [x] Period starts 2026-10-05T10:59:26Z and expires 2027-10-05T10:59:26Z (5 October 2027 at 12:59:26 SAST).
+- [x] Owner reopened the verification link and refreshed, then confirmed saved and verified again. Database recheck confirmed one subscription, one entitlement and unchanged expiry.
+
+The initial error did not prove a failed payment. Existing monthly access belonged to an earlier payment and did not confirm this annual purchase. Reopening the completed Paystack checkout displayed a transaction-cannot-start message; verifying the existing transaction recovered it without another checkout.
+
+### Resume here
+
+1. Inspect PAYSTACK_TEST_CALLBACK_URL and identify the original returned Brewprint hostname. The owner supplied a checkout.paystack.com link, which does not identify the callback hostname. Check preview-origin/session mismatch and provide a clear account recovery flow while preserving ownership checks.
+2. Finish callback browser coverage: verification network failure/timeout and retry, duplicate reference parameters, malformed references, then a clean automatic return on the intended account/origin.
+3. Continue the ordered launch work above: unresolved-attempt recovery, signed TEST webhooks/lifecycle, entitlement integration, then WebP uploads and remaining release checks.
+
+Paystack remains TEST-only. Production Pro is not unlocked by TEST entitlements. No main merge. No application code or database mutation was made during this recovery investigation. Annual verification and repeat persistence pass; automatic callback handling remains open.

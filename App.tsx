@@ -20,6 +20,7 @@ import BrewForm from './components/BrewForm';
 import CoffeeBeanForm from './components/CoffeeBeanForm';
 import ProfileModal from './components/ProfileModal';
 import ProfileView from './components/ProfileView';
+import TestPaymentReturn from './components/TestPaymentReturn';
 import DeleteAccountModal from './components/DeleteAccountModal';
 import GrindReference from './components/GrindReference';
 import AnalyticsView from './components/AnalyticsView';
@@ -1865,6 +1866,9 @@ const brewAgainFromLog = (
   // Route handling and authenticated app shell
   // ----------------------------------------------------------
 
+  const [paymentReturnDismissed, setPaymentReturnDismissed] =
+    useState(false);
+
   const pathname =
     window.location.pathname.replace(/\/+$/, '') || '/';
 
@@ -1882,6 +1886,43 @@ const brewAgainFromLog = (
 
   if (!user || passwordRecovery) {
     return <AuthScreen />;
+  }
+
+  if (
+    pathname === '/payments/return'
+    && !paymentReturnDismissed
+  ) {
+    const params = new URLSearchParams(window.location.search);
+    const references = params.getAll('reference');
+    const transactionReferences = params.getAll('trxref');
+
+    // Accept one reference, or matching Paystack reference/trxref values.
+    // Reject duplicate parameters and conflicting values.
+    const unambiguous =
+      references.length <= 1
+      && transactionReferences.length <= 1
+      && (
+        references.length === 0
+        || transactionReferences.length === 0
+        || references[0] === transactionReferences[0]
+      );
+
+    const reference = unambiguous
+      ? references[0] ?? transactionReferences[0] ?? null
+      : null;
+
+    return (
+      <TestPaymentReturn
+        key={JSON.stringify([user.id, reference])}
+        userId={user.id}
+        reference={reference}
+        onContinue={() => {
+          window.history.replaceState(null, '', '/');
+          setPaymentReturnDismissed(true);
+          goToTab('profile');
+        }}
+      />
+    );
   }
 
   if (
