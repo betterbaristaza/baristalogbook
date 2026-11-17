@@ -86,9 +86,6 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   const monthlyLoading =
     checkoutPlan === 'pro_monthly';
 
-  const annualLoading =
-    checkoutPlan === 'pro_annual';
-
   return (
     <div className="space-y-8">
       <section className="border-b border-[var(--bp-line)] pb-6">
@@ -127,7 +124,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2">
+          <div className="grid grid-cols-1">
             <div className="border-b border-[var(--bp-line)] p-4 sm:border-b-0 sm:border-r">
               <p className="bp-label text-[var(--bp-muted)]">
                 Role
@@ -284,11 +281,11 @@ const ProfileView: React.FC<ProfileViewProps> = ({
               </h3>
 
               <p className="mt-3 max-w-md text-sm leading-relaxed text-[var(--bp-muted)]">
-                Choose a Brewprint Pro plan. Checkout is currently running in Paystack TEST mode.
+                Brewprint Pro is R59 per month. Checkout is currently running in Paystack TEST mode.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2">
+            <div className="grid grid-cols-1">
               <button
                 type="button"
                 disabled={Boolean(checkoutPlan)}
@@ -297,7 +294,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
                     'pro_monthly'
                   )
                 }
-                className="min-h-28 border-b border-[var(--bp-line)] p-5 text-left disabled:cursor-wait disabled:opacity-60 sm:border-b-0 sm:border-r"
+                className="min-h-28 p-5 text-left disabled:cursor-wait disabled:opacity-60"
               >
                 <p className="bp-label text-[var(--bp-muted)]">
                   Monthly
@@ -318,34 +315,6 @@ const ProfileView: React.FC<ProfileViewProps> = ({
                 </p>
               </button>
 
-              <button
-                type="button"
-                disabled={Boolean(checkoutPlan)}
-                onClick={() =>
-                  void handleStartCheckout(
-                    'pro_annual'
-                  )
-                }
-                className="min-h-28 p-5 text-left disabled:cursor-wait disabled:opacity-60"
-              >
-                <p className="bp-label text-[var(--bp-muted)]">
-                  Annual
-                </p>
-
-                <p className="bp-measurement mt-2 text-2xl font-semibold text-[var(--bp-blue)]">
-                  R499
-                </p>
-
-                <p className="bp-code mt-1 text-[var(--bp-muted)]">
-                  per year
-                </p>
-
-                <p className="bp-label mt-4 text-[var(--bp-orange)]">
-                  {annualLoading
-                    ? 'Starting checkout...'
-                    : 'Choose Annual →'}
-                </p>
-              </button>
             </div>
 
             <div className="border-t border-[var(--bp-line)] px-5 py-4">

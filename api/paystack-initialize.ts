@@ -172,7 +172,7 @@ export default async function handler(req: any, res: any) {
 
   const { planCode, idempotencyKey } = body;
 
-  if (planCode !== 'pro_monthly' && planCode !== 'pro_annual') {
+  if (planCode !== 'pro_monthly') {
     return res.status(400).json({
       error: 'Invalid plan',
     });
@@ -195,13 +195,10 @@ export default async function handler(req: any, res: any) {
   const secret = process.env.PAYSTACK_SECRET_KEY;
   const callbackUrl = getTestCallbackUrl();
 
-  const monthly = planCode === 'pro_monthly';
-  const amount = monthly ? 5900 : 49900;
-  const interval = monthly ? 'monthly' : 'annually';
+  const amount = 5900;
+  const interval = 'monthly';
 
-  const providerPlan = monthly
-    ? process.env.PAYSTACK_PLAN_PRO_MONTHLY
-    : process.env.PAYSTACK_PLAN_PRO_ANNUAL;
+  const providerPlan = process.env.PAYSTACK_PLAN_PRO_MONTHLY;
 
   if (
     !url
